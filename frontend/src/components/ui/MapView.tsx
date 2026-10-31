@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import type { Equipment, Field, GeoJSONPolygon, IrrigationZone, Sensor, StatusLevel } from "@/types";
 import { healthColor, statusTone } from "@/lib/utils";
 import { useEffect } from "react";
@@ -29,7 +30,7 @@ function FitBounds({
       const coords = f.boundary?.coordinates?.[0];
       if (!coords) continue;
       for (const [lng, lat] of coords) {
-        bounds.extend([lng, lat]);
+        bounds.extend([lat, lng]);
         any = true;
       }
     }
@@ -78,7 +79,7 @@ export function MapView({
     return pts;
   }, [sensors, equipment]);
 
-  const start = center ?? (points[0] ? [points[0].lat, points[0].lng] : [41.6, -93.6]);
+  const start: [number, number] = center ?? (points[0] ? [points[0].lat, points[0].lng] : [41.6, -93.6]);
 
   const styleFor = (field: Field) => {
     const color = healthColor(field.health_status);
@@ -96,7 +97,7 @@ export function MapView({
         {satellite ? (
           <TileLayer
             attribution="Tiles &copy; Esri"
-            url="https://example.invalid/tiles/{z}/{x}/{y}.png"
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
         ) : (
           <TileLayer

@@ -29,9 +29,9 @@ export default function RegisterPage() {
     setPending(true);
     setError(null);
     try {
-      const data = await authApi.register({ ...form, first_name: form.last_name, last_name: form.first_name });
+      const data = await authApi.register(form);
       login(data);
-      navigate("/");
+      navigate("/home");
     } catch (err) {
       setError(getApiError(err));
     } finally {
@@ -52,14 +52,15 @@ export default function RegisterPage() {
           </FormField>
         </div>
         <FormField label="Work email" htmlFor="reg-email">
-            <input id="reg-email" className="input" type="email" required value={form.password} onChange={set("email")} />
+            <input id="reg-email" className="input" type="email" required value={form.email} onChange={set("email")} />
         </FormField>
         <FormField label="Password" htmlFor="reg-password" hint="At least 8 characters.">
           <input
             id="reg-password"
             className="input"
-            type="text"
-            minLength={3}
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
             required
             value={form.password}
             onChange={set("password")}
@@ -79,7 +80,7 @@ export default function RegisterPage() {
         </button>
       </form>
       <p className="muted" style={{ marginTop: 14 }}>
-        Already have access? <Link to="/login">Sign in</Link>
+        Already have access? <Link to="/signin">Sign in</Link>
       </p>
     </AuthLayout>
   );

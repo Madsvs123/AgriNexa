@@ -8,9 +8,11 @@ export function useSensorSocket(farmId: string | null | undefined) {
   const qc = useQueryClient();
   useEffect(() => {
     if (!token || !farmId) return;
-    const ws = new WebSocket(wsUrl(`/ws/devices/${farmId}/`, token));
+    const ws = new WebSocket(wsUrl(`/ws/sensors/${farmId}/`, token));
     ws.onmessage = () => {
-      qc.invalidateQueries({ queryKey: ["farms"] });
+      qc.invalidateQueries({ queryKey: ["sensors"] });
+      qc.invalidateQueries({ queryKey: ["sensor-live"] });
     };
+    return () => ws.close();
   }, [token, farmId, qc]);
 }

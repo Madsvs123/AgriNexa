@@ -65,7 +65,7 @@ export default function InventoryDetailPage() {
         <StatCard label="Unit cost" value={item.unit_cost != null ? `$${item.unit_cost}` : "—"} />
         <StatCard
           label="Status"
-          value={<StatusBadge status={item.quantity >= item.reorder_level ? "warning" : "healthy"} />}
+          value={<StatusBadge status={item.quantity <= item.reorder_level ? "warning" : "healthy"} />}
         />
       </div>
       <section className="card card-pad">
@@ -84,7 +84,7 @@ export default function InventoryDetailPage() {
             <option value="in">Receipt (in)</option>
             <option value="out">Issue (out)</option>
             <option value="adjust">Adjust</option>
-            <option value="transfer">Transfer</option>
+            <option value="harvest">Harvest</option>
           </select>
         </FormField>
         <FormField label="Notes" htmlFor="mnotes">

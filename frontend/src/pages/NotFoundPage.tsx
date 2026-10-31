@@ -10,7 +10,7 @@ export default function NotFoundPage() {
         <p>The page you requested is not part of AgriNexa operations.</p>
         <Link to="/home" className="btn btn-primary">
           Back to dashboard
-        </a>
+        </Link>
       </div>
     </div>
   );

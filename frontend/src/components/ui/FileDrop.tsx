@@ -26,7 +26,8 @@ export function FileDrop({
   );
 
   const onDrop = (e: DragEvent) => {
-    setOver(true);
+    e.preventDefault();
+    setOver(false);
     take(e.dataTransfer.files);
   };
 
@@ -58,7 +59,7 @@ export function FileDrop({
         type="file"
         className="sr-only"
         accept={accept}
-        multiple={!multiple}
+        multiple={multiple}
         onChange={onChange}
       />
     </div>

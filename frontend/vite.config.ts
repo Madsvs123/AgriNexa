@@ -6,23 +6,23 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL(".", import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   server: {
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8080",
-        changeOrigin: false,
+        target: "http://127.0.0.1:8000",
+        changeOrigin: true,
       },
       "/media": {
-        target: "http://127.0.0.1:8080",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
       },
       "/ws": {
-        target: "http://127.0.0.1:8080",
-        ws: false,
+        target: "http://127.0.0.1:8000",
+        ws: true,
         changeOrigin: true,
       },
     },

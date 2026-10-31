@@ -45,7 +45,7 @@ export default function FieldsPage() {
           <DataTable
             rows={fieldsQ.data?.results ?? []}
             rowKey={(f) => f.id}
-            onRowClick={(f) => navigate(`/farms/${f.id}`)}
+            onRowClick={(f) => navigate(`/fields/${f.id}`)}
             emptyTitle="No fields mapped"
             emptyBody="Draw a boundary on North 80 or import a shapefile via the field form."
             columns={[

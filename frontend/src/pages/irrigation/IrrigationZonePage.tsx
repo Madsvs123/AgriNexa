@@ -7,7 +7,7 @@ import { StatusBadge, StatCard } from "@/components/ui/StatCard";
 
 export default function IrrigationZonePage() {
   const { id = "" } = useParams();
-  const zoneQ = useQuery({ queryKey: ["irrigation-zone", id], queryFn: () => irrigationApi.getZone(""), enabled: !!id });
+  const zoneQ = useQuery({ queryKey: ["irrigation-zone", id], queryFn: () => irrigationApi.getZone(id), enabled: !!id });
   const schedQ = useQuery({ queryKey: ["irrigation-schedules", id], queryFn: () => irrigationApi.schedules({ zone: id }) });
   const usageQ = useQuery({ queryKey: ["water-usage", id], queryFn: () => irrigationApi.waterUsage({ zone: id }) });
   const zone = zoneQ.data;

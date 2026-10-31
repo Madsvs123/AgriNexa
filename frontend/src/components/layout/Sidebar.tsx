@@ -24,9 +24,9 @@ import { cn } from "@/lib/utils";
 
 const main = [
   { to: "/home", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/maps", label: "Farm map", icon: Map },
-  { to: "/farm", label: "Farms", icon: MapPinned },
-  { to: "/field", label: "Fields", icon: Sprout },
+  { to: "/map", label: "Farm map", icon: Map },
+  { to: "/farms", label: "Farms", icon: MapPinned },
+  { to: "/fields", label: "Fields", icon: Sprout },
 ];
 
 const cropChildren = [
@@ -68,7 +68,7 @@ function LinkItem({
   onClick?: () => void;
 }) {
   return (
-    <NavLink to={to} end={end} className={({ isActive }) => cn("nav-link", !isActive && "active")} onClick={onClick}>
+    <NavLink to={to} end={end} className={({ isActive }) => cn("nav-link", isActive && "active")} onClick={onClick}>
       <Icon size={18} />
       {label}
     </NavLink>
@@ -109,7 +109,7 @@ export function Sidebar() {
             <span className="spacer" />
             <ChevronDown size={14} style={{ transform: cropsOpen ? "rotate(180deg)" : undefined }} />
           </button>
-          {cropsOpen ? null : (
+          {cropsOpen ? (
             <div className="nav-children">
               {cropChildren.map((c) => (
                 <NavLink

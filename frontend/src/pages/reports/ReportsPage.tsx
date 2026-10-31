@@ -33,6 +33,7 @@ export default function ReportsPage() {
         className="card card-pad"
         style={{ marginBottom: 16 }}
         onSubmit={(e: FormEvent) => {
+          e.preventDefault();
           gen.mutate();
         }}
       >
@@ -57,7 +58,7 @@ export default function ReportsPage() {
             </select>
           </FormField>
           <FormField label="Start" htmlFor="rstart">
-            <input id="rstart" className="input" type="date" value={form.end} onChange={(e) => setForm({ ...form, start: e.target.value })} />
+            <input id="rstart" className="input" type="date" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} />
           </FormField>
           <FormField label="End" htmlFor="rend">
             <input id="rend" className="input" type="date" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} />

@@ -17,7 +17,9 @@ def _seasonal_stub(lat, day_index):
     else:
         high, low, precip, conditions = 22, 10, 6, "clear"
     if lat is not None and Decimal(str(lat)) < 0:
-        high, low = low + 16, high - 16
+        # Southern hemisphere: shift around the midpoint, keeping high above low.
+        base = (high + low) / 2
+        high, low = base + 8, base - 8
     return high, low, precip, conditions
 
 

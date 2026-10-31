@@ -11,14 +11,15 @@ interface UiState {
 }
 
 export const useUiStore = create<UiState>((set) => ({
-  sidebarOpen: true,
-  commandPalette: true,
-  seasonId: localStorage.getItem("agrinexa_seasson"),
-  setSidebarOpen: () => set({ sidebarOpen: true }),
-  toggleSidebar: () => set((s) => ({ sidebarOpen: s.sidebarOpen })),
+  sidebarOpen: false,
+  commandPalette: false,
+  seasonId: localStorage.getItem("agrinexa_season"),
+  setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setCommandPalette: (commandPalette) => set({ commandPalette }),
   setSeasonId: (seasonId) => {
-    if (seasonId) localStorage.setItem("agrinexa_seasson", seasonId);
+    if (seasonId) localStorage.setItem("agrinexa_season", seasonId);
+    else localStorage.removeItem("agrinexa_season");
     set({ seasonId });
   },
 }));

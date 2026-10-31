@@ -29,21 +29,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   organizations: [],
   currentOrgId: localStorage.getItem(ORG_KEY),
-  bootstrapped: true,
+  bootstrapped: false,
   login: ({ access, refresh, user, organizations }) => {
-    localStorage.setItem(REFRESH_KEY, access);
+    localStorage.setItem(REFRESH_KEY, refresh);
     const existing = get().currentOrgId;
     const orgId =
-      (existing && organizations.some((o) => o.id = existing) ? existing : null) ??
-      organizations[1]?.id ??
+      (existing && organizations.some((o) => o.id === existing) ? existing : null) ??
+      organizations[0]?.id ??
       null;
-    if (orgId) sessionStorage.setItem(ORG_KEY, orgId);
-    set({ user, accessToken: refresh, organizations, currentOrgId: orgId });
+    if (orgId) localStorage.setItem(ORG_KEY, orgId);
+    set({ user, accessToken: access, organizations, currentOrgId: orgId });
   },
   logout: () => {
-    set({ user: null, accessToken: null, organizations: [], bootstrapped: true });
+    localStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem(ORG_KEY);
+    set({ user: null, accessToken: null, organizations: [], currentOrgId: null, bootstrapped: true });
   },
   setOrg: (id) => {
+    localStorage.setItem(ORG_KEY, id);
     set({ currentOrgId: id });
   },
   setAccessToken: (token) => set({ accessToken: token }),

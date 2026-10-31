@@ -7,7 +7,9 @@ class EquipmentSerializer(serializers.ModelSerializer):
     farm_name = serializers.CharField(source="farm.name", read_only=True)
     assigned_field_name = serializers.CharField(source="assigned_field.name", read_only=True, default=None)
     make = serializers.CharField(source="manufacturer", required=False, allow_blank=True)
-    type = serializers.CharField(source="equipment_type", required=False)
+    type = serializers.ChoiceField(
+        source="equipment_type", choices=Equipment.EquipmentType.choices, required=False
+    )
 
     class Meta:
         model = Equipment

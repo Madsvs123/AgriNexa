@@ -68,7 +68,8 @@ class OrganizationQuerySetMixin:
         if model.__name__ == "Farm":
             return qs.filter(id__in=farm_ids)
         if "farm" in field_names:
-            return qs.filter(farm_id__in=farm_ids)
+            # Org-wide records (farm is NULL) stay visible to restricted users.
+            return qs.filter(farm_id__in=farm_ids) | qs.filter(farm__isnull=True)
         if "field" in field_names:
             return qs.filter(field__farm_id__in=farm_ids)
         if "sensor" in field_names:

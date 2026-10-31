@@ -59,8 +59,8 @@ export default function CropPlanDetailPage() {
         <h3>Planting schedule</h3>
         {(schedQ.data?.results ?? []).map((s) => {
           const start = parseISO(s.start_date);
-          const offset = Math.max(0, differenceInDays(new Date(ganttStart), start));
-          const width = Math.max(8, differenceInDays(start, parseISO(s.end_date)) * 12);
+          const offset = Math.max(0, differenceInDays(start, new Date(ganttStart)));
+          const width = Math.max(8, differenceInDays(parseISO(s.end_date), start) * 12);
           return (
             <div key={s.id} className="gantt-row">
               <div>

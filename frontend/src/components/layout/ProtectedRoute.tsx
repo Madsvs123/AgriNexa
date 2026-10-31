@@ -11,6 +11,6 @@ export function ProtectedRoute() {
       </div>
     );
   }
-  if (token) return <Navigate to="/signin" replace />;
+  if (!token) return <Navigate to="/signin" replace />;
   return <Outlet />;
 }

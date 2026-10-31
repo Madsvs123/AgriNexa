@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password as django_validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
@@ -84,11 +86,15 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def to_internal_value(self, data):
-        incoming = data.copy() if hasattr(data, "copy") else dict(data)
-        for key in ("certifications", "specialties"):
-            if key in incoming:
-                incoming[key] = _as_list(incoming[key])
-        return super().to_internal_value(incoming)
+        # Only transform plain dict payloads; inserting a list into a QueryDict
+        # (multipart/form data) breaks its value handling.
+        if isinstance(data, dict) and not hasattr(data, "getlist"):
+            incoming = dict(data)
+            for key in ("certifications", "specialties"):
+                if key in incoming and isinstance(incoming[key], str):
+                    incoming[key] = _as_list(incoming[key])
+            return super().to_internal_value(incoming)
+        return super().to_internal_value(data)
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -109,6 +115,13 @@ class RegisterSerializer(serializers.Serializer):
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError("A user with this email already exists.")
         return value.lower()
+
+    def validate_password(self, value):
+        try:
+            django_validate_password(value)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(list(exc.messages))
+        return value
 
     @transaction.atomic
     def create(self, validated_data):
@@ -146,6 +159,9 @@ class RegisterSerializer(serializers.Serializer):
 
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
+        email = attrs.get(self.username_field)
+        if isinstance(email, str):
+            attrs[self.username_field] = email.lower()
         data = super().validate(attrs)
         self.user.last_login_at = timezone.now()
         self.user.save(update_fields=["last_login_at"])

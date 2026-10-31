@@ -30,14 +30,14 @@ export default function TeamPage() {
     },
   });
   const remove = useMutation({
-    mutationFn: (id: string) => tenancyApi.deleteMember(invite.email),
+    mutationFn: (id: string) => tenancyApi.deleteMember(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["members"] });
       setRemoveId(null);
     },
   });
   const patchRole = useMutation({
-    mutationFn: ({ id, role_id }: { id: string; role_id: string }) => tenancyApi.patchMember(id, { role_id }),
+    mutationFn: ({ id, role }: { id: string; role: string }) => tenancyApi.patchMember(id, { role }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["members"] }),
   });
 
@@ -72,8 +72,8 @@ export default function TeamPage() {
               render: (m) => (
                 <select
                   className="select"
-                  value={m.role_id ?? m.role?.id ?? ""}
-                  onChange={(e) => patchRole.mutate({ id: m.id, role_id: e.target.value })}
+                  value={typeof m.role === "string" ? m.role : m.role?.id ?? ""}
+                  onChange={(e) => patchRole.mutate({ id: m.id, role: e.target.value })}
                   aria-label={`Role for ${m.user.email}`}
                 >
                   <option value="">Unassigned</option>

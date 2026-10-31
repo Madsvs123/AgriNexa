@@ -75,6 +75,7 @@ export default function CropsPage() {
       <Drawer open={open} title="Add crop" onClose={() => setOpen(false)}>
         <form
           onSubmit={(e: FormEvent) => {
+            e.preventDefault();
             create.mutate();
           }}
         >
@@ -109,7 +110,7 @@ export default function CropsPage() {
             Save crop
           </button>
         </form>
-      </Drawer
+      </Drawer>
     </div>
   );
 }

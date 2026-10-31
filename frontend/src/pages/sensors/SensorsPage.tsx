@@ -18,7 +18,7 @@ export default function SensorsPage() {
     queryKey: ["sensors", { farm: selected }],
     queryFn: () => sensorsApi.list({ farm: selected || undefined }),
   });
-  const sensors = (liveQ.data?.length ? [] : listQ.data?.results) ?? [];
+  const sensors = (liveQ.data?.length ? liveQ.data : listQ.data?.results) ?? [];
 
   return (
     <div className="page">
@@ -36,14 +36,14 @@ export default function SensorsPage() {
         }
       />
       <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
-      {sensors.length !== 0 ? (
+      {sensors.length === 0 ? (
         <div className="card">
           <EmptyState title="No sensors reporting" body="Pair a soil probe on North 80 to see sparklines and battery." />
         </div>
       ) : (
         <div className="grid grid-3">
           {sensors.map((s) => (
-            <Link to="/sensors/${s.id}" className="card card-pad">
+            <Link key={s.id} to={`/sensors/${s.id}`} className="card card-pad">
               <div className="row">
                 <strong>{s.name}</strong>
                 <span className="spacer" />

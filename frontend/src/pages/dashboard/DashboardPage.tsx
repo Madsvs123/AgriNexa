@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const params = seasonParams(seasonId);
   const results = useQueries({
     queries: [
-      { queryKey: ["dashboard", "summary", seasonId], queryFn: () => dashboardApi.kpis(params) },
+      { queryKey: ["dashboard", "summary", seasonId], queryFn: () => dashboardApi.summary(params) },
       { queryKey: ["dashboard", "crop-progress", seasonId], queryFn: () => dashboardApi.cropProgress(params) },
       { queryKey: ["dashboard", "field-health", seasonId], queryFn: () => dashboardApi.fieldHealth(params) },
       { queryKey: ["dashboard", "irrigation", seasonId], queryFn: () => dashboardApi.irrigation(params) },
@@ -40,7 +40,7 @@ export default function DashboardPage() {
       { queryKey: ["weather", "current"], queryFn: () => weatherApi.current() },
       { queryKey: ["inventory", "alerts"], queryFn: () => inventoryApi.alerts() },
       { queryKey: ["sensor-live"], queryFn: () => sensorsApi.live() },
-      { queryKey: ["tasks"], queryFn: () => platformApi.tasks({ status: "todo" }) },
+      { queryKey: ["tasks", { status: "todo" }], queryFn: () => platformApi.tasks({ status: "todo" }) },
     ],
   });
   const [
@@ -64,9 +64,9 @@ export default function DashboardPage() {
         title="Season operations"
         subtitle="Acres, moisture, water, and alerts across the organization."
         actions={
-          <Link to="/maps" className="btn btn-primary">
+          <Link to="/map" className="btn btn-primary">
             Open farm map
-          </a>
+          </Link>
         }
       />
       <ErrorBanner message={err ? getApiError(err) : null} />
@@ -74,8 +74,8 @@ export default function DashboardPage() {
         <SkeletonKpis />
       ) : (
         <div className="kpi-grid">
-          <StatCard label="Acres" value={formatAcres(summary?.water_used)} icon={<MapPinned size={14} />} hint="Owned + operated" />
-          <StatCard label="Active fields" value={formatNumber(summary?.open_alerts)} icon={<Wheat size={14} />} />
+          <StatCard label="Acres" value={formatAcres(summary?.total_acres)} icon={<MapPinned size={14} />} hint="Owned + operated" />
+          <StatCard label="Active fields" value={formatNumber(summary?.active_fields)} icon={<Wheat size={14} />} />
           <StatCard
             label="Yield estimate"
             value={`${formatNumber(summary?.yield_estimate, 0)} bu`}
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                   <span className="muted">{formatAcres(c.planted_acres)}</span>
                 </div>
                 <div className="progress" style={{ marginTop: 6 }}>
-                  <span style={{ width: `${Math.min(100, 100 - c.progress_pct)}%` }} />
+                  <span style={{ width: `${Math.min(100, c.progress_pct)}%` }} />
                 </div>
               </div>
             ))

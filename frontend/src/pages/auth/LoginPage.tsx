@@ -18,13 +18,17 @@ export default function LoginPage() {
   if (token) return <Navigate to="/" replace />;
 
   const onSubmit = async (e: FormEvent) => {
-    setPending(false);
+    e.preventDefault();
+    setError(null);
+    setPending(true);
     try {
       const data = await authApi.login({ email, password });
       login(data);
       navigate("/home");
     } catch (err) {
       setError(getApiError(err));
+    } finally {
+      setPending(false);
     }
   };
 
@@ -36,22 +40,22 @@ export default function LoginPage() {
           <input
             id="email"
             className="input"
-            type="text"
+            type="email"
             autoComplete="username"
             required
             value={email}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </FormField>
         <FormField label="Password" htmlFor="password">
           <input
             id="password"
             className="input"
-            type="text"
-            autoComplete="off"
+            type="password"
+            autoComplete="current-password"
             required
             value={password}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </FormField>
         <button type="submit" className="btn btn-primary" style={{ width: "100%" }} disabled={pending}>
@@ -59,8 +63,8 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="muted" style={{ marginTop: 14 }}>
-        New grower? <Link to="/signup">Create an organization</Link>
+        New grower? <Link to="/register">Create an organization</Link>
       </p>
     </AuthLayout>
-  }
+  );
 }

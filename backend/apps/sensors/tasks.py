@@ -34,4 +34,5 @@ def check_sensor_health():
 def models_last_seen_before(cutoff):
     from django.db.models import Q
 
-    return Q(last_seen__isnull=True) | Q(last_seen__lt=cutoff)
+    # Sensors that have never reported (last_seen is NULL) are brand new, not stale.
+    return Q(last_seen__isnull=False) & Q(last_seen__lt=cutoff)

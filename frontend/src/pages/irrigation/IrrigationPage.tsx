@@ -18,15 +18,13 @@ export default function IrrigationPage() {
   const [minutes, setMinutes] = useState("30");
   const [reason, setReason] = useState("Manual soak ahead of heat");
   const override = useMutation({
-    mutationFn: () => irrigationApi.override(overrideId!, { duration_minutes: Number(minutes), reason }),
+    mutationFn: () => irrigationApi.override(overrideId!, { duration_minutes: Number(minutes), notes: reason }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["irrigation-zones"] });
       setOverrideId(null);
     },
   });
-  const dismissed = useMutation({
-    mutationFn: async () => undefined,
-  });
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
   return (
     <div className="page">
@@ -36,7 +34,7 @@ export default function IrrigationPage() {
         {(zonesQ.data?.results ?? []).map((z) => (
           <article key={z.id} className="card card-pad">
             <div className="row">
-            <Link to={`/irrigation/${z.id}`}>
+            <Link to={`/irrigation/zones/${z.id}`}>
                 <strong>{z.name}</strong>
               </Link>
               <span className="spacer" />
@@ -81,7 +79,7 @@ export default function IrrigationPage() {
         </section>
         <section className="card card-pad">
           <h3>Recommendations</h3>
-          {(recQ.data ?? []).map((r) => (
+          {(recQ.data ?? []).filter((r) => !dismissedIds.includes(r.id)).map((r) => (
             <div key={r.id} className="card card-pad" style={{ marginBottom: 8, boxShadow: "none" }}>
               <div className="row">
                 <StatusBadge status={r.priority} />
@@ -93,7 +91,7 @@ export default function IrrigationPage() {
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => setOverrideId(r.zone)}>
                   Apply
                 </button>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => dismissed.mutate()}>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDismissedIds((ids) => [...ids, r.id])}>
                   Dismiss
                 </button>
               </div>

@@ -21,6 +21,18 @@ class RegionSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "organization", "created_at", "updated_at")
 
+    def validate(self, attrs):
+        name = attrs.get("name", getattr(self.instance, "name", None))
+        request = self.context.get("request")
+        org = getattr(request, "organization", None) if request else None
+        if name and org:
+            qs = Region.objects.filter(organization=org, name=name)
+            if self.instance is not None:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError({"name": "A region with this name already exists."})
+        return attrs
+
 
 class FarmSerializer(serializers.ModelSerializer):
     region_name = serializers.CharField(source="region.name", read_only=True, default=None)
@@ -131,7 +143,7 @@ class FieldNoteSerializer(serializers.ModelSerializer):
     author_email = serializers.CharField(source="author.email", read_only=True, default=None)
     author_name = serializers.CharField(source="author.full_name", read_only=True, default=None)
     field_name = serializers.CharField(source="field.name", read_only=True)
-    body = serializers.CharField(source="content")
+    body = serializers.CharField(source="content", required=False)
 
     class Meta:
         model = FieldNote
@@ -151,6 +163,13 @@ class FieldNoteSerializer(serializers.ModelSerializer):
             "updated_at",
         )
         read_only_fields = ("id", "author", "created_at", "updated_at")
+        extra_kwargs = {"content": {"required": False}}
+
+    def validate(self, attrs):
+        # `body` is an alias for `content`; both map to the content attribute.
+        if self.instance is None and not attrs.get("content"):
+            raise serializers.ValidationError({"content": "Either 'content' or 'body' is required."})
+        return attrs
 
 
 class CropHistorySerializer(serializers.ModelSerializer):

@@ -40,7 +40,7 @@ export function AuthLayout({
           {children}
           {footer ? <div style={{ marginTop: 18 }}>{footer}</div> : null}
           <p className="muted" style={{ marginTop: 24, fontSize: 13 }}>
-            <Link to="/signin">Sign in</Link> · <Link to="/signup">Create organization</Link>
+            <Link to="/signin">Sign in</Link> · <Link to="/register">Create organization</Link>
           </p>
         </div>
       </section>

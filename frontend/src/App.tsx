@@ -67,13 +67,13 @@ function AuthBootstrap() {
         return;
       }
       try {
-        const { data } = await axios.post<{ access: string; refresh?: string }>("/api/auth/token/", { refresh });
+        const { data } = await axios.post<{ access: string; refresh?: string }>("/api/auth/refresh/", { refresh });
         if (data.refresh) localStorage.setItem(REFRESH_KEY, data.refresh);
         setAccessToken(data.access);
         const [user, orgs] = await Promise.all([authApi.me(), tenancyApi.organizations()]);
         if (cancelled) return;
-        setUser(orgs.results as never);
-        setOrganizations([user] as never);
+        setUser(user);
+        setOrganizations(orgs.results);
       } catch {
         if (!cancelled) logout();
       } finally {
@@ -99,6 +99,7 @@ export default function App() {
         <Route path="/invites/:token" element={<InvitePage />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
+            <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<DashboardPage />} />
             <Route path="/farms/:id" element={<FarmDetailPage />} />
             <Route path="/farms" element={<FarmsPage />} />
@@ -107,6 +108,7 @@ export default function App() {
             <Route path="/fields" element={<FieldsPage />} />
             <Route path="/fields/:id" element={<FieldDetailPage />} />
             <Route path="/fields/new" element={<FieldFormPage />} />
+            <Route path="/fields/:id/edit" element={<FieldFormPage />} />
             <Route path="/crops" element={<CropsPage />} />
         <Route path="/crops/plans/:id" element={<CropPlanDetailPage />} />
             <Route path="/crops/plans" element={<CropPlansPage />} />
@@ -144,7 +146,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/signin" replace />} />
       </Routes>
     </>
   );

@@ -18,7 +18,7 @@ Backend:
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate    # Windows: .venv\Scripts\activate
 ```
 
 ```bash
@@ -27,7 +27,8 @@ pip install -r requirements.txt
 
 ```bash
 python manage.py migrate
-python manage.py runserver
+python manage.py seed_demo   # optional demo data (farmer@agrinexa.local / Farmland#2026)
+python manage.py runserver   # serves http://127.0.0.1:8000
 ```
 
 Frontend:
@@ -35,10 +36,12 @@ Frontend:
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev                  # serves http://localhost:5173, proxies /api and /ws to :8000
 ```
 
-Use PostgreSQL and Redis when the project expects them. Copy `.env.example` to `.env` where an example file is present, and keep real secrets out of git.
+The backend expects PostgreSQL (configure via `POSTGRES_*` env vars) and Redis (for Channels websockets and Celery). `python manage.py runserver` and the REST API work without Redis; live websockets and background jobs need it. Keep real secrets out of git — set `DJANGO_SECRET_KEY` and friends through the environment in production.
+
+Run the backend test suite with `python manage.py test apps`, and the frontend type check with `npm run typecheck`.
 
 ## License
 

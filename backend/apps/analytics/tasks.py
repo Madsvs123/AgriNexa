@@ -65,7 +65,7 @@ def generate_report(report_id):
         payload["farms"] = Farm.objects.filter(organization=org).count()
         payload["fields"] = Field.objects.filter(farm__organization=org).count()
         content = json.dumps(payload, indent=2, default=str)
-        report.file.save(f"reports/{report.id}.json", ContentFile(content.encode("utf-8")), save=False)
+        report.file.save(f"{report.id}.json", ContentFile(content.encode("utf-8")), save=False)
         report.status = Report.Status.READY
         report.save(update_fields=["file", "status", "updated_at"])
         return True

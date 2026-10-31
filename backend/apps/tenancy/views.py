@@ -44,7 +44,7 @@ class OrganizationViewSet(TenantModelViewSet):
         return [IsAuthenticated()]
 
     @action(detail=True, methods=["get", "patch", "put"], url_path="settings")
-    def settings(self, request, pk=None):
+    def org_settings(self, request, pk=None):
         org = self.get_object()
         if request.method == "GET":
             return Response(OrganizationSettingsSerializer(org).data)
@@ -90,6 +90,13 @@ class RoleViewSet(TenantModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(organization=self.request.organization)
+
+    def perform_update(self, serializer):
+        if serializer.instance.is_system:
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError({"detail": "System roles cannot be modified."})
+        serializer.save()
 
     def perform_destroy(self, instance):
         if instance.is_system:
@@ -169,7 +176,7 @@ class InvitationViewSet(TenantModelViewSet):
         self._send_invite_email(invitation)
 
     def _send_invite_email(self, invitation):
-        accept_url = f"{settings.FRONTEND_URL}/invite/{invitation.token}"
+        accept_url = f"{settings.FRONTEND_URL}/invites/{invitation.token}"
         send_mail(
             subject=f"Invitation to join {invitation.organization.name} on AgriNexa",
             message=f"You have been invited to join {invitation.organization.name}. Accept: {accept_url}",
@@ -211,8 +218,14 @@ class InvitationViewSet(TenantModelViewSet):
                 {"detail": "This invitation was sent to a different email address", "code": "email_mismatch"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if user is None:
-            user = User.objects.filter(email__iexact=invitation.email).first()
+        if user is None and User.objects.filter(email__iexact=invitation.email).exists():
+            # Never mint tokens for an existing account off an invite token alone:
+            # the inviter knows the token, so this would allow account takeover.
+            return Response(
+                {"detail": "An account with this email already exists. Sign in, then accept the invitation.",
+                 "code": "login_required"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
         if user is None:
             password = serializer.validated_data.get("password")
             if not password:
@@ -229,12 +242,21 @@ class InvitationViewSet(TenantModelViewSet):
             FarmerProfile.objects.get_or_create(user=user)
 
         with transaction.atomic():
-            Membership.objects.update_or_create(
+            membership, created = Membership.objects.get_or_create(
                 user=user,
                 organization=invitation.organization,
                 defaults={"role": invitation.role, "is_active": True, "is_owner": False},
             )
-            for farm_id in invitation.farm_ids or []:
+            if not created:
+                membership.role = invitation.role
+                membership.is_active = True
+                membership.save(update_fields=["role", "is_active", "updated_at"])
+            from apps.farms.models import Farm
+
+            valid_farm_ids = Farm.objects.filter(
+                organization=invitation.organization, pk__in=invitation.farm_ids or []
+            ).values_list("pk", flat=True)
+            for farm_id in valid_farm_ids:
                 FarmAccess.objects.get_or_create(
                     user=user,
                     farm_id=farm_id,

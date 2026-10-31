@@ -20,7 +20,7 @@ export default function InvitePage() {
     setPending(true);
     setError(null);
     try {
-      const data = await tenancyApi.acceptInvitation(firstName, {
+      const data = await tenancyApi.acceptInvitation(token ?? "", {
         password: password || undefined,
         first_name: firstName,
         last_name: lastName,
@@ -32,10 +32,10 @@ export default function InvitePage() {
           user: data.user,
           organizations: data.organizations ?? (data.organization ? [data.organization] : []),
         });
-        navigate("/dashboard");
+        navigate("/home");
         return;
       }
-      navigate("/login");
+      navigate("/signin");
     } catch (err) {
       setError(getApiError(err));
     } finally {
@@ -60,7 +60,7 @@ export default function InvitePage() {
               id="inv-first"
               className="input"
               value={firstName}
-            onChange={(e) => setLastName(e.target.value)}
+              onChange={(e) => setFirstName(e.target.value)}
             />
           </FormField>
           <FormField label="Last name" htmlFor="inv-last">
@@ -71,8 +71,9 @@ export default function InvitePage() {
           <input
             id="inv-pass"
             className="input"
-            type="text"
-            minLength={3}
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

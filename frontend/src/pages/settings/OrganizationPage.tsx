@@ -21,8 +21,8 @@ export default function OrganizationPage() {
   const [name, setName] = useState("");
   const [settings, setSettings] = useState({
     timezone: "America/Chicago",
-    unit_system: "metric" as "imperial" | "metric",
-    currency: "EUR",
+    unit_system: "imperial" as "imperial" | "metric",
+    currency: "USD",
     season_start_month: "3",
     legal_name: "",
     tax_id: "",
@@ -45,6 +45,8 @@ export default function OrganizationPage() {
   }, [settingsQ.data]);
 
   const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!orgId) return;
     setError(null);
     try {
       await tenancyApi.patchOrganization(orgId, { name });

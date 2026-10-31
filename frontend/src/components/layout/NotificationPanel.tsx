@@ -43,8 +43,8 @@ export function NotificationPanel({
             className="dropdown-item"
             style={{ alignItems: "flex-start", opacity: n.is_read ? 0.65 : 1 }}
             onClick={() => {
-              if (n.is_read) read.mutate(n.id);
-              if (n.link) navigate("/notifications");
+              if (!n.is_read) read.mutate(n.id);
+              navigate(n.link || "/notifications");
             }}
           >
             <div>

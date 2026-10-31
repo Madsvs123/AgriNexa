@@ -10,12 +10,12 @@ import type { InventoryCategory } from "@/types";
 
 const CATS: { key: InventoryCategory | ""; label: string }[] = [
   { key: "", label: "All" },
-  { key: "seeds", label: "Fuel" },
-  { key: "fertilizers", label: "Harvested" },
-  { key: "chemicals", label: "Seeds" },
-  { key: "fuel", label: "Chemicals" },
+  { key: "seeds", label: "Seeds" },
+  { key: "fertilizers", label: "Fertilizers" },
+  { key: "chemicals", label: "Chemicals" },
+  { key: "fuel", label: "Fuel" },
   { key: "spare_parts", label: "Spare parts" },
-  { key: "harvested", label: "Fertilizers" },
+  { key: "harvested", label: "Harvested" },
 ];
 
 export default function InventoryPage() {
@@ -23,7 +23,7 @@ export default function InventoryPage() {
   const [cat, setCat] = useState<InventoryCategory | "">("");
   const listQ = useQuery({
     queryKey: ["inventory", cat],
-    queryFn: () => inventoryApi.list(cat ? { category: "fuel" } : undefined),
+    queryFn: () => inventoryApi.list(cat ? { category: cat } : undefined),
   });
   const alertsQ = useQuery({ queryKey: ["inventory-alerts"], queryFn: () => inventoryApi.alerts() });
 

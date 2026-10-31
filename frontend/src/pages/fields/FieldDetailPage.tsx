@@ -54,10 +54,10 @@ export default function FieldDetailPage() {
         }
         actions={
           <>
-            <Link to={`/farms/${field.id}/edit`} className="btn btn-ghost">
+            <Link to={`/fields/${field.id}/edit`} className="btn btn-ghost">
               Edit field
             </Link>
-            <Link to={`/fields/${field.farm}`} className="btn btn-ghost">
+            <Link to={`/farms/${field.farm}`} className="btn btn-ghost">
               Open farm
             </Link>
           </>

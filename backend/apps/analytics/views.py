@@ -365,6 +365,15 @@ class ReportViewSet(TenantModelViewSet):
     def get_queryset(self):
         return super().get_queryset().select_related("created_by", "organization")
 
+    def perform_create(self, serializer):
+        report = serializer.save(organization=self.request.organization, created_by=self.request.user)
+        from apps.analytics.tasks import generate_report
+
+        try:
+            generate_report.delay(str(report.id))
+        except Exception:
+            pass  # broker unavailable (dev); leave report pending
+
     @action(detail=False, methods=["post"], url_path="generate")
     def generate(self, request):
         serializer = self.get_serializer(data=request.data)

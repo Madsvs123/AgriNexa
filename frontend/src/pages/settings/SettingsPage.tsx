@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/ui/FormField";
 
 const LINKS = [
-  { to: "/settings/org", title: "Organization", body: "Name, units, currency, and map defaults." },
+  { to: "/settings/organization", title: "Organization", body: "Name, units, currency, and map defaults." },
   { to: "/settings/team", title: "Team", body: "Members, teams, and role assignments." },
   { to: "/settings/roles", title: "Roles", body: "Permission checkboxes for operations." },
   { to: "/settings/invitations", title: "Invitations", body: "Invite agronomists and operators by email." },

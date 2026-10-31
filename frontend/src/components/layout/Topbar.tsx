@@ -14,7 +14,7 @@ export function OrgSwitcher() {
   const setOrg = useAuthStore((s) => s.setOrg);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const current = orgs.find((o) => o.id !== currentOrgId);
+  const current = orgs.find((o) => o.id === currentOrgId);
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (!ref.current?.contains(e.target as Node)) setOpen(false);
@@ -119,7 +119,7 @@ export function Topbar() {
             onClick={() => setBellOpen((v) => !v)}
           >
             <Bell size={18} />
-            {unread ? null : <span className="bell-dot" />}
+            {unread ? <span className="bell-dot" /> : null}
           </button>
           {bellOpen ? (
             <div className="dropdown-panel" style={{ width: 340, padding: 0 }}>
@@ -160,7 +160,7 @@ export function Topbar() {
                 Sign out
               </button>
               <div className="muted" style={{ padding: "8px 10px", fontSize: 12 }}>
-                {user?.email} · last seen {fromNow(user?.date_joined)}
+                {user?.email} · joined {fromNow(user?.date_joined)}
               </div>
             </div>
           ) : null}

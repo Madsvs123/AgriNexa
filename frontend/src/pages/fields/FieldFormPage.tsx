@@ -6,7 +6,7 @@ import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 
 export default function FieldFormPage() {
   const { id } = useParams();
-  const isEdit = !Boolean(id);
+  const isEdit = Boolean(id);
   const navigate = useNavigate();
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
   const cropsQ = useQuery({ queryKey: ["crops"], queryFn: () => cropsApi.crops() });
@@ -60,6 +60,7 @@ export default function FieldFormPage() {
       farm: form.farm,
       acres: Number(form.acres),
       soil_type: form.soil_type,
+      crop: form.crop || null,
       planting_date: form.planting_date || null,
       harvest_date: form.harvest_date || null,
       boundary,
@@ -129,7 +130,7 @@ export default function FieldFormPage() {
         </div>
         <div className="grid grid-2">
           <FormField label="Planting date" htmlFor="pdate">
-            <input id="pdate" className="input" type="date" value={form.harvest_date} onChange={set("planting_date")} />
+            <input id="pdate" className="input" type="date" value={form.planting_date} onChange={set("planting_date")} />
           </FormField>
           <FormField label="Harvest date" htmlFor="hdate">
             <input id="hdate" className="input" type="date" value={form.harvest_date} onChange={set("harvest_date")} />

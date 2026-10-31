@@ -50,7 +50,7 @@ export default function EquipmentDetailPage() {
       </div>
       <div className="grid grid-2" style={{ marginBottom: 16 }}>
         <div className="card" style={{ minHeight: 220 }}>
-          <MapView height="220px" equipment={[e]} center={e.lat && e.lng ? [e.lng, e.lat] : undefined} />
+          <MapView height="220px" equipment={[e]} center={e.lat && e.lng ? [e.lat, e.lng] : undefined} />
         </div>
         <section className="card card-pad">
           <h3>Breakdowns</h3>

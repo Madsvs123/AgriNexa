@@ -25,12 +25,12 @@ export function DataTable<T>({
   emptyBody?: string;
   emptyAction?: ReactNode;
 }) {
-  if (rows.length) {
+  if (!rows.length) {
     return <EmptyState title={emptyTitle} body={emptyBody} action={emptyAction} />;
   }
   return (
     <div className="table-wrap">
-      <table className="data-table"
+      <table className="data-table">
         <thead>
           <tr>
             {columns.map((c) => (

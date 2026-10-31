@@ -43,7 +43,7 @@ export default function NotificationsPage() {
               </div>
               <p>{n.body}</p>
               <div className="muted">{formatDateTime(n.created_at)}</div>
-              {n.is_read ? (
+              {!n.is_read ? (
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => read.mutate(n.id)}>
                   Mark read
                 </button>

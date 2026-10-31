@@ -15,7 +15,7 @@ export function FormField({
 }) {
   return (
     <div className="form-field">
-      <label htmlFor={htmlFor}>{label}</label
+      <label htmlFor={htmlFor}>{label}</label>
       {children}
       {hint && !error ? <span className="hint">{hint}</span> : null}
       {error ? <span className="error">{error}</span> : null}
@@ -62,7 +62,7 @@ export function SkeletonBlock({ rows = 4 }: { rows?: number }) {
   return (
     <div className="card card-pad">
       {Array.from({ length: rows }).map((_, i) => (
-        <div className="skeleton skel-row" style={{ width: `${88 - i * 8}%` }} />
+        <div key={i} className="skeleton skel-row" style={{ width: `${88 - i * 8}%` }} />
       ))}
     </div>
   );

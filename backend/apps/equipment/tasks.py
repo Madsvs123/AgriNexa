@@ -4,6 +4,7 @@ from celery import shared_task
 @shared_task
 def flag_due_maintenance():
     from apps.equipment.models import MaintenanceSchedule
+    from apps.platform.models import Notification
     from apps.platform.services import create_notification
 
     count = 0
@@ -17,6 +18,14 @@ def flag_due_maintenance():
         count += 1
         org = equipment.farm.organization
         for membership in org.memberships.filter(is_active=True).select_related("user"):
+            if Notification.objects.filter(
+                user=membership.user,
+                organization=org,
+                category="equipment",
+                link=f"/equipment/{equipment.id}",
+                is_read=False,
+            ).exists():
+                continue
             create_notification(
                 user=membership.user,
                 organization=org,

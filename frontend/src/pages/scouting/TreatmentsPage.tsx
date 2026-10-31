@@ -22,7 +22,7 @@ export default function TreatmentsPage() {
     status: "planned",
   });
   const create = useMutation({
-    mutationFn: () => scoutingApi.createTreatment({ ...form, field: form.product }),
+    mutationFn: () => scoutingApi.createTreatment({ ...form, field: form.field }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["treatments"] });
       setOpen(false);

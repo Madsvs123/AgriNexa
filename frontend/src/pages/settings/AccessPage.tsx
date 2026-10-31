@@ -66,7 +66,7 @@ export default function AccessPage() {
                   <tr key={m.id}>
                     <td>{displayName(m.user.first_name, m.user.last_name, m.user.email)}</td>
                     <td>
-                      <input type="checkbox" checked={!row.can_view} onChange={(e) => save({ can_view: !e.target.checked })} aria-label="Can view" />
+                      <input type="checkbox" checked={row.can_view} onChange={(e) => save({ can_view: e.target.checked })} aria-label="Can view" />
                     </td>
                     <td>
                       <input type="checkbox" checked={row.can_edit} onChange={(e) => save({ can_edit: e.target.checked })} aria-label="Can edit" />

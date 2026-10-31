@@ -22,7 +22,7 @@ export default function DocumentsPage() {
       fd.append("title", title);
       fd.append("category", category);
       if (farm) fd.append("farm", farm);
-      if (file) fd.append("upload", file);
+      if (file) fd.append("file", file);
       return platformApi.uploadDocument(fd);
     },
     onSuccess: () => {

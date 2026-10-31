@@ -23,7 +23,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-        read_only_fields = ("id", "slug", "created_at", "updated_at")
+        read_only_fields = ("id", "slug", "is_active", "created_at", "updated_at")
 
 
 class OrganizationSettingsSerializer(serializers.Serializer):
@@ -52,7 +52,7 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = ("id", "organization", "name", "is_system", "permissions", "created_at", "updated_at")
-        read_only_fields = ("id", "organization", "created_at", "updated_at")
+        read_only_fields = ("id", "organization", "is_system", "created_at", "updated_at")
 
 
 class MembershipSerializer(serializers.ModelSerializer):
@@ -60,6 +60,18 @@ class MembershipSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source="user", write_only=True, required=False
     )
+
+    def validate_role(self, role):
+        request = self.context.get("request")
+        org = getattr(request, "organization", None) if request else None
+        if role is not None and org is not None and role.organization_id != org.id:
+            raise serializers.ValidationError("Role does not belong to this organization.")
+        return role
+
+    def validate(self, attrs):
+        if self.instance is None and not attrs.get("user"):
+            raise serializers.ValidationError({"user_id": "This field is required."})
+        return attrs
     role_name = serializers.CharField(source="role.name", read_only=True)
     email = serializers.EmailField(source="user.email", read_only=True)
 
@@ -78,7 +90,7 @@ class MembershipSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-        read_only_fields = ("id", "organization", "created_at", "updated_at")
+        read_only_fields = ("id", "organization", "is_owner", "created_at", "updated_at")
 
 
 class TeamMembershipSerializer(serializers.ModelSerializer):
@@ -116,6 +128,8 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invitation
+        # The token is deliberately excluded: it is a bearer credential and is
+        # only ever delivered to the invitee by email.
         fields = (
             "id",
             "organization",
@@ -123,7 +137,6 @@ class InvitationSerializer(serializers.ModelSerializer):
             "role",
             "role_name",
             "farm_ids",
-            "token",
             "invited_by",
             "invited_by_email",
             "expires_at",
@@ -134,13 +147,33 @@ class InvitationSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "organization",
-            "token",
             "invited_by",
             "expires_at",
             "accepted_at",
             "status",
             "created_at",
         )
+
+    def validate_role(self, role):
+        request = self.context.get("request")
+        org = getattr(request, "organization", None) if request else None
+        if role is not None and org is not None and role.organization_id != org.id:
+            raise serializers.ValidationError("Role does not belong to this organization.")
+        return role
+
+    def validate_farm_ids(self, farm_ids):
+        request = self.context.get("request")
+        org = getattr(request, "organization", None) if request else None
+        if farm_ids and org is not None:
+            from apps.farms.models import Farm
+
+            valid = set(
+                str(pk) for pk in Farm.objects.filter(organization=org, pk__in=farm_ids).values_list("pk", flat=True)
+            )
+            invalid = [str(f) for f in farm_ids if str(f) not in valid]
+            if invalid:
+                raise serializers.ValidationError("Unknown farms for this organization.")
+        return farm_ids
 
 
 class AcceptInvitationSerializer(serializers.Serializer):

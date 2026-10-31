@@ -1,5 +1,9 @@
+import uuid
+from datetime import datetime, time
+
 from django.db.models import OuterRef, Q, Subquery
 from django.utils import timezone
+from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,6 +19,20 @@ from apps.sensors.serializers import (
 )
 
 
+def _parse_dt_param(value):
+    if not value:
+        return None
+    dt = parse_datetime(value)
+    if dt is None:
+        day = parse_date(value)
+        if day is None:
+            return None
+        dt = datetime.combine(day, time.min)
+    if timezone.is_naive(dt):
+        dt = timezone.make_aware(dt)
+    return dt
+
+
 class SensorTypeViewSet(TenantModelViewSet):
     serializer_class = SensorTypeSerializer
     queryset = SensorType.objects.all()
@@ -27,6 +45,20 @@ class SensorTypeViewSet(TenantModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(organization=self.request.organization)
+
+    def _reject_builtin(self, instance):
+        if instance.organization_id is None:
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied("Built-in sensor types cannot be modified.")
+
+    def perform_update(self, serializer):
+        self._reject_builtin(serializer.instance)
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        self._reject_builtin(instance)
+        instance.delete()
 
 
 class SensorViewSet(TenantModelViewSet):
@@ -50,6 +82,12 @@ class SensorViewSet(TenantModelViewSet):
         sensor = self.get_object()
         if request.method == "GET":
             qs = SensorReading.objects.filter(sensor=sensor)
+            start = _parse_dt_param(request.query_params.get("start"))
+            end = _parse_dt_param(request.query_params.get("end"))
+            if start:
+                qs = qs.filter(recorded_at__gte=start)
+            if end:
+                qs = qs.filter(recorded_at__lte=end)
             page = self.paginate_queryset(qs)
             if page is not None:
                 return self.get_paginated_response(SensorReadingSerializer(page, many=True).data)
@@ -94,7 +132,11 @@ class SensorViewSet(TenantModelViewSet):
         farm_id = request.query_params.get("farm")
         qs = self.get_queryset()
         if farm_id:
-            qs = qs.filter(farm_id=farm_id)
+            try:
+                qs = qs.filter(farm_id=uuid.UUID(farm_id))
+            except (TypeError, ValueError):
+                pass  # ignore invalid farm filter
+
         latest = SensorReading.objects.filter(sensor=OuterRef("pk")).order_by("-recorded_at")
         qs = qs.annotate(
             latest_recorded_at=Subquery(latest.values("recorded_at")[:1]),

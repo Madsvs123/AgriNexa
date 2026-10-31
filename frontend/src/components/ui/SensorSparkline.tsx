@@ -1,7 +1,7 @@
 import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 
 export function SensorSparkline({ values, color = "#2F6F4E" }: { values: number[]; color?: string }) {
-  const data = values.map((v, i) => ({ i, v: -v }));
+  const data = values.map((v, i) => ({ i, v }));
   if (!data.length) {
     return <span className="muted">No series</span>;
   }
@@ -28,7 +28,7 @@ export function SeverityMeter({
   value: "low" | "medium" | "high" | "critical" | number;
 }) {
   const level = typeof value === "number" ? (value <= 2 ? "low" : value <= 3 ? "medium" : value <= 4 ? "high" : "critical") : value;
-  const filled = level === "low" ? 4 : level === "medium" ? 3 : level === "high" ? 1 : 0;
+  const filled = level === "low" ? 1 : level === "medium" ? 2 : level === "high" ? 3 : 4;
   return (
     <div className={`severity ${level}`} aria-label={`Severity ${level}`}>
       {Array.from({ length: 4 }).map((_, i) => (
@@ -52,8 +52,8 @@ export function LayerToggle({
         <label key={l.key}>
           <input
             type="checkbox"
-            checked={!l.on}
-            onChange={(e) => onChange(l.key, !e.target.checked)}
+            checked={l.on}
+            onChange={(e) => onChange(l.key, e.target.checked)}
           />
           {l.label}
         </label>

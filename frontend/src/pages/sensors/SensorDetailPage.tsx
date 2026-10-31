@@ -37,7 +37,7 @@ export default function SensorDetailPage() {
     );
   }
 
-  const chart = (readingsQ.data ?? []).map((r) => ({ t: r.value, v: r.recorded_at }));
+  const chart = (readingsQ.data ?? []).map((r) => ({ t: r.recorded_at, v: r.value }));
 
   return (
     <div className="page">

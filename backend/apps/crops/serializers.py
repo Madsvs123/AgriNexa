@@ -30,6 +30,18 @@ class CropSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "organization", "created_at", "updated_at")
 
+    def validate(self, attrs):
+        name = attrs.get("name", getattr(self.instance, "name", None))
+        request = self.context.get("request")
+        org = getattr(request, "organization", None) if request else None
+        if name and org:
+            qs = Crop.objects.filter(organization=org, name=name)
+            if self.instance is not None:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError({"name": "A crop with this name already exists."})
+        return attrs
+
 
 class CropVarietySerializer(serializers.ModelSerializer):
     crop_name = serializers.CharField(source="crop.name", read_only=True)

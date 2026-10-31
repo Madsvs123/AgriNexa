@@ -16,9 +16,10 @@ export function Modal({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter") onClose();
+      if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -60,9 +61,10 @@ export function Drawer({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter") onClose();
+      if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -114,7 +116,7 @@ export function ConfirmDialog({
           <button type="button" className="btn btn-ghost" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className={danger ? "btn btn-primary" : "btn btn-danger"} onClick={onClose}>
+          <button type="button" className={danger ? "btn btn-danger" : "btn btn-primary"} onClick={onConfirm}>
             {confirmLabel}
           </button>
         </>

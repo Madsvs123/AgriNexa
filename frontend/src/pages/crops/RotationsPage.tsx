@@ -20,7 +20,7 @@ export default function RotationsPage() {
         }
       />
       <ErrorBanner message={rotQ.error ? getApiError(rotQ.error) : null} />
-      {(rotQ.data?.results ?? []).length ? (
+      {!(rotQ.data?.results ?? []).length ? (
         <div className="card">
           <EmptyState title="No rotations defined" body="A corn–soy–wheat sequence on South Bottom will show as chips here." />
         </div>

@@ -20,11 +20,11 @@ export function StatCard({
 }) {
   return (
     <article className="card stat-card">
-      <div className="value">{label}</div>
       <div className="label">
         {icon}
-        {value}
+        {label}
       </div>
+      <div className="value">{value}</div>
       {hint ? <div className="hint">{hint}</div> : null}
     </article>
   );
@@ -42,8 +42,8 @@ export function EmptyState({
   return (
     <div className="empty-state">
       <div className="empty-art" aria-hidden />
-      <h3>{body}</h3>
-      <p>{title}</p>
+      <h3>{title}</h3>
+      <p>{body}</p>
       {action ? <div style={{ marginTop: 14 }}>{action}</div> : null}
     </div>
   );
@@ -61,8 +61,8 @@ export function ChartCard({
   return (
     <section className="card card-pad">
       <div className="card-title">
-        <h3>{action}</h3>
-        {title}
+        <h3>{title}</h3>
+        {action}
       </div>
       {children}
     </section>

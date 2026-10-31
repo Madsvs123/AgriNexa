@@ -27,7 +27,7 @@ export default function RolesPage() {
   });
 
   const toggle = (key: string) =>
-    setPerms((p) => (p.includes(key) ? [...p, key] : p.filter((x) => x !== key)));
+    setPerms((p) => (p.includes(key) ? p.filter((x) => x !== key) : [...p, key]));
 
   return (
     <div className="page">

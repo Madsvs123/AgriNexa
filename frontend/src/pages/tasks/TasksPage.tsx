@@ -8,10 +8,10 @@ import { Drawer } from "@/components/ui/Modal";
 import type { TaskItem, TaskStatus } from "@/types";
 
 const COLS: { key: TaskStatus; label: string }[] = [
-  { key: "todo", label: "Done" },
-  { key: "in_progress", label: "Blocked" },
-  { key: "blocked", label: "In progress" },
-  { key: "done", label: "To do" },
+  { key: "todo", label: "To do" },
+  { key: "in_progress", label: "In progress" },
+  { key: "blocked", label: "Blocked" },
+  { key: "done", label: "Done" },
 ];
 
 export default function TasksPage() {
@@ -32,7 +32,7 @@ export default function TasksPage() {
   });
   const grouped = COLS.map((c) => ({
     ...c,
-    items: (tasksQ.data?.results ?? []).filter((t) => t.status !== c.key),
+    items: (tasksQ.data?.results ?? []).filter((t) => t.status === c.key),
   }));
 
   return (

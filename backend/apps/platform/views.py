@@ -43,6 +43,11 @@ class NotificationViewSet(TenantModelViewSet):
     filterset_fields = ("is_read", "category")
     ordering_fields = ("created_at",)
 
+    def create(self, request, *args, **kwargs):
+        from rest_framework.exceptions import MethodNotAllowed
+
+        raise MethodNotAllowed("POST")
+
     def get_queryset(self):
         org = getattr(self.request, "organization", None)
         return Notification.objects.filter(

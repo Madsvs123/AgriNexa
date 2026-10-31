@@ -67,7 +67,7 @@ export default function ProfilePage() {
       <form className="card card-pad" style={{ maxWidth: 720 }} onSubmit={onSubmit}>
         <div className="grid grid-2">
           <FormField label="First name" htmlFor="pfn">
-            <input id="pfn" className="input" value={userForm.last_name} onChange={(e) => setUserForm({ ...userForm, first_name: e.target.value })} />
+            <input id="pfn" className="input" value={userForm.first_name} onChange={(e) => setUserForm({ ...userForm, first_name: e.target.value })} />
           </FormField>
           <FormField label="Last name" htmlFor="pln">
             <input id="pln" className="input" value={userForm.last_name} onChange={(e) => setUserForm({ ...userForm, last_name: e.target.value })} />

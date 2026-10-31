@@ -19,7 +19,7 @@ export function SearchPalette() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen(open);
+        setOpen(!open);
       }
       if (e.key === "Escape") setOpen(false);
     };
@@ -31,7 +31,7 @@ export function SearchPalette() {
     const data = searchQ.data;
     if (!data) return [];
     return [
-      { label: "Farms", items: (data.farms ?? []).map((x) => ({ id: x.id, name: x.name, to: `/farm/${x.id}` })) },
+      { label: "Farms", items: (data.farms ?? []).map((x) => ({ id: x.id, name: x.name, to: `/farms/${x.id}` })) },
       { label: "Fields", items: (data.fields ?? []).map((x) => ({ id: x.id, name: x.name, to: `/fields/${x.id}` })) },
       {
         label: "Equipment",
@@ -59,7 +59,7 @@ export function SearchPalette() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && q.trim()) {
               setOpen(false);
-              navigate(`/find?term=${q}`);
+              navigate(`/search?q=${encodeURIComponent(q)}`);
             }
           }}
         />

@@ -11,14 +11,14 @@ export default function EquipmentPage() {
     <div className="page">
       <PageHeader title="Equipment" subtitle="Fleet hours, fuel, and readiness." />
       <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
-      {(listQ.data?.results ?? []).length !== 0 ? (
+      {(listQ.data?.results ?? []).length === 0 ? (
         <div className="card">
           <EmptyState title="No machines yet" body="Add Planter 12, the 8R, or the tender truck to track hours and fuel." />
         </div>
       ) : (
         <div className="grid grid-3">
           {(listQ.data?.results ?? []).map((e) => (
-            <Link key={e.id} to={`/inventory/${e.id}`} className="card card-pad">
+            <Link key={e.id} to={`/equipment/${e.id}`} className="card card-pad">
               <div className="row">
                 <strong>{e.name}</strong>
                 <span className="spacer" />

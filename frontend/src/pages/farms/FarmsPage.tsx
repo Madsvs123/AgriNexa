@@ -53,7 +53,7 @@ export default function FarmsPage() {
             <DataTable
               rows={farms}
               rowKey={(f) => f.id}
-              onRowClick={(f) => navigate(`/fields/${f.id}`)}
+              onRowClick={(f) => navigate(`/farms/${f.id}`)}
               emptyTitle="No farms yet"
               emptyBody="Create North Ridge or Willow Creek to start mapping fields and sensors."
               emptyAction={
@@ -75,7 +75,7 @@ export default function FarmsPage() {
           <MapView
             height="420px"
             fields={fieldsQ.data?.results ?? []}
-            center={farms[0]?.lat && farms[0]?.lng ? [farms[0].lng, farms[0].lat] : undefined}
+            center={farms[0]?.lat && farms[0]?.lng ? [farms[0].lat, farms[0].lng] : undefined}
           />
         </div>
       </div>

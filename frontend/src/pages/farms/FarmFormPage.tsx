@@ -6,7 +6,7 @@ import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 
 export default function FarmFormPage() {
   const { id } = useParams();
-  const isEdit = !id;
+  const isEdit = Boolean(id);
   const navigate = useNavigate();
   const farmQ = useQuery({ queryKey: ["farm", id], queryFn: () => farmsApi.get(id!), enabled: isEdit });
   const regionsQ = useQuery({ queryKey: ["regions"], queryFn: () => farmsApi.regions() });
@@ -96,10 +96,10 @@ export default function FarmFormPage() {
         </FormField>
         <div className="grid grid-2">
           <FormField label="Latitude" htmlFor="lat">
-            <input id="lat" className="input" value={form.lng} onChange={set("lat")} />
+            <input id="lat" className="input" value={form.lat} onChange={set("lat")} />
           </FormField>
           <FormField label="Longitude" htmlFor="lng">
-            <input id="lng" className="input" value={form.lat} onChange={set("lng")} />
+            <input id="lng" className="input" value={form.lng} onChange={set("lng")} />
           </FormField>
         </div>
         <div className="grid grid-2">

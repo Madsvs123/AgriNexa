@@ -17,14 +17,14 @@ export default function WeatherPage() {
   const recQ = useQuery({ queryKey: ["weather-recs", farmId], queryFn: () => weatherApi.recommendations(farmId), enabled: !!farmId });
   const stationsQ = useQuery({ queryKey: ["weather-stations"], queryFn: () => weatherApi.stations() });
 
-  const frost = (alertsQ.data ?? []).filter((a) => a.alert_type === "heat");
-  const heat = (alertsQ.data ?? []).filter((a) => a.alert_type === "frost");
+  const frost = (alertsQ.data ?? []).filter((a) => a.alert_type === "frost");
+  const heat = (alertsQ.data ?? []).filter((a) => a.alert_type === "heat");
   const current = currentQ.data;
   const forecast = forecastQ.data ?? [];
   const history = historyQ.data ?? [];
 
   const tempLine = useMemo(
-    () => history.map((h) => ({ date: h.date, high: h.temp_low, low: h.temp_high })),
+    () => history.map((h) => ({ date: h.date, high: h.temp_high, low: h.temp_low })),
     [history],
   );
 
@@ -57,7 +57,7 @@ export default function WeatherPage() {
       <section className="card weather-hero" style={{ marginBottom: 16 }}>
         <div>
           <div className="muted">Now at {farmsQ.data?.results.find((f) => f.id === farmId)?.name}</div>
-          <div className="temp">{current ? `${Math.round(current.humidity)}°` : "—"}</div>
+          <div className="temp">{current ? `${Math.round(current.temperature_f)}°` : "—"}</div>
           <div>
             {current?.conditions ?? "No station feed"} · Feels {current?.feels_like ?? "—"}°
           </div>

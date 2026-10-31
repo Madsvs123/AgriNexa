@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/StatCard";
 
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
-  const q = params.get("term") ?? "";
+  const q = params.get("q") ?? "";
   const searchQ = useQuery({
     queryKey: ["search-page", q],
     queryFn: () => platformApi.search(q),
@@ -45,7 +45,7 @@ export default function SearchPage() {
           className="input"
           style={{ minWidth: 280 }}
           value={q}
-          onChange={(e) => setParams({ q: e.target.value })
+          onChange={(e) => setParams({ q: e.target.value })}
           placeholder="North Ridge, Planter 12, MAP 11-52-0…"
           aria-label="Search"
         />

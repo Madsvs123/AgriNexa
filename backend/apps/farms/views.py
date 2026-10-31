@@ -52,11 +52,19 @@ class FarmViewSet(TenantModelViewSet):
             grants = FarmAccess.objects.filter(farm=farm).select_related("user", "farm")
             return Response(FarmAccessSerializer(grants, many=True).data)
 
+        from apps.tenancy.models import Membership
+
+        member_ids = set(
+            str(pk)
+            for pk in Membership.objects.filter(
+                organization=farm.organization, is_active=True
+            ).values_list("user_id", flat=True)
+        )
         data = request.data if isinstance(request.data, list) else [request.data]
         results = []
         for item in data:
             user_id = item.get("user") or item.get("user_id")
-            if not user_id:
+            if not user_id or str(user_id) not in member_ids:
                 continue
             grant, _ = FarmAccess.objects.update_or_create(
                 user_id=user_id,

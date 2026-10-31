@@ -25,7 +25,7 @@ export function AppShell() {
 
   useEffect(() => {
     if (!token) return;
-    const ws = new WebSocket(wsUrl("/ws/alerts/", token));
+    const ws = new WebSocket(wsUrl("/ws/notifications/", token));
     ws.onmessage = () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });

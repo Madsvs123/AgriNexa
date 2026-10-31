@@ -48,10 +48,10 @@ export default function MapPage() {
           sensors={layers.sensors ? sensorsQ.data?.results ?? [] : []}
           equipment={layers.equipment ? equipQ.data?.results ?? [] : []}
           zones={layers.irrigation ? zonesQ.data?.results ?? [] : []}
-          showFields={layers.sensors}
-          showSensors={layers.fields}
-          showEquipment={layers.irrigation}
-          showZones={layers.equipment}
+          showFields={layers.fields}
+          showSensors={layers.sensors}
+          showEquipment={layers.equipment}
+          showZones={layers.irrigation}
           onFieldClick={setPicked}
           center={farm?.lat && farm?.lng ? [Number(farm.lat), Number(farm.lng)] : undefined}
         />

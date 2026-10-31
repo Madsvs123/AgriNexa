@@ -27,7 +27,7 @@ export default function CropPlansPage() {
         <DataTable
           rows={plansQ.data?.results ?? []}
           rowKey={(p) => p.id}
-          onRowClick={(p) => navigate(`/crops/${p.id}`)}
+          onRowClick={(p) => navigate(`/crops/plans/${p.id}`)}
           emptyTitle="No seasonal plans"
           emptyBody="Create a plan for corn on North 80 once the seed is booked."
           columns={[

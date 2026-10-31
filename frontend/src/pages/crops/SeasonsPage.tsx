@@ -53,7 +53,7 @@ export default function SeasonsPage() {
             {
               key: "is_active",
               header: "Status",
-              render: (s) => <StatusBadge status={s.is_active ? "idle" : "healthy"} label={s.is_active ? "Closed" : "Active"} />,
+              render: (s) => <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "Active" : "Closed"} />,
             },
           ]}
         />
@@ -69,7 +69,7 @@ export default function SeasonsPage() {
             <input id="sname" className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="2026" />
           </FormField>
           <FormField label="Start" htmlFor="sstart">
-            <input id="sstart" className="input" type="date" required value={form.end_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+            <input id="sstart" className="input" type="date" required value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
           </FormField>
           <FormField label="End" htmlFor="send">
             <input id="send" className="input" type="date" required value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />

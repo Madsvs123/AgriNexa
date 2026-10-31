@@ -26,7 +26,7 @@ export default function FarmDetailPage() {
 
   const remove = useMutation({
     mutationFn: () => farmsApi.remove(id),
-    onSuccess: () => navigate("/fields"),
+    onSuccess: () => navigate("/farms"),
   });
   const addNote = useMutation({
     mutationFn: () => farmsApi.createNote({ body: note, field: fieldsQ.data?.results[0]?.id }),
@@ -66,7 +66,7 @@ export default function FarmDetailPage() {
         }
         actions={
           <>
-            <Link to={`/farms/${id}/new`} className="btn btn-ghost">
+            <Link to={`/farms/${id}/edit`} className="btn btn-ghost">
               Edit
             </Link>
             <button type="button" className="btn btn-danger" onClick={() => setConfirm(true)}>

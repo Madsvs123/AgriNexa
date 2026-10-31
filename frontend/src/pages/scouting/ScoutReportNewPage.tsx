@@ -33,6 +33,7 @@ export default function ScoutReportNewPage() {
       .map((name) => ({ name, severity: form.severity }));
 
   const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
     setPending(true);
     setError(null);
     try {

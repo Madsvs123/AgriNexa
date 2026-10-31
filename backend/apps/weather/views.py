@@ -1,7 +1,9 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from collections import defaultdict
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils import timezone
+from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -42,7 +44,10 @@ def _farm_from_request(request):
 
     farms = Farm.objects.filter(organization=request.organization)
     if farm_id:
-        return farms.filter(pk=farm_id).first()
+        try:
+            return farms.filter(pk=farm_id).first()
+        except (ValueError, DjangoValidationError):
+            return farms.first()
     return farms.first()
 
 
@@ -122,6 +127,20 @@ class WeatherForecastView(APIView):
         return Response(payload)
 
 
+def _parse_dt_param(value):
+    if not value:
+        return None
+    dt = parse_datetime(value)
+    if dt is None:
+        day = parse_date(value)
+        if day is None:
+            return None
+        dt = datetime.combine(day, time.min)
+    if timezone.is_naive(dt):
+        dt = timezone.make_aware(dt)
+    return dt
+
+
 class WeatherHistoryView(APIView):
     permission_classes = [IsAuthenticated, HasOrganization]
 
@@ -129,11 +148,18 @@ class WeatherHistoryView(APIView):
         farm = _farm_from_request(request)
         if not farm:
             return Response([])
-        days = int(request.query_params.get("days", 14))
+        try:
+            days = int(request.query_params.get("days", 14))
+        except (TypeError, ValueError):
+            days = 14
         since = timezone.now() - timedelta(days=days)
+        start = _parse_dt_param(request.query_params.get("start"))
+        end = _parse_dt_param(request.query_params.get("end"))
         qs = WeatherReading.objects.filter(
-            station__farm=farm, recorded_at__gte=since
+            station__farm=farm, recorded_at__gte=start or since
         ).select_related("station")
+        if end:
+            qs = qs.filter(recorded_at__lte=end)
         by_day = defaultdict(list)
         for reading in qs:
             by_day[reading.recorded_at.date()].append(reading)

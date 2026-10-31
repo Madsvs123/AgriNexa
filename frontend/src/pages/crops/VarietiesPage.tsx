@@ -65,7 +65,7 @@ export default function VarietiesPage() {
             <input id="vname" className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </FormField>
           <FormField label="Crop" htmlFor="vcrop">
-            <select id="vcrop" className="select" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}>
+            <select id="vcrop" className="select" required value={form.crop} onChange={(e) => setForm({ ...form, crop: e.target.value })}>
               <option value="">Select crop</option>
               {(cropsQ.data?.results ?? []).map((c) => (
                 <option key={c.id} value={c.id}>

@@ -71,7 +71,7 @@ import type {
   YieldPoint,
 } from "@/types";
 
-const SKIP_REFRESH = ["/api/auth/register/"];
+const SKIP_REFRESH = ["/api/auth/register/", "/api/auth/login/", "/api/auth/refresh/"];
 
 export const api = axios.create({
   baseURL: "",
@@ -82,10 +82,10 @@ api.interceptors.request.use((config) => {
   const { accessToken, currentOrgId } = useAuthStore.getState();
   config.headers = config.headers ?? {};
   if (accessToken) {
-    config.headers.Authorization = `Token ${accessToken}`;
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   if (currentOrgId) {
-    config.headers["X-Org-ID"] = currentOrgId;
+    config.headers["X-Organization-ID"] = currentOrgId;
   }
   if (typeof FormData !== "undefined" && config.data instanceof FormData) {
     delete (config.headers as Record<string, unknown>)["Content-Type"];
@@ -112,7 +112,7 @@ api.interceptors.response.use(
     const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
     const url = original?.url ?? "";
     if (
-      error.response?.status === 403 &&
+      error.response?.status === 401 &&
       original &&
       !original._retry &&
       !SKIP_REFRESH.some((p) => url.includes(p))
@@ -142,6 +142,13 @@ export function getApiError(err: unknown): string {
     const data = err.response?.data as Record<string, unknown> | string | undefined;
     if (!data) return err.message || "Request failed.";
     if (typeof data === "string") return data;
+    const fieldErrors = data.errors;
+    if (fieldErrors && typeof fieldErrors === "object") {
+      const parts = Object.entries(fieldErrors as Record<string, unknown>).map(([key, value]) =>
+        `${key}: ${Array.isArray(value) ? value.join(" ") : String(value)}`,
+      );
+      if (parts.length) return parts.join(" ");
+    }
     if (typeof data.detail === "string") return data.detail;
     if (Array.isArray(data.detail)) return data.detail.map(String).join(" ");
     const parts: string[] = [];
@@ -171,14 +178,14 @@ export const authApi = {
     first_name: string;
     last_name: string;
     organization_name: string;
-  }) => api.post<AuthResponse>("/api/auth/signup/", body).then((r) => r.data),
+  }) => api.post<AuthResponse>("/api/auth/register/", body).then((r) => r.data),
   login: (body: { email: string; password: string }) =>
-    api.get<AuthResponse>("/api/auth/login/", { params: body }).then((r) => r.data),
+    api.post<AuthResponse>("/api/auth/login/", body).then((r) => r.data),
   refresh: (refresh: string) =>
-    api.post<{ access: string; refresh?: string }>("/api/auth/refresh/", { token: refresh }).then((r) => r.data),
-  logout: (refresh: string) => api.get("/api/auth/logout/", { params: { refresh } }),
+    api.post<{ access: string; refresh?: string }>("/api/auth/refresh/", { refresh }).then((r) => r.data),
+  logout: (refresh: string) => api.post("/api/auth/logout/", { refresh }),
   me: () =>
-    api.get<User & { user?: User }>("/api/users/me").then((r) => {
+    api.get<User & { user?: User }>("/api/auth/me/").then((r) => {
       const data = r.data;
       if (data && typeof data === "object" && "email" in data && data.email) return data;
       if (data && typeof data === "object" && data.user) return data.user;
@@ -191,18 +198,18 @@ export const authApi = {
 };
 
 export const tenancyApi = {
-  organizations: () => getPage<Organization>("/api/orgs/"),
+  organizations: () => getPage<Organization>("/api/organizations/"),
   createOrganization: (body: Partial<Organization>) =>
     api.post<Organization>("/api/organizations/", body).then((r) => r.data),
   getOrganization: (id: string) => api.get<Organization>(`/api/organizations/${id}/`).then((r) => r.data),
   patchOrganization: (id: string, body: Partial<Organization>) =>
-    api.put<Organization>(`/api/organizations/${id}/`, body).then((r) => r.data),
+    api.patch<Organization>(`/api/organizations/${id}/`, body).then((r) => r.data),
   getOrgSettings: (id: string) =>
     api.get<OrganizationSettings>(`/api/organizations/${id}/settings/`).then((r) => r.data),
   patchOrgSettings: (id: string, body: Partial<OrganizationSettings>) =>
     api.patch<OrganizationSettings>(`/api/organizations/${id}/settings/`, body).then((r) => r.data),
   members: () => getPage<Member>("/api/members/"),
-  patchMember: (id: string, body: Partial<{ role_id: string }>) =>
+  patchMember: (id: string, body: Partial<{ role: string }>) =>
     api.patch<Member>(`/api/members/${id}/`, body).then((r) => r.data),
   deleteMember: (id: string) => api.delete(`/api/members/${id}/`),
   teams: () => getPage<Team>("/api/teams/"),
@@ -235,7 +242,7 @@ export const farmsApi = {
   patchRegion: (id: string, body: Partial<Region>) =>
     api.patch<Region>(`/api/regions/${id}/`, body).then((r) => r.data),
   deleteRegion: (id: string) => api.delete(`/api/regions/${id}/`),
-  list: (params?: Record<string, unknown>) => getPage<Farm>("/api/farm/", params),
+  list: (params?: Record<string, unknown>) => getPage<Farm>("/api/farms/", params),
   get: (id: string) => api.get<Farm>(`/api/farms/${id}/`).then((r) => r.data),
   create: (body: Partial<Farm>) => api.post<Farm>("/api/farms/", body).then((r) => r.data),
   patch: (id: string, body: Partial<Farm>) => api.patch<Farm>(`/api/farms/${id}/`, body).then((r) => r.data),
@@ -303,7 +310,7 @@ export const cropsApi = {
 export const sensorsApi = {
   types: (params?: Record<string, unknown>) => getPage<SensorType>("/api/sensor-types/", params),
   createType: (body: Partial<SensorType>) => api.post<SensorType>("/api/sensor-types/", body).then((r) => r.data),
-  list: (params?: Record<string, unknown>) => getPage<Sensor>("/api/devices/", params),
+  list: (params?: Record<string, unknown>) => getPage<Sensor>("/api/sensors/", params),
   get: (id: string) => api.get<Sensor>(`/api/sensors/${id}/`).then((r) => r.data),
   create: (body: Partial<Sensor>) => api.post<Sensor>("/api/sensors/", body).then((r) => r.data),
   patch: (id: string, body: Partial<Sensor>) => api.patch<Sensor>(`/api/sensors/${id}/`, body).then((r) => r.data),
@@ -341,9 +348,9 @@ export const irrigationApi = {
     api
       .get<IrrigationRecommendation[] | Paginated<IrrigationRecommendation>>("/api/irrigation/recommendations/")
       .then((r) => unwrapList(r.data)),
-  override: (id: string, body: { duration_minutes: number; reason: string }) =>
+  override: (id: string, body: { duration_minutes: number; notes?: string }) =>
     api.post(`/api/irrigation-zones/${id}/override/`, body),
-  analytics: () => api.get<IrrigationAnalytics>("/api/irrigation/stats/").then((r) => r.data),
+  analytics: () => api.get<IrrigationAnalytics>("/api/irrigation/analytics/").then((r) => r.data),
 };
 
 export const scoutingApi = {
@@ -404,7 +411,7 @@ export const inventoryApi = {
     api.patch<InventoryItem>(`/api/inventory/${id}/`, body).then((r) => r.data),
   remove: (id: string) => api.delete(`/api/inventory/${id}/`),
   move: (id: string, body: { quantity: number; movement_type: string; notes?: string }) =>
-    api.post(`/api/inventory/${id}/transfer/`, body),
+    api.post(`/api/inventory/${id}/move/`, body),
   alerts: () =>
     api.get<InventoryAlert[] | Paginated<InventoryAlert>>("/api/inventory/alerts/").then((r) => unwrapList(r.data)),
 };
@@ -433,7 +440,7 @@ export const equipmentApi = {
 
 export const dashboardApi = {
   summary: (params?: Record<string, unknown>) =>
-    api.get<DashboardSummary>("/api/dash/summary", { params }).then((r) => r.data),
+    api.get<DashboardSummary>("/api/dashboard/summary/", { params }).then((r) => r.data),
   cropProgress: (params?: Record<string, unknown>) =>
     api
       .get<CropProgress[] | Paginated<CropProgress>>("/api/dashboard/crop-progress/", { params })
@@ -467,7 +474,7 @@ export const analyticsApi = {
 };
 
 export const platformApi = {
-  search: (q: string) => api.get<SearchResults>("/api/query/", { params: { query: q } }).then((r) => r.data),
+  search: (q: string) => api.get<SearchResults>("/api/search/", { params: { q } }).then((r) => r.data),
   tasks: (params?: Record<string, unknown>) => getPage<TaskItem>("/api/tasks/", params),
   getTask: (id: string) => api.get<TaskItem>(`/api/tasks/${id}/`).then((r) => r.data),
   createTask: (body: Partial<TaskItem>) => api.post<TaskItem>("/api/tasks/", body).then((r) => r.data),
