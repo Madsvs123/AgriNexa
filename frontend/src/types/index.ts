@@ -158,6 +158,36 @@ export interface Plot {
   notes?: string;
 }
 
+export interface SoilLayer {
+  id: UUID;
+  field: UUID;
+  field_name?: string;
+  name: string;
+  soil_type: string;
+  soil_type_display?: string;
+  boundary: GeoJSONPolygon | null;
+  acres: number;
+  ph: number | string | null;
+  organic_matter_pct: number | string | null;
+  drainage?: string;
+  notes?: string;
+}
+
+export interface ElevationPoint {
+  lat: number;
+  lng: number;
+  elevation_m: number;
+}
+
+export interface ElevationEstimate {
+  source: "open-meteo" | "estimate";
+  min_m: number;
+  max_m: number;
+  mean_m: number;
+  relief_m: number;
+  points: ElevationPoint[];
+}
+
 export interface FieldNote {
   id: UUID;
   field: UUID;

@@ -17,6 +17,7 @@ import type {
   DashboardKPIs,
   DashboardSummary,
   DocumentItem,
+  ElevationEstimate,
   Equipment,
   ExpensePoint,
   Farm,
@@ -53,6 +54,7 @@ import type {
   Season,
   Sensor,
   SensorHealth,
+  SoilLayer,
   SensorReading,
   SensorType,
   ServiceHistory,
@@ -258,6 +260,14 @@ export const farmsApi = {
   createPlot: (body: Partial<Plot>) => api.post<Plot>("/api/plots/", body).then((r) => r.data),
   patchPlot: (id: string, body: Partial<Plot>) => api.patch<Plot>(`/api/plots/${id}/`, body).then((r) => r.data),
   deletePlot: (id: string) => api.delete(`/api/plots/${id}/`),
+  soilLayers: (params?: Record<string, unknown>) => getPage<SoilLayer>("/api/soil-layers/", params),
+  createSoilLayer: (body: Partial<SoilLayer>) =>
+    api.post<SoilLayer>("/api/soil-layers/", body).then((r) => r.data),
+  deleteSoilLayer: (id: string) => api.delete(`/api/soil-layers/${id}/`),
+  fieldElevation: (id: string, refresh = false) =>
+    api
+      .get<ElevationEstimate>(`/api/fields/${id}/elevation/`, { params: refresh ? { refresh: 1 } : undefined })
+      .then((r) => r.data),
   notes: (params?: Record<string, unknown>) => getPage<FieldNote>("/api/field-notes/", params),
   createNote: (body: Partial<FieldNote>) => api.post<FieldNote>("/api/field-notes/", body).then((r) => r.data),
   patchNote: (id: string, body: Partial<FieldNote>) =>

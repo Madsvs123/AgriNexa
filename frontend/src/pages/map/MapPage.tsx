@@ -33,11 +33,15 @@ export default function MapPage() {
   const zonesQ = useQuery({ queryKey: ["irrigation-zones", { farm: selectedFarm }], queryFn: () => irrigationApi.zones({ farm: selectedFarm || undefined }) });
   const equipQ = useQuery({ queryKey: ["equipment", { farm: selectedFarm }], queryFn: () => equipmentApi.list({ farm: selectedFarm || undefined }) });
   const alertsQ = useQuery({ queryKey: ["notifications"], queryFn: () => platformApi.notifications() });
+  const plotsQ = useQuery({ queryKey: ["plots"], queryFn: () => farmsApi.plots() });
+  const soilQ = useQuery({ queryKey: ["soil-layers"], queryFn: () => farmsApi.soilLayers() });
   const [layers, setLayers] = useState({
     fields: true,
     sensors: true,
     irrigation: true,
     equipment: true,
+    plots: true,
+    soil: false,
     alerts: true,
     history: false,
   });
@@ -66,10 +70,14 @@ export default function MapPage() {
           sensors={layers.sensors ? sensorsQ.data?.results ?? [] : []}
           equipment={layers.equipment ? equipQ.data?.results ?? [] : []}
           zones={layers.irrigation ? zonesQ.data?.results ?? [] : []}
+          plots={layers.plots ? plotsQ.data?.results ?? [] : []}
+          soilLayers={layers.soil ? soilQ.data?.results ?? [] : []}
           showFields={layers.fields}
           showSensors={layers.sensors}
           showEquipment={layers.equipment}
           showZones={layers.irrigation}
+          showPlots={layers.plots}
+          showSoil={layers.soil}
           onFieldClick={setPicked}
           center={farm?.lat && farm?.lng ? [Number(farm.lat), Number(farm.lng)] : undefined}
         />
@@ -100,6 +108,8 @@ export default function MapPage() {
               { key: "fields", label: "Field boundaries", on: layers.fields },
               { key: "sensors", label: "Sensors", on: layers.sensors },
               { key: "irrigation", label: "Irrigation zones", on: layers.irrigation },
+              { key: "plots", label: "Plot subdivisions", on: layers.plots },
+              { key: "soil", label: "Soil layers", on: layers.soil },
               { key: "equipment", label: "Equipment", on: layers.equipment },
               { key: "alerts", label: "Alerts", on: layers.alerts },
               { key: "history", label: "Historical activity", on: layers.history },

@@ -12,19 +12,32 @@ import {
   Link,
   ListItem,
   OrderedList,
+  Select,
   SimpleGrid,
   Spacer,
   Text,
   Textarea,
 } from "@chakra-ui/react";
 import { farmsApi, getApiError, irrigationApi, sensorsApi } from "@/api/client";
-import { formatAcres, formatDate, formatDateTime } from "@/lib/utils";
+import { formatAcres, formatDate, formatDateTime, formatNumber } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/ui/FormField";
 import { StatusBadge, StatCard, EmptyState } from "@/components/ui/StatCard";
-import { MapView } from "@/components/ui/MapView";
+import { MapView, SOIL_COLORS } from "@/components/ui/MapView";
 import { Drawer } from "@/components/ui/Modal";
 import { BoundaryEditor, type ContextShape } from "@/components/ui/BoundaryEditor";
 import type { GeoJSONPolygon } from "@/types";
+
+const SOIL_TYPES = [
+  ["clay", "Clay"],
+  ["clay_loam", "Clay loam"],
+  ["loam", "Loam"],
+  ["silt_loam", "Silt loam"],
+  ["silt", "Silt"],
+  ["sandy_loam", "Sandy loam"],
+  ["sand", "Sand"],
+  ["peat", "Peat"],
+  ["chalk", "Chalk"],
+] as const;
 
 const PLOT_COLORS = ["#3D7EA6", "#D4A017", "#8C5A3C", "#7CB518", "#B05A7A"];
 
@@ -56,6 +69,47 @@ export default function FieldDetailPage() {
   const deletePlot = useMutation({
     mutationFn: (plotId: string) => farmsApi.deletePlot(plotId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["plots"] }),
+  });
+  const soilQ = useQuery({
+    queryKey: ["soil-layers", { field: id }],
+    queryFn: () => farmsApi.soilLayers({ field: id }),
+  });
+  const [soilDrawer, setSoilDrawer] = useState(false);
+  const [soilError, setSoilError] = useState<string | null>(null);
+  const [soilForm, setSoilForm] = useState({ name: "", soil_type: "loam", ph: "", organic_matter_pct: "" });
+  const [soilBoundary, setSoilBoundary] = useState<GeoJSONPolygon | null>(null);
+  const createSoil = useMutation({
+    mutationFn: () =>
+      farmsApi.createSoilLayer({
+        field: id,
+        name: soilForm.name,
+        soil_type: soilForm.soil_type,
+        ph: soilForm.ph ? Number(soilForm.ph) : null,
+        organic_matter_pct: soilForm.organic_matter_pct ? Number(soilForm.organic_matter_pct) : null,
+        boundary: soilBoundary,
+      }),
+    onSuccess: () => {
+      setSoilDrawer(false);
+      setSoilForm({ name: "", soil_type: "loam", ph: "", organic_matter_pct: "" });
+      setSoilBoundary(null);
+      setSoilError(null);
+      qc.invalidateQueries({ queryKey: ["soil-layers"] });
+    },
+    onError: (err) => setSoilError(getApiError(err)),
+  });
+  const deleteSoil = useMutation({
+    mutationFn: (layerId: string) => farmsApi.deleteSoilLayer(layerId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["soil-layers"] }),
+  });
+  const elevationQ = useQuery({
+    queryKey: ["field-elevation", id],
+    queryFn: () => farmsApi.fieldElevation(id),
+    enabled: !!id && !!fieldQ.data?.boundary,
+    retry: false,
+  });
+  const refreshElevation = useMutation({
+    mutationFn: () => farmsApi.fieldElevation(id, true),
+    onSuccess: (data) => qc.setQueryData(["field-elevation", id], data),
   });
   const addNote = useMutation({
     mutationFn: () => farmsApi.createNote({ field: id, body }),
@@ -123,7 +177,14 @@ export default function FieldDetailPage() {
           minH="280px"
           overflow="hidden"
         >
-          <MapView height="280px" fields={[field]} sensors={sensorsQ.data?.results ?? []} />
+          <MapView
+            height="280px"
+            fields={[field]}
+            sensors={sensorsQ.data?.results ?? []}
+            plots={plotsQ.data?.results ?? []}
+            soilLayers={soilQ.data?.results ?? []}
+            showSoil
+          />
         </Box>
         <Card variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
@@ -180,6 +241,78 @@ export default function FieldDetailPage() {
               ))}
             </SimpleGrid>
           )}
+        </CardBody>
+      </Card>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mb={4}>
+        <CardBody>
+          <Flex align="center" mb={3}>
+            <Heading size="sm">Soil &amp; elevation</Heading>
+            <Spacer />
+            <Button size="sm" variant="ghost" colorScheme="gray" onClick={() => setSoilDrawer(true)}>
+              Add soil layer
+            </Button>
+          </Flex>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+            <Box>
+              {(soilQ.data?.results ?? []).length === 0 ? (
+                <Text color="fg.muted">No soil layers mapped. Draw zones for clay knobs, sandy ridges, or peat pockets.</Text>
+              ) : (
+                (soilQ.data?.results ?? []).map((s) => (
+                  <Flex key={s.id} align="center" gap={2} mb={2}>
+                    <Box boxSize={3} borderRadius="sm" bg={SOIL_COLORS[s.soil_type] ?? "#B98A2F"} />
+                    <Text fontWeight="semibold">{s.name}</Text>
+                    <Text color="fg.muted">
+                      {s.soil_type_display ?? s.soil_type} · {formatAcres(Number(s.acres))}
+                      {s.ph != null ? ` · pH ${s.ph}` : ""}
+                    </Text>
+                    <Spacer />
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      colorScheme="red"
+                      isDisabled={deleteSoil.isPending}
+                      onClick={() => deleteSoil.mutate(s.id)}
+                    >
+                      Remove
+                    </Button>
+                  </Flex>
+                ))
+              )}
+            </Box>
+            <Box>
+              {!field.boundary ? (
+                <Text color="fg.muted">Draw a field boundary to estimate elevation.</Text>
+              ) : elevationQ.isLoading ? (
+                <Text color="fg.muted">Estimating elevation…</Text>
+              ) : elevationQ.data ? (
+                <Box>
+                  <SimpleGrid columns={3} spacing={3} mb={2}>
+                    <StatCard label="Min" value={`${formatNumber(elevationQ.data.min_m)} m`} />
+                    <StatCard label="Mean" value={`${formatNumber(elevationQ.data.mean_m)} m`} />
+                    <StatCard label="Max" value={`${formatNumber(elevationQ.data.max_m)} m`} />
+                  </SimpleGrid>
+                  <Flex align="center" gap={2}>
+                    <Text fontSize="sm" color="fg.muted">
+                      Relief {formatNumber(elevationQ.data.relief_m)} m ·{" "}
+                      {elevationQ.data.source === "open-meteo" ? "Open-Meteo terrain" : "offline estimate"} ·{" "}
+                      {elevationQ.data.points.length} sample points
+                    </Text>
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      colorScheme="gray"
+                      isDisabled={refreshElevation.isPending}
+                      onClick={() => refreshElevation.mutate()}
+                    >
+                      {refreshElevation.isPending ? "Refreshing…" : "Refresh"}
+                    </Button>
+                  </Flex>
+                </Box>
+              ) : (
+                <Text color="fg.muted">Elevation unavailable for this boundary.</Text>
+              )}
+            </Box>
+          </SimpleGrid>
         </CardBody>
       </Card>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -311,6 +444,77 @@ export default function FieldDetailPage() {
           onClick={() => createPlot.mutate()}
         >
           {createPlot.isPending ? "Saving…" : "Save plot"}
+        </Button>
+      </Drawer>
+      <Drawer open={soilDrawer} title="Add soil layer" onClose={() => setSoilDrawer(false)} wide>
+        <ErrorBanner message={soilError} />
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
+          <FormField label="Name" htmlFor="soil-name" hint="e.g. Sandy ridge, Clay bottom">
+            <Input
+              id="soil-name"
+              value={soilForm.name}
+              onChange={(e) => setSoilForm((f) => ({ ...f, name: e.target.value }))}
+            />
+          </FormField>
+          <FormField label="Soil type" htmlFor="soil-type">
+            <Select
+              id="soil-type"
+              value={soilForm.soil_type}
+              onChange={(e) => setSoilForm((f) => ({ ...f, soil_type: e.target.value }))}
+            >
+              {SOIL_TYPES.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
+          <FormField label="pH" htmlFor="soil-ph">
+            <Input
+              id="soil-ph"
+              type="number"
+              step="0.1"
+              min="0"
+              max="14"
+              value={soilForm.ph}
+              onChange={(e) => setSoilForm((f) => ({ ...f, ph: e.target.value }))}
+            />
+          </FormField>
+          <FormField label="Organic matter %" htmlFor="soil-om">
+            <Input
+              id="soil-om"
+              type="number"
+              step="0.1"
+              min="0"
+              value={soilForm.organic_matter_pct}
+              onChange={(e) => setSoilForm((f) => ({ ...f, organic_matter_pct: e.target.value }))}
+            />
+          </FormField>
+        </SimpleGrid>
+        <FormField label="Layer boundary" htmlFor="soil-boundary" hint="Draw inside the dashed field outline.">
+          <BoundaryEditor
+            value={soilBoundary}
+            onChange={setSoilBoundary}
+            context={
+              field.boundary
+                ? [{ polygon: field.boundary, color: "#2F6F4E", label: field.name } satisfies ContextShape]
+                : []
+            }
+            center={
+              field.centroid_lat != null && field.centroid_lng != null
+                ? [Number(field.centroid_lat), Number(field.centroid_lng)]
+                : undefined
+            }
+          />
+        </FormField>
+        <Button
+          colorScheme="brand"
+          isDisabled={!soilForm.name || !soilBoundary || createSoil.isPending}
+          onClick={() => createSoil.mutate()}
+        >
+          {createSoil.isPending ? "Saving…" : "Save soil layer"}
         </Button>
       </Drawer>
     </Box>
