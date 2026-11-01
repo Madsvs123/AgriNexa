@@ -33,3 +33,4 @@ Thumbs.db
 # local project notes
 /*.md
 !/README.md
+!/AgriNexa.md
