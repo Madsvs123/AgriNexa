@@ -48,6 +48,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.tenancy.middleware.OrganizationMiddleware",
+    "apps.common.middleware.LanguageMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.platform.middleware.AuditMiddleware",
@@ -91,7 +92,16 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
+
+# Shipped languages. Arabic is right-to-left; the SPA mirrors its own layout
+# and the API only needs the translations.
+LANGUAGES = [
+    ("en", "English"),
+    ("es", "Español"),
+    ("ar", "العربية"),
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True

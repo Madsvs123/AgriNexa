@@ -1,0 +1,107 @@
+{
+  "app": {
+    "name": "AgriNexa",
+    "tagline": "Agricultura de precisión, unificada."
+  },
+  "actions": {
+    "add": "Agregar",
+    "apply": "Aplicar",
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "clear": "Limpiar",
+    "clone": "Duplicar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "create": "Crear",
+    "delete": "Eliminar",
+    "dismiss": "Descartar",
+    "edit": "Editar",
+    "export": "Exportar",
+    "filter": "Filtrar",
+    "open": "Abrir",
+    "refresh": "Actualizar",
+    "remove": "Quitar",
+    "reset": "Restablecer",
+    "save": "Guardar",
+    "saveChanges": "Guardar cambios",
+    "saving": "Guardando…",
+    "search": "Buscar",
+    "seeAll": "Ver todo",
+    "select": "Seleccionar",
+    "upload": "Subir",
+    "view": "Ver"
+  },
+  "labels": {
+    "acres": "Acres",
+    "actions": "Acciones",
+    "category": "Categoría",
+    "cost": "Costo",
+    "crop": "Cultivo",
+    "date": "Fecha",
+    "farm": "Finca",
+    "field": "Lote",
+    "harvest": "Cosecha",
+    "margin": "Margen",
+    "name": "Nombre",
+    "notes": "Notas",
+    "planting": "Siembra",
+    "revenue": "Ingresos",
+    "season": "Campaña",
+    "soil": "Suelo",
+    "status": "Estado",
+    "total": "Total",
+    "unit": "Unidad",
+    "variety": "Variedad",
+    "yield": "Rendimiento"
+  },
+  "status": {
+    "active": "Activo",
+    "cancelled": "Cancelado",
+    "critical": "Crítico",
+    "growing": "En desarrollo",
+    "harvested": "Cosechado",
+    "healthy": "Saludable",
+    "idle": "Inactivo",
+    "inactive": "Inactivo",
+    "ok": "Correcto",
+    "pending": "Pendiente",
+    "planned": "Planificado",
+    "planted": "Sembrado",
+    "warning": "Advertencia"
+  },
+  "units": {
+    "acreInches": "ac-pulg",
+    "acres_one": "{{count}} acre",
+    "acres_other": "{{count}} acres",
+    "acresShort": "{{value}} ac",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "daysShort": "{{count}} d",
+    "hours": "{{value}} h",
+    "perAcre": "{{value}} / acre",
+    "pounds": "{{value}} lb"
+  },
+  "table": {
+    "empty": "Todavía no hay nada",
+    "emptyBody": "Los registros aparecerán en esta tabla cuando existan.",
+    "loading": "Cargando…",
+    "noMatches": "Sin resultados para «{{query}}»."
+  },
+  "errors": {
+    "generic": "Algo salió mal.",
+    "notFound": "No encontrado.",
+    "requestFailed": "La solicitud falló.",
+    "tryAgain": "Reintentar"
+  },
+  "language": {
+    "label": "Idioma",
+    "change": "Cambiar idioma",
+    "switched": "Mostrando AgriNexa en {{language}}.",
+    "switchedForRegion": "Mostrando AgriNexa en <1>{{language}}</1> para {{region}}.",
+    "useEnglish": "Usar inglés"
+  },
+  "theme": {
+    "dark": "Modo oscuro",
+    "light": "Modo claro"
+  }
+}

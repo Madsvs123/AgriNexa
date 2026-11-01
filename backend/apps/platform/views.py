@@ -1,9 +1,10 @@
 from django.db.models import Case, IntegerField, Q, Value, When
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.common.i18n import language_payload
 from apps.common.permissions import HasOrganization
 from apps.common.views import TenantModelViewSet, TenantReadOnlyModelViewSet
 from apps.platform.models import AuditLog, Document, Notification, Task
@@ -96,6 +97,20 @@ def _match_rank(field, term):
         default=Value(2),
         output_field=IntegerField(),
     )
+
+
+class LanguageDetectView(APIView):
+    """Which language this caller should get, and why.
+
+    Unauthenticated on purpose: the sign-in screen needs to render in the
+    right language before anyone has credentials.
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        return Response(language_payload(request))
 
 
 class SearchView(APIView):

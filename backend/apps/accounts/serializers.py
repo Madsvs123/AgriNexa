@@ -9,6 +9,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.accounts.models import FarmerProfile
 
+from apps.common.i18n import SUPPORTED_LANGUAGES, normalize_language
+
 User = get_user_model()
 
 
@@ -66,6 +68,21 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
             "updated_at",
         )
         read_only_fields = ("id", "created_at", "updated_at")
+
+    def validate_preferred_language(self, value):
+        """Only languages the product actually ships can be stored.
+
+        This field drives the API's response language, so an unrecognised code
+        would silently fall back to English on every request.
+        """
+        if not value:
+            return "en"
+        normalized = normalize_language(value)
+        if not normalized:
+            raise serializers.ValidationError(
+                f"Unsupported language. Choose one of: {', '.join(SUPPORTED_LANGUAGES)}."
+            )
+        return normalized
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

@@ -1,4 +1,5 @@
 import { extendTheme, type ThemeConfig } from "@chakra-ui/react";
+import { DEFAULT_LANGUAGE, languageMeta, type LanguageCode } from "@/i18n/config";
 
 const config: ThemeConfig = {
   initialColorMode: "light",
@@ -86,66 +87,109 @@ export const layout = {
   contextBarHeight: "56px",
 };
 
-export const theme = extendTheme({
-  config,
-  colors,
-  semanticTokens,
-  zIndices,
-  fonts: {
-    heading: `"Fraunces", Georgia, serif`,
-    body: `"DM Sans", system-ui, sans-serif`,
-  },
-  styles: {
-    global: {
-      "html, body, #root": { minHeight: "100%" },
-      body: { bg: "bg.canvas", color: "fg.default" },
-      // Honour the OS "reduce motion" setting across Chakra transitions.
-      "@media (prefers-reduced-motion: reduce)": {
-        "*, *::before, *::after": {
-          animationDuration: "0.01ms !important",
-          transitionDuration: "0.01ms !important",
+/**
+ * Latin display/body pairing. Fraunces has no Arabic coverage, so Arabic
+ * substitutes a face designed for the script rather than letting the browser
+ * fall back to an arbitrary system font.
+ */
+const LATIN_FONTS = {
+  heading: `"Fraunces", Georgia, serif`,
+  body: `"DM Sans", system-ui, sans-serif`,
+};
+
+const ARABIC_FONTS = {
+  heading: `"Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif`,
+  body: `"Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif`,
+};
+
+/**
+ * Build the theme for a language.
+ *
+ * Direction lives in the theme (not just on `<html>`) because Chakra resolves
+ * logical props — `marginStart`, `insetEnd`, `borderStartRadius` — and Popper
+ * placements against `theme.direction`.
+ */
+export function buildTheme(language: LanguageCode = DEFAULT_LANGUAGE) {
+  const meta = languageMeta(language);
+  const isArabic = language === "ar";
+
+  return extendTheme({
+    config,
+    colors,
+    semanticTokens,
+    zIndices,
+    direction: meta.dir,
+    fonts: isArabic ? ARABIC_FONTS : LATIN_FONTS,
+    styles: {
+      global: {
+        "html, body, #root": { minHeight: "100%" },
+        body: {
+          bg: "bg.canvas",
+          color: "fg.default",
+          // Arabic ascenders/descenders need more room than Latin at the same size.
+          lineHeight: isArabic ? 1.75 : undefined,
+        },
+        // Letter-spacing breaks the cursive joins between Arabic letters, and
+        // uppercase is meaningless in a script with no case. Both are used
+        // throughout the shell's section labels, so neutralise them globally
+        // rather than hunting every call site.
+        ...(isArabic
+          ? {
+              "*, *::before, *::after": { letterSpacing: "normal !important" },
+              "*": { textTransform: "none !important", fontStyle: "normal !important" },
+            }
+          : {}),
+        // Honour the OS "reduce motion" setting across Chakra transitions.
+        "@media (prefers-reduced-motion: reduce)": {
+          "*, *::before, *::after": {
+            animationDuration: "0.01ms !important",
+            transitionDuration: "0.01ms !important",
+          },
         },
       },
     },
-  },
-  components: {
-    Button: { defaultProps: { colorScheme: "brand" } },
-    Card: {
-      baseStyle: {
-        container: { bg: "bg.surface", borderColor: "border.default" },
+    components: {
+        Button: { defaultProps: { colorScheme: "brand" } },
+      Card: {
+        baseStyle: {
+          container: { bg: "bg.surface", borderColor: "border.default" },
+        },
+        variants: {
+          /** Default page card: flat, hairline border. */
+          surface: {
+            container: {
+              bg: "bg.surface",
+              borderWidth: "1px",
+              borderColor: "border.default",
+              borderRadius: "xl",
+              boxShadow: "none",
+            },
+          },
+          /** Floating panel over a canvas (map overlays, popovers). */
+          panel: {
+            container: {
+              bg: "bg.surface",
+              borderWidth: "1px",
+              borderColor: "border.default",
+              borderRadius: "lg",
+              boxShadow: "md",
+            },
+          },
+          /** Nested block inside a card — no border, tinted ground. */
+          inset: {
+            container: {
+              bg: "bg.subtle",
+              borderWidth: 0,
+              borderRadius: "lg",
+              boxShadow: "none",
+            },
+          },
+        },
+        defaultProps: { variant: "surface" },
       },
-      variants: {
-        /** Default page card: flat, hairline border. */
-        surface: {
-          container: {
-            bg: "bg.surface",
-            borderWidth: "1px",
-            borderColor: "border.default",
-            borderRadius: "xl",
-            boxShadow: "none",
-          },
-        },
-        /** Floating panel over a canvas (map overlays, popovers). */
-        panel: {
-          container: {
-            bg: "bg.surface",
-            borderWidth: "1px",
-            borderColor: "border.default",
-            borderRadius: "lg",
-            boxShadow: "md",
-          },
-        },
-        /** Nested block inside a card — no border, tinted ground. */
-        inset: {
-          container: {
-            bg: "bg.subtle",
-            borderWidth: 0,
-            borderRadius: "lg",
-            boxShadow: "none",
-          },
-        },
-      },
-      defaultProps: { variant: "surface" },
     },
-  },
-});
+  });
+}
+
+/** Default (English, LTR) theme — used before a language is resolved. */
+export const theme = buildTheme();

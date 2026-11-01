@@ -28,6 +28,9 @@ class OrganizationMiddleware:
     def __call__(self, request):
         request.organization = None
         user = self._resolve_user(request)
+        # Published for LanguageMiddleware: `request.user` is still anonymous
+        # here because DRF authenticates inside the view.
+        request.auth_user = user
         if user is not None and user.is_authenticated:
             org_id = request.headers.get("X-Organization-ID") or request.META.get(
                 "HTTP_X_ORGANIZATION_ID"

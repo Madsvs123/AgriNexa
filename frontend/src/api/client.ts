@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore, REFRESH_KEY } from "@/stores/authStore";
+import { acceptLanguageHeader } from "@/i18n/bootstrap";
 import { unwrapList } from "@/lib/utils";
 import type {
   AnalyticsCosts,
@@ -104,6 +105,7 @@ api.interceptors.request.use((config) => {
   if (currentOrgId) {
     config.headers["X-Organization-ID"] = currentOrgId;
   }
+  config.headers["Accept-Language"] = acceptLanguageHeader();
   if (typeof FormData !== "undefined" && config.data instanceof FormData) {
     delete (config.headers as Record<string, unknown>)["Content-Type"];
   }

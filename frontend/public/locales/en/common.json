@@ -1,0 +1,107 @@
+{
+  "app": {
+    "name": "AgriNexa",
+    "tagline": "Precision farming, unified."
+  },
+  "actions": {
+    "add": "Add",
+    "apply": "Apply",
+    "back": "Back",
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "clone": "Clone",
+    "close": "Close",
+    "confirm": "Confirm",
+    "create": "Create",
+    "delete": "Delete",
+    "dismiss": "Dismiss",
+    "edit": "Edit",
+    "export": "Export",
+    "filter": "Filter",
+    "open": "Open",
+    "refresh": "Refresh",
+    "remove": "Remove",
+    "reset": "Reset",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "saving": "Saving…",
+    "search": "Search",
+    "seeAll": "See all",
+    "select": "Select",
+    "upload": "Upload",
+    "view": "View"
+  },
+  "labels": {
+    "acres": "Acres",
+    "actions": "Actions",
+    "category": "Category",
+    "cost": "Cost",
+    "crop": "Crop",
+    "date": "Date",
+    "farm": "Farm",
+    "field": "Field",
+    "harvest": "Harvest",
+    "margin": "Margin",
+    "name": "Name",
+    "notes": "Notes",
+    "planting": "Plant",
+    "revenue": "Revenue",
+    "season": "Season",
+    "soil": "Soil",
+    "status": "Status",
+    "total": "Total",
+    "unit": "Unit",
+    "variety": "Variety",
+    "yield": "Yield"
+  },
+  "status": {
+    "active": "Active",
+    "cancelled": "Cancelled",
+    "critical": "Critical",
+    "growing": "Growing",
+    "harvested": "Harvested",
+    "healthy": "Healthy",
+    "idle": "Idle",
+    "inactive": "Inactive",
+    "ok": "OK",
+    "pending": "Pending",
+    "planned": "Planned",
+    "planted": "Planted",
+    "warning": "Warning"
+  },
+  "units": {
+    "acreInches": "ac-in",
+    "acres_one": "{{count}} acre",
+    "acres_other": "{{count}} acres",
+    "acresShort": "{{value}} ac",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "daysShort": "{{count}}d",
+    "hours": "{{value}} h",
+    "perAcre": "{{value}} / acre",
+    "pounds": "{{value}} lb"
+  },
+  "table": {
+    "empty": "Nothing here yet",
+    "emptyBody": "Records will appear in this table once they exist.",
+    "loading": "Loading…",
+    "noMatches": "No matches for “{{query}}”."
+  },
+  "errors": {
+    "generic": "Something went wrong.",
+    "notFound": "Not found.",
+    "requestFailed": "Request failed.",
+    "tryAgain": "Try again"
+  },
+  "language": {
+    "label": "Language",
+    "change": "Change language",
+    "switched": "Showing AgriNexa in {{language}}.",
+    "switchedForRegion": "Showing AgriNexa in <1>{{language}}</1> for {{region}}.",
+    "useEnglish": "Use English"
+  },
+  "theme": {
+    "dark": "Dark mode",
+    "light": "Light mode"
+  }
+}

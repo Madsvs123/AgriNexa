@@ -1,3 +1,5 @@
+import type { LanguageCode } from "@/i18n/config";
+
 export type UUID = string;
 
 export type StatusLevel = "healthy" | "warning" | "critical" | "idle"
@@ -32,6 +34,9 @@ export interface FarmerProfile {
   specialties: string;
   years_experience: number;
   license_number: string;
+  /** UI language, also used to pick the API's response language. */
+  preferred_language: LanguageCode;
+  emergency_contact: string;
 }
 
 export interface Organization {
