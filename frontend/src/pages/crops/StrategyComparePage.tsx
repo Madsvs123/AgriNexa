@@ -28,15 +28,16 @@ import { ListPage } from "@/components/templates/ListPage";
 import { ChartCard, EmptyState } from "@/components/ui/StatCard";
 import { ConstraintBars } from "@/components/planning/ConstraintBars";
 import { useScope } from "@/hooks/useScope";
-import { fallbackColor, fmtDelta, fmtMoney, riskScheme } from "@/lib/planning";
+import { fallbackColor, riskScheme } from "@/lib/planning";
 import { formatNumber } from "@/lib/utils";
 import { ChartFrame } from "@/components/ui/ChartFrame";
+import { formatCurrency, formatDelta } from "@/i18n/format";
 
 const MONEY_KEYS = new Set(["totals.revenue", "totals.total_cost", "totals.margin", "totals.margin_per_acre"]);
 
 function fmtValue(key: string, v: number | null) {
   if (v == null) return "—";
-  if (MONEY_KEYS.has(key)) return fmtMoney(v);
+  if (MONEY_KEYS.has(key)) return formatCurrency(v);
   if (key === "diversity_index") return v.toFixed(2);
   return formatNumber(v, key.includes("score") || key.includes("violations") ? 0 : 0);
 }
@@ -107,7 +108,7 @@ export default function StrategyComparePage() {
                   <Text as="span" color="fg.muted" fontSize="sm">
                     {s.farm_name} · {s.season_name} · {s.status}
                     {s.is_baseline ? " · baseline" : ""}
-                    {s.summary?.margin != null ? ` · ${fmtMoney(s.summary.margin)}` : ""}
+                    {s.summary?.margin != null ? ` · ${formatCurrency(s.summary.margin)}` : ""}
                   </Text>
                 </Checkbox>
               ))}
@@ -133,7 +134,7 @@ export default function StrategyComparePage() {
                       <Text fontWeight="semibold" noOfLines={1}>{e.name}</Text>
                     </Flex>
                     <Text fontSize="sm" color="fg.muted">
-                      {fmtMoney(e.totals.margin)} margin · {fmtMoney(e.totals.margin_per_acre)}/ac
+                      {formatCurrency(e.totals.margin)} margin · {formatCurrency(e.totals.margin_per_acre)}/ac
                     </Text>
                     <Flex gap={2} mt={2} wrap="wrap">
                       <Badge colorScheme={riskScheme(e.risk_score)}>risk {e.risk_score}</Badge>
@@ -181,7 +182,7 @@ export default function StrategyComparePage() {
                               <Text fontWeight={best ? "bold" : "normal"}>{fmtValue(m.key, v)}</Text>
                               {!isBaseline && d != null ? (
                                 <Text fontSize="xs" color={good == null ? "fg.muted" : good ? "green.600" : "red.500"}>
-                                  {fmtDelta(d, MONEY_KEYS.has(m.key), m.key === "diversity_index" ? 2 : 0)}
+                                  {formatDelta(d, { currency: MONEY_KEYS.has(m.key) ? "USD" : undefined, digits: m.key === "diversity_index" ? 2 : 0 })}
                                 </Text>
                               ) : isBaseline && cmp.strategies.length > 1 ? (
                                 <Text fontSize="xs" color="fg.muted">baseline</Text>
@@ -218,7 +219,7 @@ export default function StrategyComparePage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
                   <XAxis dataKey="name" />
                   <YAxis tickFormatter={(v) => `$${Math.round(v / 1000)}k`} />
-                  <Tooltip formatter={(v: number) => fmtMoney(v)} />
+                  <Tooltip formatter={(v: number) => formatCurrency(v)} />
                   <Legend />
                   <Bar dataKey="Revenue" fill="#3D7EA6" />
                   <Bar dataKey="Cost" fill="#D4A017" />

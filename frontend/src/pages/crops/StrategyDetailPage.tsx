@@ -35,9 +35,11 @@ import { CropChip } from "@/components/planning/CropChip";
 import { MetricGrid } from "@/components/planning/MetricGrid";
 import { usePlanningMessage } from "@/components/planning/PlanningMessage";
 import { useDebounced } from "@/hooks/useDebounced";
-import { PLANTING_SYSTEMS, RAINFALL_OPTIONS, fitLabel, fitScheme, fmtMoney, riskScheme } from "@/lib/planning";
+import { PLANTING_SYSTEMS, RAINFALL_OPTIONS, fitScheme, riskScheme } from "@/lib/planning";
 import { formatDate, formatNumber } from "@/lib/utils";
 import type { Field, PlantingSystem, StrategyAllocation, StrategyComponent } from "@/types";
+import { formatCurrency } from "@/i18n/format";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 type Draft = {
   field: string;
@@ -213,6 +215,7 @@ export default function StrategyDetailPage() {
   const qc = useQueryClient();
   const toast = useToast();
   const renderMessage = usePlanningMessage();
+  const labels = usePlanningLabels();
   const stratQ = useQuery({ queryKey: ["strategy", id], queryFn: () => cropsApi.getStrategy(id), enabled: !!id });
   const s = stratQ.data;
   const fieldsQ = useQuery({ queryKey: ["fields", { farm: s?.farm }], queryFn: () => farmsApi.fields({ farm: s?.farm }), enabled: !!s?.farm });
@@ -323,7 +326,7 @@ export default function StrategyDetailPage() {
         kpis={
           ev
             ? [
-                <StatCard key="m" label="Net margin" value={fmtMoney(ev.totals.margin)} hint={`${fmtMoney(ev.totals.margin_per_acre)} / acre`} />,
+                <StatCard key="m" label="Net margin" value={formatCurrency(ev.totals.margin)} hint={`${formatCurrency(ev.totals.margin_per_acre)} / acre`} />,
                 <StatCard key="r" label="Risk" value={<Badge colorScheme={riskScheme(ev.risk_score)} fontSize="lg" px={2}>{ev.risk_score}</Badge>} hint="0 low – 100 high" />,
                 <StatCard key="d" label="Diversity" value={ev.diversity_index.toFixed(2)} hint={`${ev.crop_count} crop${ev.crop_count === 1 ? "" : "s"} · Shannon index`} />,
                 <StatCard key="rot" label="Rotation" value={ev.rotation_score != null ? ev.rotation_score : "—"} hint="Avg. compliance vs field history" />,
@@ -414,9 +417,9 @@ export default function StrategyDetailPage() {
                           },
                           { key: "system", header: "System", render: (f) => { const a = byField.get(f.id); return a ? <Badge textTransform="capitalize" colorScheme={a.planting_system === "monoculture" ? "gray" : "brand"}>{a.planting_system}</Badge> : null; } },
                           { key: "date", header: "Plant", render: (f) => { const a = byField.get(f.id); return a ? formatDate(a.planting_date) : null; } },
-                          { key: "fit", header: "Window", render: (f) => { const r = fieldResult(f.id); return r?.fit ? <Badge colorScheme={fitScheme(r.fit)}>{fitLabel(r.fit)}</Badge> : null; } },
+                          { key: "fit", header: "Window", render: (f) => { const r = fieldResult(f.id); return r?.fit ? <Badge colorScheme={fitScheme(r.fit)}>{labels.fit(r.fit)}</Badge> : null; } },
                           { key: "rot", header: "Rotation", render: (f) => { const r = fieldResult(f.id); return r?.rotation_score != null ? r.rotation_score : null; } },
-                          { key: "margin", header: "Margin", render: (f) => { const r = fieldResult(f.id); return r ? `${fmtMoney(r.margin)} · ${fmtMoney(r.margin_per_acre)}/ac` : null; } },
+                          { key: "margin", header: "Margin", render: (f) => { const r = fieldResult(f.id); return r ? `${formatCurrency(r.margin)} · ${formatCurrency(r.margin_per_acre)}/ac` : null; } },
                         ]}
                       />
                     </Stack>
@@ -484,9 +487,9 @@ export default function StrategyDetailPage() {
                             { key: "field_name", header: "Field" },
                             { key: "crop_name", header: "Crop", render: (r) => `${r.crop_name}${r.variety_name ? ` · ${r.variety_name}` : ""}${r.components.length ? ` + ${r.components.map((c) => `${c.crop_name} ${c.share_pct}%`).join(", ")}` : ""}` },
                             { key: "acres", header: "Acres", render: (r) => formatNumber(r.acres, 0) },
-                            { key: "revenue", header: "Revenue", render: (r) => fmtMoney(r.revenue) },
-                            { key: "total_cost", header: "Cost", render: (r) => fmtMoney(r.total_cost) },
-                            { key: "margin", header: "Margin", render: (r) => fmtMoney(r.margin) },
+                            { key: "revenue", header: "Revenue", render: (r) => formatCurrency(r.revenue) },
+                            { key: "total_cost", header: "Cost", render: (r) => formatCurrency(r.total_cost) },
+                            { key: "margin", header: "Margin", render: (r) => formatCurrency(r.margin) },
                             { key: "water", header: "Water", render: (r) => `${formatNumber(r.water_acre_inches, 0)} ac-in` },
                             { key: "labor", header: "Labor", render: (r) => `${formatNumber(r.labor_hours, 0)} h` },
                             { key: "n", header: "N balance", render: (r) => `${r.nitrogen_balance_lb >= 0 ? "+" : ""}${formatNumber(r.nitrogen_balance_lb, 0)}` },

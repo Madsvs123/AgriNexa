@@ -10,6 +10,7 @@ import {
   TagLabel,
 } from "@chakra-ui/react";
 import { Search, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Shared filter row for list pages, with an active-filter count and a reset.
@@ -18,8 +19,8 @@ import { Search, X } from "lucide-react";
 export function FilterBar({
   search,
   onSearchChange,
-  searchPlaceholder = "Search…",
-  searchLabel = "Search",
+  searchPlaceholder,
+  searchLabel,
   activeCount = 0,
   onReset,
   children,
@@ -32,6 +33,8 @@ export function FilterBar({
   onReset?: () => void;
   children?: ReactNode;
 }) {
+  const { t } = useTranslation("common");
+
   return (
     <Flex gap={3} wrap="wrap" align="center">
       {onSearchChange ? (
@@ -42,8 +45,8 @@ export function FilterBar({
           <Input
             value={search ?? ""}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={searchPlaceholder}
-            aria-label={searchLabel}
+            placeholder={searchPlaceholder ?? t("actions.search")}
+            aria-label={searchLabel ?? t("actions.search")}
             bg="bg.surface"
           />
         </InputGroup>
@@ -54,9 +57,7 @@ export function FilterBar({
       {activeCount > 0 ? (
         <>
           <Tag size="sm" colorScheme="brand" borderRadius="full">
-            <TagLabel>
-              {activeCount} filter{activeCount === 1 ? "" : "s"}
-            </TagLabel>
+            <TagLabel>{t("table.filterCount", { count: activeCount })}</TagLabel>
           </Tag>
           {onReset ? (
             <Button
@@ -66,7 +67,7 @@ export function FilterBar({
               leftIcon={<X size={14} />}
               onClick={onReset}
             >
-              Clear
+              {t("actions.clear")}
             </Button>
           ) : null}
         </>

@@ -17,9 +17,10 @@ import { DataTable } from "@/components/ui/DataTable";
 import { Drawer, ConfirmDialog } from "@/components/ui/Modal";
 import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { CropChip } from "@/components/planning/CropChip";
-import { CROP_CATEGORIES, fmtMoney } from "@/lib/planning";
+import { CROP_CATEGORIES } from "@/lib/planning";
 import { formatNumber } from "@/lib/utils";
 import type { Crop } from "@/types";
+import { formatCurrency } from "@/i18n/format";
 
 type Form = Record<string, string>;
 
@@ -169,8 +170,8 @@ export function CropsTab() {
           { key: "water", header: "Water", render: (c) => `${c.water_need} · ${formatNumber(c.effective_water_inches, 0)} in` },
           { key: "n", header: "N lb/ac", render: (c) => (c.nitrogen_fixing ? "fixes N" : formatNumber(c.nitrogen_lb_per_acre, 0)) },
           { key: "yield", header: "Yield/ac", render: (c) => `${formatNumber(c.expected_yield_per_acre, 0)} ${c.yield_unit}` },
-          { key: "price", header: "Price", render: (c) => fmtMoney(c.expected_price_per_unit, 2) },
-          { key: "margin", header: "Margin/ac", render: (c) => fmtMoney(marginPerAcre(c)) },
+          { key: "price", header: "Price", render: (c) => formatCurrency(c.expected_price_per_unit, "USD", 2) },
+          { key: "margin", header: "Margin/ac", render: (c) => formatCurrency(marginPerAcre(c)) },
           { key: "varieties", header: "Varieties", render: (c) => c.variety_count ?? 0 },
         ]}
       />

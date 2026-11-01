@@ -93,7 +93,13 @@
     "empty": "لا توجد بيانات بعد",
     "emptyBody": "ستظهر السجلات في هذا الجدول بمجرد إنشائها.",
     "loading": "جارٍ التحميل…",
-    "noMatches": "لا توجد نتائج لـ «{{query}}»."
+    "noMatches": "لا توجد نتائج لـ «{{query}}».",
+    "filterCount_zero": "{{count}} مرشح",
+    "filterCount_one": "مرشح واحد",
+    "filterCount_two": "مرشحان",
+    "filterCount_few": "{{count}} مرشحات",
+    "filterCount_many": "{{count}} مرشحًا",
+    "filterCount_other": "{{count}} مرشح"
   },
   "errors": {
     "generic": "حدث خطأ ما.",

@@ -1,4 +1,3 @@
-import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import type { Paginated, StatusLevel } from "@/types";
 
 export function cn(...parts: Array<string | false | null | undefined>): string {
@@ -10,50 +9,48 @@ export function unwrapList<T>(data: Paginated<T> | T[] | null | undefined): T[] 
   return Array.isArray(data) ? data : data.results ?? (data as unknown as T[]);
 }
 
-export function parseDate(value: string | null | undefined): Date | null {
-  if (!value) return null;
-  const d = parseISO(value);
-  return isValid(d) ? d : null;
-}
+/**
+ * Date and number formatting.
+ *
+ * These delegate to `@/i18n/format`, which resolves the active language at
+ * call time. Re-exporting here keeps the 46 modules that already import from
+ * `lib/utils` working, and means a call site cannot accidentally use a
+ * locale-blind formatter.
+ */
+export {
+  parseDate,
+  formatDate,
+  formatDateTime,
+  formatTime,
+  formatMonthDay,
+  fromNow,
+  formatNumber,
+  formatCurrency,
+  formatDelta,
+} from "@/i18n/format";
 
-export function formatDate(value: string | null | undefined, fallback = "—"): string {
-  const d = parseDate(value);
-  return d ? format(d, "MMM d, yyyy") : fallback;
-}
+import i18n from "@/i18n";
+import { formatNumber as formatNumberLocalized } from "@/i18n/format";
 
-export function formatDateTime(value: string | null | undefined, fallback = "—"): string {
-  const d = parseDate(value);
-  return d ? format(d, "MMM d, yyyy h:mm a") : fallback;
-}
-
-export function formatTime(value: string | null | undefined, fallback = "—"): string {
-  const d = parseDate(value);
-  if (d) return format(d, "h:mm a");
-  if (value && /^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
-  return fallback;
-}
-
-export function fromNow(value: string | null | undefined): string {
-  const d = parseDate(value);
-  return d ? formatDistanceToNow(d, { addSuffix: true }) : "—";
-}
-
-export function formatNumber(value: number | null | undefined, digits = 0): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return "—";
-  return value.toLocaleString(undefined, {
-    maximumFractionDigits: digits,
-    minimumFractionDigits: digits,
-  });
-}
-
+/**
+ * Acreage with its unit.
+ *
+ * Acres stay the unit of record in every language — the domain model, the
+ * agronomy, and the stored data are all imperial. Only the word is
+ * translated; converting to hectares is a separate change that would have to
+ * touch yields, water, and seeding rates together.
+ */
 export function formatAcres(value: number | null | undefined): string {
   if (value === null || value === undefined) return "—";
-  return `${formatNumber(value, value < 10 ? 1 : 0)} ac`;
+  return i18n.t("units.acresShort", {
+    ns: "common",
+    value: formatNumberLocalized(value, value < 10 ? 1 : 0),
+  });
 }
 
 export function formatPct(value: number | null | undefined): string {
   if (value === null || value === undefined) return "—";
-  return `${formatNumber(value, 0)}%`;
+  return formatNumberLocalized(value, 0) + "%";
 }
 
 export function displayName(first?: string, last?: string, email?: string): string {

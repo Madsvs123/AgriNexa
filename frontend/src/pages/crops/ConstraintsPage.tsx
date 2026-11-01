@@ -9,13 +9,16 @@ import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { ConstraintBars } from "@/components/planning/ConstraintBars";
 import { MetricGrid } from "@/components/planning/MetricGrid";
 import { useScope } from "@/hooks/useScope";
-import { RESOURCE_OPTIONS, fmtMoney } from "@/lib/planning";
+import { RESOURCE_OPTIONS } from "@/lib/planning";
 import { formatNumber } from "@/lib/utils";
 import type { ResourceConstraint, ResourceKey } from "@/types";
+import { formatCurrency } from "@/i18n/format";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 export default function ConstraintsPage() {
   const qc = useQueryClient();
   const { farmId, seasonId } = useScope();
+  const labels = usePlanningLabels();
   const listQ = useQuery({ queryKey: ["resource-constraints"], queryFn: () => cropsApi.constraints() });
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
   const seasonsQ = useQuery({ queryKey: ["seasons"], queryFn: () => cropsApi.seasons() });
@@ -90,7 +93,7 @@ export default function ConstraintsPage() {
     },
   });
 
-  const fmtLimit = (c: ResourceConstraint) => (c.unit === "USD" ? fmtMoney(c.limit_value) : `${formatNumber(c.limit_value, 0)} ${c.unit}`);
+  const fmtLimit = (c: ResourceConstraint) => (c.unit === "USD" ? formatCurrency(c.limit_value) : `${formatNumber(c.limit_value, 0)} ${c.unit}`);
 
   return (
     <ListPage
@@ -161,12 +164,12 @@ export default function ConstraintsPage() {
               onChange={(e) => {
                 const r = e.target.value as ResourceKey;
                 setResource(r);
-                setUnit(RESOURCE_OPTIONS.find(([k]) => k === r)?.[2] ?? "");
+                setUnit(RESOURCE_OPTIONS.find(([k]) => k === r)?.[1] ?? "");
               }}
             >
-              {RESOURCE_OPTIONS.map(([k, l, u]) => (
+              {RESOURCE_OPTIONS.map(([k, u]) => (
                 <option key={k} value={k}>
-                  {l} ({u})
+                  {labels.resource(k)} ({u})
                 </option>
               ))}
             </Select>

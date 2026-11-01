@@ -1,8 +1,9 @@
 import { Alert, AlertIcon, Badge, Box, Flex, SimpleGrid, Skeleton, Stack, Text } from "@chakra-ui/react";
 import type { PlantingAssessment } from "@/types";
 import { formatDate } from "@/lib/utils";
-import { fitLabel, fitScheme } from "@/lib/planning";
+import { fitScheme } from "@/lib/planning";
 import { usePlanningMessage } from "./PlanningMessage";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -28,6 +29,7 @@ export function AssessmentPanel({
   compact?: boolean;
 }) {
   const render = usePlanningMessage();
+  const labels = usePlanningLabels();
 
   if (loading && !data) {
     return (
@@ -50,7 +52,7 @@ export function AssessmentPanel({
     <Stack spacing={3}>
       <Flex align="center" gap={2} wrap="wrap">
         <Badge colorScheme={fitScheme(data.fit)} fontSize="xs" px={2} py={0.5} borderRadius="md">
-          {fitLabel(data.fit)}
+          {labels.fit(data.fit)}
         </Badge>
         {data.harvest_ok === false ? (
           <Badge colorScheme="red" variant="outline">

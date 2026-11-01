@@ -31,5 +31,147 @@
   },
   "rotation": {
     "yearPrefix": "Año {{year}}:"
+  },
+  "options": {
+    "plantingSystem": {
+      "monoculture": {
+        "label": "Monocultivo",
+        "hint": "Un solo cultivo en todo el lote."
+      },
+      "intercrop": {
+        "label": "Cultivo intercalado",
+        "hint": "Dos o más cultivos juntos, en los mismos surcos o en surcos alternos."
+      },
+      "relay": {
+        "label": "Cultivo en relevo",
+        "hint": "El segundo cultivo se siembra dentro del primero antes de cosecharlo."
+      },
+      "strip": {
+        "label": "Franjas",
+        "hint": "Franjas alternas con ancho suficiente para pasadas de maquinaria independientes."
+      },
+      "cover": {
+        "label": "Cultivo de cobertura",
+        "hint": "Cultivo sin fin comercial, para proteger y mejorar el suelo."
+      }
+    },
+    "cropCategory": {
+      "grain": "Grano",
+      "oilseed": "Oleaginosa",
+      "legume": "Leguminosa",
+      "vegetable": "Hortaliza",
+      "fruit": "Fruta",
+      "forage": "Forraje",
+      "fiber": "Fibra",
+      "cover": "Cultivo de cobertura",
+      "other": "Otro"
+    },
+    "soil": {
+      "clay": "Arcilloso",
+      "clay_loam": "Franco arcilloso",
+      "loam": "Franco",
+      "silt_loam": "Franco limoso",
+      "silty_clay_loam": "Franco arcillo-limoso",
+      "silt": "Limoso",
+      "sandy_loam": "Franco arenoso",
+      "sand": "Arenoso",
+      "peat": "Turboso",
+      "chalk": "Calcáreo"
+    },
+    "resource": {
+      "water_acre_inches": "Agua de riego",
+      "labor_hours": "Mano de obra",
+      "nitrogen_lb": "Nitrógeno",
+      "seed_budget": "Presupuesto de semilla",
+      "input_budget": "Presupuesto de insumos",
+      "total_budget": "Presupuesto total",
+      "acres": "Acres sembrados",
+      "equipment_hours": "Maquinaria"
+    },
+    "rainfall": {
+      "dry": {
+        "label": "Año seco",
+        "hint": "Rendimiento −10 %, demanda de riego +25 %"
+      },
+      "normal": {
+        "label": "Año normal",
+        "hint": "Valores por defecto del cultivo"
+      },
+      "wet": {
+        "label": "Año húmedo",
+        "hint": "Rendimiento −3 %, demanda de riego −20 %"
+      }
+    },
+    "waterNeed": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "rootDepth": {
+      "shallow": "Superficial",
+      "medium": "Media",
+      "deep": "Profunda"
+    },
+    "planStatus": {
+      "planned": "Planificado",
+      "planted": "Sembrado",
+      "growing": "En desarrollo",
+      "harvested": "Cosechado",
+      "cancelled": "Cancelado"
+    },
+    "strategyStatus": {
+      "draft": "Borrador",
+      "candidate": "Candidata",
+      "adopted": "Adoptada",
+      "archived": "Archivada"
+    },
+    "stepRole": {
+      "main": "Cultivo principal",
+      "cover": "Cultivo de cobertura",
+      "intercrop": "Cultivo intercalado",
+      "fallow": "Barbecho"
+    },
+    "componentRole": {
+      "primary": "Principal",
+      "intercrop": "Intercalado",
+      "relay": "Relevo",
+      "cover": "Cobertura"
+    },
+    "budgetCategory": {
+      "seed": "Semilla",
+      "fertilizer": "Fertilizante",
+      "chemical": "Químico",
+      "labor": "Mano de obra",
+      "fuel": "Combustible",
+      "water": "Agua",
+      "other": "Otro"
+    },
+    "constraintStatus": {
+      "ok": "Correcto",
+      "tight": "Ajustado",
+      "exceeded": "Excedido",
+      "violated": "Incumplido"
+    },
+    "fit": {
+      "optimal": "En ventana",
+      "late": "Tardío",
+      "early": "Temprano",
+      "outside": "Fuera de ventana",
+      "unknown": "Sin fecha"
+    }
+  },
+  "constraints": {
+    "noneApply": "No hay restricciones de recursos para esta finca y campaña.",
+    "soft": "flexible"
+  },
+  "mix": {
+    "sharePct": "Proporción %",
+    "role": "Rol",
+    "anyVariety": "Cualquiera",
+    "noVarieties": "Ninguna definida",
+    "removeComponent": "Quitar {{crop}}",
+    "addCrop": "Agregar cultivo",
+    "shareSummary": "Componentes {{total}} % · principal {{remainder}} %",
+    "compatibleHint": "✓ indica cultivos intercalados compatibles"
   }
 }

@@ -11,9 +11,10 @@ import { Drawer } from "@/components/ui/Modal";
 import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useScope } from "@/hooks/useScope";
-import { RAINFALL_OPTIONS, fmtMoney, riskScheme } from "@/lib/planning";
+import { RAINFALL_OPTIONS, riskScheme } from "@/lib/planning";
 import { formatNumber } from "@/lib/utils";
 import type { Strategy } from "@/types";
+import { formatCurrency } from "@/i18n/format";
 
 const STATUS: Array<[string, string]> = [
   ["draft", "Draft"],
@@ -160,7 +161,7 @@ export default function StrategiesPage() {
           { key: "status", header: "Status", render: (s) => <Badge colorScheme={STATUS_SCHEME[s.status] ?? "gray"} textTransform="capitalize">{s.status}</Badge> },
           { key: "scenario", header: "Scenario", render: (s) => `${RAINFALL_OPTIONS.find(([k]) => k === s.rainfall_scenario)?.[1] ?? s.rainfall_scenario} · ×${Number(s.price_multiplier).toFixed(2)} price` },
           { key: "acres", header: "Acres", render: (s) => (s.summary?.acres != null ? formatNumber(s.summary.acres, 0) : "—") },
-          { key: "margin", header: "Margin", render: (s) => (s.summary?.margin != null ? `${fmtMoney(s.summary.margin)} · ${fmtMoney(s.summary.margin_per_acre)}/ac` : "—") },
+          { key: "margin", header: "Margin", render: (s) => (s.summary?.margin != null ? `${formatCurrency(s.summary.margin)} · ${formatCurrency(s.summary.margin_per_acre)}/ac` : "—") },
           {
             key: "risk",
             header: "Risk",

@@ -7,9 +7,10 @@ import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { AssessmentPanel } from "@/components/planning/AssessmentPanel";
 import { ComponentsEditor } from "@/components/planning/ComponentsEditor";
 import { useDebounced } from "@/hooks/useDebounced";
-import { PLANTING_SYSTEMS, fmtMoney } from "@/lib/planning";
+import { PLANTING_SYSTEMS } from "@/lib/planning";
 import { formatDate } from "@/lib/utils";
 import type { PlantingSystem, StrategyComponent } from "@/types";
+import { formatCurrency } from "@/i18n/format";
 
 /**
  * Create a crop plan with live window/rotation assessment, variety
@@ -226,7 +227,7 @@ export function PlanComposer({
                     <Badge colorScheme={i === 0 ? "brand" : "gray"}>{i === 0 ? "Best fit" : `#${i + 1}`}</Badge>
                     <Text fontWeight="semibold">{r.name}</Text>
                     <Text fontSize="sm" color="fg.muted">
-                      {r.days_to_maturity}d · harvest {formatDate(r.projected_harvest)} · {fmtMoney(r.projected_margin_per_acre)}/ac
+                      {r.days_to_maturity}d · harvest {formatDate(r.projected_harvest)} · {formatCurrency(r.projected_margin_per_acre)}/ac
                     </Text>
                     <Box flex="1" />
                     <Text fontSize="sm" fontWeight="semibold">

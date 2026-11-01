@@ -85,7 +85,9 @@
     "empty": "Nothing here yet",
     "emptyBody": "Records will appear in this table once they exist.",
     "loading": "Loading…",
-    "noMatches": "No matches for “{{query}}”."
+    "noMatches": "No matches for “{{query}}”.",
+    "filterCount_one": "{{count}} filter",
+    "filterCount_other": "{{count}} filters"
   },
   "errors": {
     "generic": "Something went wrong.",

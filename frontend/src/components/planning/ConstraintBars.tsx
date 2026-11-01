@@ -1,18 +1,24 @@
 import { Badge, Box, Flex, Progress, Stack, Text } from "@chakra-ui/react";
 import type { ConstraintResult } from "@/types";
-import { constraintScheme, fmtMoney } from "@/lib/planning";
+import { useTranslation } from "react-i18next";
+import { constraintScheme } from "@/lib/planning";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
+import { formatCurrency } from "@/i18n/format";
 
 function fmt(value: number, unit: string) {
-  if (unit === "USD") return fmtMoney(value);
+  if (unit === "USD") return formatCurrency(value);
   return `${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}${unit ? ` ${unit}` : ""}`;
 }
 
 /** Utilisation bars for resource constraints, worst first. */
 export function ConstraintBars({ results, compact }: { results: ConstraintResult[]; compact?: boolean }) {
+  const { t } = useTranslation("grow");
+  const labels = usePlanningLabels();
+
   if (!results.length) {
     return (
       <Text color="fg.muted" fontSize="sm">
-        No resource constraints apply to this farm and season.
+        {t("constraints.noneApply")}
       </Text>
     );
   }
@@ -26,14 +32,14 @@ export function ConstraintBars({ results, compact }: { results: ConstraintResult
           <Box key={c.constraint_id}>
             <Flex align="center" gap={2} mb={1}>
               <Text fontSize="sm" fontWeight="semibold" noOfLines={1}>
-                {c.label}
+                {labels.resource(c.resource)}
               </Text>
-              <Badge colorScheme={scheme} variant="subtle" textTransform="capitalize" fontSize="10px">
-                {c.status}
+              <Badge colorScheme={scheme} variant="subtle" fontSize="10px">
+                {labels.constraintStatus(c.status)}
               </Badge>
               {!c.is_hard ? (
                 <Badge variant="outline" colorScheme="gray" fontSize="10px">
-                  soft
+                  {t("constraints.soft")}
                 </Badge>
               ) : null}
               <Box flex="1" />

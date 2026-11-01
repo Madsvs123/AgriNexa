@@ -31,5 +31,147 @@
   },
   "rotation": {
     "yearPrefix": "Year {{year}}:"
+  },
+  "options": {
+    "plantingSystem": {
+      "monoculture": {
+        "label": "Monoculture",
+        "hint": "One crop on the whole field."
+      },
+      "intercrop": {
+        "label": "Intercrop",
+        "hint": "Two or more crops grown together in the same rows or alternating rows."
+      },
+      "relay": {
+        "label": "Relay",
+        "hint": "Second crop sown into the first before it is harvested."
+      },
+      "strip": {
+        "label": "Strip",
+        "hint": "Alternating strips wide enough for separate machinery passes."
+      },
+      "cover": {
+        "label": "Cover crop",
+        "hint": "Non-cash crop grown to protect and build soil."
+      }
+    },
+    "cropCategory": {
+      "grain": "Grain",
+      "oilseed": "Oilseed",
+      "legume": "Legume",
+      "vegetable": "Vegetable",
+      "fruit": "Fruit",
+      "forage": "Forage",
+      "fiber": "Fiber",
+      "cover": "Cover crop",
+      "other": "Other"
+    },
+    "soil": {
+      "clay": "Clay",
+      "clay_loam": "Clay loam",
+      "loam": "Loam",
+      "silt_loam": "Silt loam",
+      "silty_clay_loam": "Silty clay loam",
+      "silt": "Silt",
+      "sandy_loam": "Sandy loam",
+      "sand": "Sand",
+      "peat": "Peat",
+      "chalk": "Chalk"
+    },
+    "resource": {
+      "water_acre_inches": "Irrigation water",
+      "labor_hours": "Labor",
+      "nitrogen_lb": "Nitrogen",
+      "seed_budget": "Seed budget",
+      "input_budget": "Input budget",
+      "total_budget": "Total budget",
+      "acres": "Planted acres",
+      "equipment_hours": "Equipment"
+    },
+    "rainfall": {
+      "dry": {
+        "label": "Dry year",
+        "hint": "Yield −10%, irrigation demand +25%"
+      },
+      "normal": {
+        "label": "Normal year",
+        "hint": "Crop defaults"
+      },
+      "wet": {
+        "label": "Wet year",
+        "hint": "Yield −3%, irrigation demand −20%"
+      }
+    },
+    "waterNeed": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "rootDepth": {
+      "shallow": "Shallow",
+      "medium": "Medium",
+      "deep": "Deep"
+    },
+    "planStatus": {
+      "planned": "Planned",
+      "planted": "Planted",
+      "growing": "Growing",
+      "harvested": "Harvested",
+      "cancelled": "Cancelled"
+    },
+    "strategyStatus": {
+      "draft": "Draft",
+      "candidate": "Candidate",
+      "adopted": "Adopted",
+      "archived": "Archived"
+    },
+    "stepRole": {
+      "main": "Main crop",
+      "cover": "Cover crop",
+      "intercrop": "Intercrop",
+      "fallow": "Fallow"
+    },
+    "componentRole": {
+      "primary": "Primary",
+      "intercrop": "Intercrop",
+      "relay": "Relay",
+      "cover": "Cover"
+    },
+    "budgetCategory": {
+      "seed": "Seed",
+      "fertilizer": "Fertilizer",
+      "chemical": "Chemical",
+      "labor": "Labor",
+      "fuel": "Fuel",
+      "water": "Water",
+      "other": "Other"
+    },
+    "constraintStatus": {
+      "ok": "OK",
+      "tight": "Tight",
+      "exceeded": "Exceeded",
+      "violated": "Violated"
+    },
+    "fit": {
+      "optimal": "In window",
+      "late": "Late",
+      "early": "Early",
+      "outside": "Outside window",
+      "unknown": "No date"
+    }
+  },
+  "constraints": {
+    "noneApply": "No resource constraints apply to this farm and season.",
+    "soft": "soft"
+  },
+  "mix": {
+    "sharePct": "Share %",
+    "role": "Role",
+    "anyVariety": "Any",
+    "noVarieties": "None defined",
+    "removeComponent": "Remove {{crop}}",
+    "addCrop": "Add crop",
+    "shareSummary": "Components {{total}}% · primary {{remainder}}%",
+    "compatibleHint": "✓ marks compatible intercrops"
   }
 }

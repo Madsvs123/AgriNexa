@@ -7,7 +7,8 @@ import { ChartCard } from "@/components/ui/StatCard";
 import { ChartFrame } from "@/components/ui/ChartFrame";
 import { DataTable } from "@/components/ui/DataTable";
 import { useScope } from "@/hooks/useScope";
-import { fmtMoney } from "@/lib/planning";
+import { formatCurrency } from "@/i18n/format";
+
 
 export default function BudgetPage() {
   const { params } = useScope();
@@ -42,7 +43,7 @@ export default function BudgetPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
               <XAxis dataKey="category" />
               <YAxis />
-              <Tooltip formatter={(v: number) => fmtMoney(v)} />
+              <Tooltip formatter={(v: number) => formatCurrency(v)} />
               <Bar dataKey="actual" fill="#2F6F4E" name="Actual" />
               <Bar dataKey="planned" fill="#D4A017" name="Planned" />
             </BarChart>
@@ -59,14 +60,14 @@ export default function BudgetPage() {
           { key: "category", header: "Category", render: (r) => r.category[0].toUpperCase() + r.category.slice(1) },
           { key: "farm_name", header: "Farm", render: (r) => r.farm_name ?? "—" },
           { key: "season_name", header: "Season", render: (r) => r.season_name ?? "—" },
-          { key: "planned", header: "Planned", render: (r) => fmtMoney(r.planned_amount) },
-          { key: "actual", header: "Actual", render: (r) => fmtMoney(r.actual_amount) },
+          { key: "planned", header: "Planned", render: (r) => formatCurrency(r.planned_amount) },
+          { key: "actual", header: "Actual", render: (r) => formatCurrency(r.actual_amount) },
           {
             key: "variance",
             header: "Variance",
             render: (r) => {
               const v = Number(r.actual_amount) - Number(r.planned_amount);
-              return <Box as="span" color={v > 0 ? "red.500" : "green.600"}>{v > 0 ? "+" : ""}{fmtMoney(v)}</Box>;
+              return <Box as="span" color={v > 0 ? "red.500" : "green.600"}>{v > 0 ? "+" : ""}{formatCurrency(v)}</Box>;
             },
           },
         ]}

@@ -2,6 +2,8 @@ import { Link as RouterLink } from "react-router-dom";
 import { Leaf } from "lucide-react";
 import type { ReactNode } from "react";
 import { Box, Flex, Heading, Link, Text } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 export function AuthLayout({
   title,
@@ -14,6 +16,8 @@ export function AuthLayout({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const { t } = useTranslation("auth");
+
   return (
     <Flex minH="100vh" direction={{ base: "column", lg: "row" }}>
       <Flex
@@ -35,17 +39,19 @@ export function AuthLayout({
             </Text>
           </Flex>
           <Heading size="xl" mt={10} maxW="md" fontWeight="semibold">
-            Precision farming, unified.
+            {t("brand.headline")}
           </Heading>
           <Text mt={4} maxW="md" color="whiteAlpha.800">
-            Fields, moisture, irrigation, and yield in one operations center — built for growers who run North Ridge
-            and Willow Creek like a fleet.
+            {t("brand.blurb")}
           </Text>
         </Box>
-        <Text color="whiteAlpha.600">Satellite layers · live sensors · seasonal plans</Text>
+        <Text color="whiteAlpha.600">{t("brand.footer")}</Text>
       </Flex>
       <Flex flex="1" align="center" justify="center" p={{ base: 6, md: 10 }} bg="bg.canvas">
         <Box w="100%" maxW="420px">
+          <Flex justify="flex-end" mb={2}>
+            <LanguageSwitcher />
+          </Flex>
           <Heading size="lg">{title}</Heading>
           <Text color="fg.muted" mt={1} mb={6}>
             {subtitle}
@@ -54,11 +60,11 @@ export function AuthLayout({
           {footer ? <Box mt={5}>{footer}</Box> : null}
           <Text fontSize="sm" color="fg.muted" mt={6}>
             <Link as={RouterLink} to="/signin" color="brand.500">
-              Sign in
+              {t("signIn")}
             </Link>{" "}
             ·{" "}
             <Link as={RouterLink} to="/register" color="brand.500">
-              Create organization
+              {t("createOrganization")}
             </Link>
           </Text>
         </Box>

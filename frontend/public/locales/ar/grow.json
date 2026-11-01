@@ -39,5 +39,147 @@
   },
   "rotation": {
     "yearPrefix": "السنة {{year}}:"
+  },
+  "options": {
+    "plantingSystem": {
+      "monoculture": {
+        "label": "زراعة أحادية",
+        "hint": "محصول واحد في كامل الحقل."
+      },
+      "intercrop": {
+        "label": "تحميل",
+        "hint": "محصولان أو أكثر معًا، في الصفوف نفسها أو في صفوف متناوبة."
+      },
+      "relay": {
+        "label": "زراعة تعاقبية",
+        "hint": "يُزرع المحصول الثاني داخل الأول قبل حصاده."
+      },
+      "strip": {
+        "label": "شرائح",
+        "hint": "شرائح متناوبة بعرض يسمح بمرور الآلات بشكل منفصل."
+      },
+      "cover": {
+        "label": "محصول تغطية",
+        "hint": "محصول غير تجاري يُزرع لحماية التربة وتحسينها."
+      }
+    },
+    "cropCategory": {
+      "grain": "حبوب",
+      "oilseed": "بذور زيتية",
+      "legume": "بقوليات",
+      "vegetable": "خضروات",
+      "fruit": "فاكهة",
+      "forage": "أعلاف",
+      "fiber": "ألياف",
+      "cover": "محصول تغطية",
+      "other": "أخرى"
+    },
+    "soil": {
+      "clay": "طينية",
+      "clay_loam": "طميية طينية",
+      "loam": "طميية",
+      "silt_loam": "طميية غرينية",
+      "silty_clay_loam": "طميية طينية غرينية",
+      "silt": "غرينية",
+      "sandy_loam": "طميية رملية",
+      "sand": "رملية",
+      "peat": "خثية",
+      "chalk": "طباشيرية"
+    },
+    "resource": {
+      "water_acre_inches": "مياه الري",
+      "labor_hours": "العمالة",
+      "nitrogen_lb": "النيتروجين",
+      "seed_budget": "ميزانية البذور",
+      "input_budget": "ميزانية المدخلات",
+      "total_budget": "الميزانية الإجمالية",
+      "acres": "المساحة المزروعة",
+      "equipment_hours": "المعدات"
+    },
+    "rainfall": {
+      "dry": {
+        "label": "سنة جافة",
+        "hint": "الإنتاجية −10٪، الاحتياج للري +25٪"
+      },
+      "normal": {
+        "label": "سنة عادية",
+        "hint": "القيم الافتراضية للمحصول"
+      },
+      "wet": {
+        "label": "سنة ممطرة",
+        "hint": "الإنتاجية −3٪، الاحتياج للري −20٪"
+      }
+    },
+    "waterNeed": {
+      "low": "منخفض",
+      "medium": "متوسط",
+      "high": "مرتفع"
+    },
+    "rootDepth": {
+      "shallow": "سطحي",
+      "medium": "متوسط",
+      "deep": "عميق"
+    },
+    "planStatus": {
+      "planned": "مخطط",
+      "planted": "مزروع",
+      "growing": "في طور النمو",
+      "harvested": "محصود",
+      "cancelled": "ملغى"
+    },
+    "strategyStatus": {
+      "draft": "مسودة",
+      "candidate": "مرشحة",
+      "adopted": "معتمدة",
+      "archived": "مؤرشفة"
+    },
+    "stepRole": {
+      "main": "المحصول الرئيسي",
+      "cover": "محصول تغطية",
+      "intercrop": "تحميل",
+      "fallow": "بور"
+    },
+    "componentRole": {
+      "primary": "أساسي",
+      "intercrop": "تحميل",
+      "relay": "تعاقبي",
+      "cover": "تغطية"
+    },
+    "budgetCategory": {
+      "seed": "بذور",
+      "fertilizer": "أسمدة",
+      "chemical": "كيماويات",
+      "labor": "عمالة",
+      "fuel": "وقود",
+      "water": "مياه",
+      "other": "أخرى"
+    },
+    "constraintStatus": {
+      "ok": "سليم",
+      "tight": "على الحد",
+      "exceeded": "تجاوز",
+      "violated": "مخالف"
+    },
+    "fit": {
+      "optimal": "ضمن الموعد",
+      "late": "متأخر",
+      "early": "مبكر",
+      "outside": "خارج الموعد",
+      "unknown": "بلا تاريخ"
+    }
+  },
+  "constraints": {
+    "noneApply": "لا توجد قيود موارد تنطبق على هذه المزرعة وهذا الموسم.",
+    "soft": "مرن"
+  },
+  "mix": {
+    "sharePct": "النسبة ٪",
+    "role": "الدور",
+    "anyVariety": "أي صنف",
+    "noVarieties": "لا توجد أصناف",
+    "removeComponent": "إزالة {{crop}}",
+    "addCrop": "إضافة محصول",
+    "shareSummary": "المكوّنات {{total}}٪ · الأساسي {{remainder}}٪",
+    "compatibleHint": "✓ يشير إلى المحاصيل الصالحة للتحميل"
   }
 }

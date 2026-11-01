@@ -100,3 +100,28 @@ export function formatDelta(
  * Arabic sentence — or the reverse — does not reorder surrounding punctuation.
  */
 export const BIDI_ISOLATE = { unicodeBidi: "isolate", dir: "auto" } as const;
+
+
+/**
+ * Month names in the active language.
+ *
+ * Planting windows are stored as a month and a day with no year, so they
+ * cannot go through the date formatters above.
+ */
+export function monthNames(style: "short" | "long" = "short"): string[] {
+  const formatter = new Intl.DateTimeFormat(intl(), { month: style });
+  // 2024 is a leap year, so February 29 is addressable too.
+  return Array.from({ length: 12 }, (_, i) => formatter.format(new Date(2024, i, 1)));
+}
+
+/** A bare month/day pair (1-indexed month), formatted for the active locale. */
+export function formatBareMonthDay(
+  month: number | null | undefined,
+  day: number | null | undefined,
+  fallback = "—",
+): string {
+  if (!month || !day) return fallback;
+  return new Intl.DateTimeFormat(intl(), { month: "short", day: "numeric" }).format(
+    new Date(2024, month - 1, day),
+  );
+}

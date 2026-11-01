@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Drawer as ChakraDrawer,
@@ -72,7 +73,7 @@ export function ConfirmDialog({
   open,
   title,
   body,
-  confirmLabel = "Confirm",
+  confirmLabel,
   danger,
   onConfirm,
   onClose,
@@ -85,6 +86,8 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("common");
+
   return (
     <Modal
       open={open}
@@ -93,10 +96,10 @@ export function ConfirmDialog({
       footer={
         <>
           <Button variant="ghost" colorScheme="gray" onClick={onClose}>
-            Cancel
+            {t("actions.cancel")}
           </Button>
           <Button colorScheme={danger ? "red" : "brand"} onClick={onConfirm}>
-            {confirmLabel}
+            {confirmLabel ?? t("actions.confirm")}
           </Button>
         </>
       }

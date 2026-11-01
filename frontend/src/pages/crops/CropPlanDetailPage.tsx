@@ -11,9 +11,10 @@ import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { AssessmentPanel } from "@/components/planning/AssessmentPanel";
 import { ComponentsEditor } from "@/components/planning/ComponentsEditor";
 import { CropChip } from "@/components/planning/CropChip";
-import { fmtMoney } from "@/lib/planning";
+
 import { formatAcres, formatDate, formatNumber } from "@/lib/utils";
 import type { StrategyComponent } from "@/types";
+import { formatCurrency } from "@/i18n/format";
 
 export default function CropPlanDetailPage() {
   const { id = "" } = useParams();
@@ -240,7 +241,7 @@ export default function CropPlanDetailPage() {
                             { key: "rate", header: "Rate", render: (r) => `${formatNumber(r.rate_per_acre, 1)} ${r.unit}/ac` },
                             { key: "application_date", header: "Date", render: (r) => formatDate(r.application_date) },
                             { key: "method", header: "Method", render: (r) => r.method || "—" },
-                            { key: "cost", header: "Cost", render: (r) => fmtMoney(r.cost) },
+                            { key: "cost", header: "Cost", render: (r) => formatCurrency(r.cost) },
                           ]}
                         />
                       </Box>

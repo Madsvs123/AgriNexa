@@ -85,7 +85,9 @@
     "empty": "Todavía no hay nada",
     "emptyBody": "Los registros aparecerán en esta tabla cuando existan.",
     "loading": "Cargando…",
-    "noMatches": "Sin resultados para «{{query}}»."
+    "noMatches": "Sin resultados para «{{query}}».",
+    "filterCount_one": "{{count}} filtro",
+    "filterCount_other": "{{count}} filtros"
   },
   "errors": {
     "generic": "Algo salió mal.",

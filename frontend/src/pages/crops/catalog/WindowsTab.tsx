@@ -6,7 +6,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import { Drawer, ConfirmDialog } from "@/components/ui/Modal";
 import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { CropChip } from "@/components/planning/CropChip";
-import { MONTHS, monthDay } from "@/lib/planning";
+import { formatBareMonthDay, monthNames } from "@/i18n/format";
 import type { PlantingWindow } from "@/types";
 
 type MD = { month: string; day: string };
@@ -27,7 +27,7 @@ function MonthDayPicker({ label, value, onChange, required, hint }: { label: str
           aria-label={`${label} month`}
         >
           <option value="">{required ? "Month" : "— none —"}</option>
-          {MONTHS.map((m, i) => (
+          {monthNames().map((m: string, i: number) => (
             <option key={m} value={i + 1}>
               {m}
             </option>
@@ -171,9 +171,9 @@ export function WindowsTab() {
               />
             ),
           },
-          { key: "window", header: "Optimal", render: (w) => `${monthDay(w.start_month, w.start_day)} – ${monthDay(w.end_month, w.end_day)}` },
-          { key: "late", header: "Late until", render: (w) => monthDay(w.late_end_month, w.late_end_day) },
-          { key: "harvest", header: "Harvest by", render: (w) => monthDay(w.harvest_by_month, w.harvest_by_day) },
+          { key: "window", header: "Optimal", render: (w) => `${formatBareMonthDay(w.start_month, w.start_day)} – ${formatBareMonthDay(w.end_month, w.end_day)}` },
+          { key: "late", header: "Late until", render: (w) => formatBareMonthDay(w.late_end_month, w.late_end_day) },
+          { key: "harvest", header: "Harvest by", render: (w) => formatBareMonthDay(w.harvest_by_month, w.harvest_by_day) },
           { key: "soil", header: "Min soil °C", render: (w) => (w.min_soil_temp_c == null ? "—" : `${w.min_soil_temp_c}°`) },
           { key: "source", header: "Source", render: (w) => w.source || "—" },
         ]}

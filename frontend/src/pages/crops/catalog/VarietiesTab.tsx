@@ -8,9 +8,10 @@ import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { FilterBar, FilterSelect } from "@/components/ui/FilterBar";
 import { CropChip } from "@/components/planning/CropChip";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
-import { SOIL_OPTIONS, fmtMoney } from "@/lib/planning";
+import { SOIL_OPTIONS } from "@/lib/planning";
 import { formatNumber } from "@/lib/utils";
 import type { Variety } from "@/types";
+import { formatCurrency } from "@/i18n/format";
 
 type Form = Record<string, string>;
 const EMPTY: Form = {
@@ -161,7 +162,7 @@ export function VarietiesTab() {
           { key: "drought", header: "Drought", render: (v) => "●".repeat(v.drought_tolerance) + "○".repeat(5 - v.drought_tolerance) },
           { key: "soils", header: "Soils", render: (v) => (v.suitable_soils?.length ? v.suitable_soils.join(", ") : "any") },
           { key: "disease", header: "Resists", render: (v) => (v.disease_resistance?.length ? v.disease_resistance.join(", ") : "—") },
-          { key: "seed", header: "Seed $/ac", render: (v) => fmtMoney(v.effective_seed_cost) },
+          { key: "seed", header: "Seed $/ac", render: (v) => formatCurrency(v.effective_seed_cost) },
         ]}
       />
 

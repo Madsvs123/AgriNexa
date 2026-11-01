@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Badge, Box, Card, CardBody, CardHeader, Flex, Heading, Text } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { statusTone } from "@/lib/utils";
 
 const TONE_SCHEME: Record<string, string> = {
@@ -10,8 +11,13 @@ const TONE_SCHEME: Record<string, string> = {
 };
 
 export function StatusBadge({ status, label }: { status?: string | null; label?: string }) {
+  const { t } = useTranslation("common");
   const tone = statusTone(status);
-  const text = label ?? (status ? status.replace(/_/g, " ") : "idle");
+  // Status codes are a shared vocabulary across crops, sensors, equipment, and
+  // tasks, so they resolve from one place. An unknown code falls back to the
+  // code itself with underscores stripped rather than rendering a raw key.
+  const key = (status ?? "idle").toLowerCase();
+  const text = label ?? t(`status.${key}`, key.replace(/_/g, " "));
   return (
     <Badge colorScheme={TONE_SCHEME[tone] ?? "gray"} variant="subtle" textTransform="capitalize">
       {text}

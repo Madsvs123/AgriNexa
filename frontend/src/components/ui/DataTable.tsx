@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "./StatCard";
 
 export interface Column<T> {
@@ -14,8 +15,8 @@ export function DataTable<T>({
   rows,
   rowKey,
   onRowClick,
-  emptyTitle = "Nothing planted here yet",
-  emptyBody = "When records exist they will appear in this table — try North Ridge or Willow Creek once data is synced.",
+  emptyTitle,
+  emptyBody,
   emptyAction,
 }: {
   columns: Column<T>[];
@@ -26,8 +27,16 @@ export function DataTable<T>({
   emptyBody?: string;
   emptyAction?: ReactNode;
 }) {
+  const { t } = useTranslation("common");
+
   if (!rows.length) {
-    return <EmptyState title={emptyTitle} body={emptyBody} action={emptyAction} />;
+    return (
+      <EmptyState
+        title={emptyTitle ?? t("table.empty")}
+        body={emptyBody ?? t("table.emptyBody")}
+        action={emptyAction}
+      />
+    );
   }
   return (
     <TableContainer bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">

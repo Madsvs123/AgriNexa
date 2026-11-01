@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link as RouterLink, Navigate, useNavigate } from "react-router-dom";
 import { Button, Input, Link, Text } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { authApi, getApiError } from "@/api/client";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthLayout } from "./AuthLayout";
@@ -9,6 +10,7 @@ import { FormField } from "@/components/ui/FormField";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("auth");
   const login = useAuthStore((s) => s.login);
   const token = useAuthStore((s) => s.accessToken);
   const [email, setEmail] = useState("");
@@ -34,10 +36,10 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to your operations center.">
+    <AuthLayout title={t("login.title")} subtitle={t("login.subtitle")}>
       <ErrorBanner message={error} />
       <form onSubmit={onSubmit}>
-        <FormField label="Work email" htmlFor="email">
+        <FormField label={t("fields.email")} htmlFor="email">
           <Input
             id="email"
             type="email"
@@ -47,7 +49,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </FormField>
-        <FormField label="Password" htmlFor="password">
+        <FormField label={t("fields.password")} htmlFor="password">
           <Input
             id="password"
             type="password"
@@ -58,13 +60,13 @@ export default function LoginPage() {
           />
         </FormField>
         <Button type="submit" colorScheme="brand" w="100%" isDisabled={pending}>
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? t("signingIn") : t("signIn")}
         </Button>
       </form>
       <Text color="fg.muted" mt={3.5}>
-        New grower?{" "}
+        {t("login.newGrower")}{" "}
         <Link as={RouterLink} to="/register" color="brand.500">
-          Create an organization
+          {t("login.createLink")}
         </Link>
       </Text>
     </AuthLayout>
