@@ -136,7 +136,17 @@ export function MapView({
   };
 
   return (
-    <Box position="relative" h={height} w="100%" minH="220px" borderRadius="xl" overflow="hidden">
+    // Leaflet positions its panes, zoom buttons, and attribution in physical
+    // coordinates, so the canvas stays left-to-right even in an RTL page.
+    <Box
+      dir="ltr"
+      position="relative"
+      h={height}
+      w="100%"
+      minH="220px"
+      borderRadius="xl"
+      overflow="hidden"
+    >
       <MapContainer center={start} zoom={zoom} style={{ height: "100%", width: "100%" }} scrollWheelZoom>
         {sat ? (
           <TileLayer

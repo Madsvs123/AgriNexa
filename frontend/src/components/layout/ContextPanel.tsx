@@ -13,6 +13,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { layout } from "@/theme";
 
 /**
@@ -38,10 +39,11 @@ export function ContextPanel({
   width?: string;
 }) {
   const docked = useBreakpointValue({ base: false, xl: true }, { fallback: "base" });
+  const { t } = useTranslation();
 
   if (!docked) {
     return (
-      <Drawer isOpen={open} onClose={onClose} placement="right" size="md">
+      <Drawer isOpen={open} onClose={onClose} placement="end" size="md">
         <DrawerOverlay />
         <DrawerContent bg="bg.surface">
           <DrawerCloseButton />
@@ -67,7 +69,7 @@ export function ContextPanel({
       w={width}
       flexShrink={0}
       bg="bg.surface"
-      borderLeftWidth="1px"
+      borderStartWidth="1px"
       borderColor="border.default"
       h="100%"
       overflow="hidden"
@@ -87,7 +89,7 @@ export function ContextPanel({
         </Heading>
         <Box flex="1" />
         <IconButton
-          aria-label="Close panel"
+          aria-label={t("actions.close")}
           icon={<X size={16} />}
           size="xs"
           variant="ghost"

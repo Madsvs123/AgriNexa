@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Avatar,
   Box,
@@ -32,7 +33,9 @@ import {
 import { authApi, platformApi } from "@/api/client";
 import { REFRESH_KEY, useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
-import { displayName, fromNow } from "@/lib/utils";
+import { displayName } from "@/lib/utils";
+import { fromNow } from "@/i18n/format";
+import { LanguageMenuSection } from "./LanguageSwitcher";
 import { NotificationPanel } from "./NotificationPanel";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ScopePicker } from "./ScopePicker";
@@ -53,6 +56,8 @@ export function ContextBar() {
   const toggleSectionPanel = useUiStore((s) => s.toggleSectionPanel);
   const setCommandPalette = useUiStore((s) => s.setCommandPalette);
   const { colorMode, toggleColorMode } = useColorMode();
+  const { t } = useTranslation("nav");
+  const { t: tc } = useTranslation("common");
 
   const notifQ = useQuery({
     queryKey: ["notifications"],
@@ -76,7 +81,7 @@ export function ContextBar() {
       zIndex="sticky"
     >
       <IconButton
-        aria-label="Open navigation"
+        aria-label={t("shell.openNavigation")}
         icon={<MenuIcon size={20} />}
         variant="ghost"
         colorScheme="gray"
@@ -85,7 +90,7 @@ export function ContextBar() {
         onClick={toggleNavDrawer}
       />
       <IconButton
-        aria-label="Toggle section panel"
+        aria-label={t("shell.toggleSectionPanel")}
         icon={<PanelLeft size={18} />}
         variant="ghost"
         colorScheme="gray"
@@ -113,8 +118,8 @@ export function ContextBar() {
         w={{ base: "auto", md: "260px" }}
         justifyContent="flex-start"
       >
-        <Text as="span" flex="1" textAlign="left" display={{ base: "none", md: "inline" }}>
-          Search or jump to…
+        <Text as="span" flex="1" textAlign="start" display={{ base: "none", md: "inline" }}>
+          {t("palette.trigger")}
         </Text>
         <Kbd display={{ base: "none", md: "inline-flex" }} fontSize="10px">
           Ctrl K
@@ -126,7 +131,11 @@ export function ContextBar() {
           <PopoverTrigger>
             <Box position="relative">
               <IconButton
-                aria-label={unreadCount ? `Notifications (${unreadCount} unread)` : "Notifications"}
+                aria-label={
+                  unreadCount
+                    ? t("shell.notificationsUnread", { count: unreadCount })
+                    : t("shell.notifications")
+                }
                 icon={<Bell size={18} />}
                 variant="ghost"
                 colorScheme="gray"
@@ -136,7 +145,7 @@ export function ContextBar() {
                 <Box
                   position="absolute"
                   top={1}
-                  right={1}
+                  insetEnd={1}
                   boxSize={2}
                   borderRadius="full"
                   bg="red.500"
@@ -176,19 +185,20 @@ export function ContextBar() {
                 {displayName(user?.first_name, user?.last_name, user?.email)}
               </Text>
               <Text fontSize="xs" color="fg.muted">
-                {user?.email} · joined {fromNow(user?.date_joined)}
+                {user?.email} · {t("shell.joined", { when: fromNow(user?.date_joined) })}
               </Text>
             </Box>
             <MenuDivider />
-            <MenuItem onClick={() => navigate("/settings/profile")}>Farmer profile</MenuItem>
-            <MenuItem onClick={() => navigate("/settings/organization")}>Organization</MenuItem>
+            <MenuItem onClick={() => navigate("/settings/profile")}>{t("shell.farmerProfile")}</MenuItem>
+            <MenuItem onClick={() => navigate("/settings/organization")}>{t("shell.organization")}</MenuItem>
             <MenuItem
               icon={colorMode === "light" ? <Moon size={14} /> : <Sun size={14} />}
               onClick={toggleColorMode}
               closeOnSelect={false}
             >
-              {colorMode === "light" ? "Dark mode" : "Light mode"}
+              {colorMode === "light" ? tc("theme.dark") : tc("theme.light")}
             </MenuItem>
+            <LanguageMenuSection />
             <MenuDivider />
             <MenuItem
               onClick={() => {
@@ -198,7 +208,7 @@ export function ContextBar() {
                 navigate("/signin");
               }}
             >
-              Sign out
+              {t("shell.signOut")}
             </MenuItem>
           </MenuList>
         </Menu>

@@ -217,7 +217,7 @@ export function PlanComposer({
                 variant={variety === r.variety_id ? "inset" : "surface"}
                 as="button"
                 type="button"
-                textAlign="left"
+                textAlign="start"
                 onClick={() => setVariety(r.variety_id)}
                 _hover={{ borderColor: "brand.300" }}
               >

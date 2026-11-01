@@ -82,7 +82,7 @@ export default function TasksPage() {
                     key={t.id}
                     as="button"
                     type="button"
-                    textAlign="left"
+                    textAlign="start"
                     bg="bg.subtle"
                     borderWidth="1px"
                     borderColor="border.default"

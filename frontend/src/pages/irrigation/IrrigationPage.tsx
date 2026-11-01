@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Box,
   Button,
@@ -21,6 +21,7 @@ import { formatDateTime, formatNumber, formatTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { StatusBadge, ChartCard, EmptyState } from "@/components/ui/StatCard";
 import { Modal } from "@/components/ui/Modal";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 
 export default function IrrigationPage() {
   const qc = useQueryClient();
@@ -133,31 +134,27 @@ export default function IrrigationPage() {
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <ChartCard title="Water by day">
-          <Box h="220px">
-            <ResponsiveContainer>
-              <LineChart data={analyticsQ.data?.daily ?? []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="date" hide />
-                <YAxis />
-                <Tooltip />
-                <Line dataKey="gallons" stroke="#3D7EA6" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
+          <ChartFrame height="220px">
+            <LineChart data={analyticsQ.data?.daily ?? []}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+              <XAxis dataKey="date" hide />
+              <YAxis />
+              <Tooltip />
+              <Line dataKey="gallons" stroke="#3D7EA6" dot={false} />
+            </LineChart>
+            </ChartFrame>
         </ChartCard>
         <ChartCard title="Efficiency by zone">
           <Text color="fg.muted">
             {formatNumber(analyticsQ.data?.efficiency_pct)}% efficiency · {formatNumber(analyticsQ.data?.gallons_this_week)} gal this week
           </Text>
-          <Box h="180px">
-            <ResponsiveContainer>
-              <BarChart data={analyticsQ.data?.by_zone ?? []}>
-                <XAxis dataKey="zone_name" hide />
-                <Tooltip />
-                <Bar dataKey="gallons" fill="#2F6F4E" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
+          <ChartFrame height="180px">
+            <BarChart data={analyticsQ.data?.by_zone ?? []}>
+              <XAxis dataKey="zone_name" hide />
+              <Tooltip />
+              <Bar dataKey="gallons" fill="#2F6F4E" />
+            </BarChart>
+            </ChartFrame>
         </ChartCard>
       </SimpleGrid>
 

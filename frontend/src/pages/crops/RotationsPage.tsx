@@ -114,7 +114,7 @@ export default function RotationsPage() {
               key={r.id}
               variant="surface"
               as="button"
-              textAlign="left"
+              textAlign="start"
               onClick={() => navigate(`/crops/rotations/${r.id}`)}
               _hover={{ borderColor: "brand.300" }}
               transition="border-color 0.15s"

@@ -34,7 +34,7 @@ export function WorkspacePage({
           h="100%"
           overflowY="auto"
           bg="bg.surface"
-          borderRightWidth="1px"
+          borderEndWidth="1px"
           borderColor="border.default"
           display={{ base: "none", md: "block" }}
         >

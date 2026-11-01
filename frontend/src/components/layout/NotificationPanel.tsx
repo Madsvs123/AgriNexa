@@ -42,7 +42,7 @@ export function NotificationPanel({
             key={n.id}
             as="button"
             w="100%"
-            textAlign="left"
+            textAlign="start"
             px={4}
             py={2.5}
             opacity={n.is_read ? 0.65 : 1}

@@ -1,16 +1,10 @@
 import { useMemo, useState } from "react";
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
-import {
-  Box,
-  Flex,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { Box, Flex, Input, InputGroup, InputLeftElement, Stack, Text } from "@chakra-ui/react";
 import { Search } from "lucide-react";
-import { SECTIONS, sectionForPath, sectionRoutes } from "@/navigation/manifest";
+import { sectionForPath } from "@/navigation/manifest";
+import { useSectionRoutes, useNavLabels } from "@/navigation/useNav";
 import { ScopeFilters } from "./ScopePicker";
 import { layout } from "@/theme";
 
@@ -23,36 +17,38 @@ import { layout } from "@/theme";
  */
 export function SectionPanelContent({ onNavigate }: { onNavigate?: () => void }) {
   const { pathname } = useLocation();
+  const { t } = useTranslation("nav");
+  const { sectionLabelFor } = useNavLabels();
   const sectionId = sectionForPath(pathname);
-  const section = SECTIONS.find((s) => s.id === sectionId);
+  const sectionLabel = sectionLabelFor(sectionId);
+  const allRoutes = useSectionRoutes(sectionId);
   const [filter, setFilter] = useState("");
 
   const routes = useMemo(() => {
-    const all = sectionRoutes(sectionId);
     const q = filter.trim().toLowerCase();
-    if (!q) return all;
-    return all.filter(
+    if (!q) return allRoutes;
+    return allRoutes.filter(
       (r) =>
         r.label.toLowerCase().includes(q) ||
-        (r.keywords ?? []).some((k) => k.toLowerCase().includes(q)),
+        r.keywords.some((k) => k.toLowerCase().includes(q)),
     );
-  }, [sectionId, filter]);
+  }, [allRoutes, filter]);
 
   return (
     <Flex
       direction="column"
       h="100%"
       bg="bg.surface"
-      borderRightWidth="1px"
+      borderEndWidth="1px"
       borderColor="border.default"
     >
       <Box px={4} pt={4} pb={2}>
         <Text fontFamily="heading" fontSize="lg" fontWeight="semibold">
-          {section?.label ?? "Navigate"}
+          {sectionLabel}
         </Text>
       </Box>
 
-      {sectionRoutes(sectionId).length > 5 ? (
+      {allRoutes.length > 5 ? (
         <Box px={3} pb={2}>
           <InputGroup size="sm">
             <InputLeftElement pointerEvents="none" color="fg.muted">
@@ -61,15 +57,22 @@ export function SectionPanelContent({ onNavigate }: { onNavigate?: () => void })
             <Input
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder={`Filter ${section?.label.toLowerCase() ?? ""}`}
-              aria-label={`Filter ${section?.label ?? "section"} pages`}
+              placeholder={t("shell.filterSection", { section: sectionLabel })}
+              aria-label={t("shell.filterSection", { section: sectionLabel })}
               borderRadius="md"
             />
           </InputGroup>
         </Box>
       ) : null}
 
-      <Stack as="nav" aria-label={`${section?.label ?? "Section"} pages`} spacing={0.5} px={2} flex="1" overflowY="auto">
+      <Stack
+        as="nav"
+        aria-label={t("shell.sectionPages", { section: sectionLabel })}
+        spacing={0.5}
+        px={2}
+        flex="1"
+        overflowY="auto"
+      >
         {routes.map((route) => {
           const Icon = route.icon;
           return (
@@ -106,7 +109,7 @@ export function SectionPanelContent({ onNavigate }: { onNavigate?: () => void })
         })}
         {!routes.length ? (
           <Text px={3} py={2} fontSize="sm" color="fg.muted">
-            No pages match “{filter}”.
+            {t("shell.noPagesMatch", { query: filter })}
           </Text>
         ) : null}
       </Stack>

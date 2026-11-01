@@ -1,6 +1,6 @@
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Box,
   Card,
@@ -19,6 +19,7 @@ import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormFiel
 import { StatusBadge, StatCard, ChartCard } from "@/components/ui/StatCard";
 import { MapView } from "@/components/ui/MapView";
 import { useSensorSocket } from "@/hooks/useSensorSocket";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 
 export default function SensorDetailPage() {
   const { id = "" } = useParams();
@@ -76,17 +77,15 @@ export default function SensorDetailPage() {
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <ChartCard title="History">
-          <Box h="260px">
-            <ResponsiveContainer>
-              <LineChart data={chart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="t" hide />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="v" stroke="#2F6F4E" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
+          <ChartFrame height="260px">
+            <LineChart data={chart}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+              <XAxis dataKey="t" hide />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="v" stroke="#2F6F4E" dot={false} />
+            </LineChart>
+            </ChartFrame>
         </ChartCard>
         <Stack spacing={4}>
           <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
@@ -96,7 +95,7 @@ export default function SensorDetailPage() {
               </Heading>
               <StatusBadge status={healthQ.data?.status ?? sensor.status} />
               <Text color="fg.muted">Last seen {formatDateTime(healthQ.data?.last_seen)}</Text>
-              <List styleType="disc" pl={5}>
+              <List styleType="disc" ps={5}>
                 {(healthQ.data?.issues ?? []).map((i) => (
                   <ListItem key={i}>{i}</ListItem>
                 ))}

@@ -1,21 +1,25 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Box, Flex, Text, Tooltip, VisuallyHidden } from "@chakra-ui/react";
 import { Leaf } from "lucide-react";
-import { SECTIONS, sectionForPath, type NavSection } from "@/navigation/manifest";
+import { sectionForPath, type NavSection } from "@/navigation/manifest";
+import { useSections } from "@/navigation/useNav";
 import { layout } from "@/theme";
+
+type LocalizedSection = NavSection & { label: string };
 
 function RailButton({
   section,
   active,
   onSelect,
 }: {
-  section: NavSection;
+  section: LocalizedSection;
   active: boolean;
-  onSelect: (s: NavSection) => void;
+  onSelect: (s: LocalizedSection) => void;
 }) {
   const Icon = section.icon;
   return (
-    <Tooltip label={section.label} placement="right" openDelay={400}>
+    <Tooltip label={section.label} placement="end" openDelay={400}>
       <Box
         as="button"
         type="button"
@@ -33,11 +37,11 @@ function RailButton({
         {active ? (
           <Box
             position="absolute"
-            left={0}
+            insetStart={0}
             top={1.5}
             bottom={1.5}
             w="3px"
-            borderRightRadius="full"
+            borderEndRadius="full"
             bg="wheat.400"
           />
         ) : null}
@@ -61,12 +65,14 @@ function RailButton({
 export function NavRail({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { t } = useTranslation("nav");
+  const sections = useSections();
   const activeSection = sectionForPath(pathname);
 
-  const primary = SECTIONS.filter((s) => !s.footer);
-  const footer = SECTIONS.filter((s) => s.footer);
+  const primary = sections.filter((s) => !s.footer);
+  const footer = sections.filter((s) => s.footer);
 
-  const select = (section: NavSection) => {
+  const select = (section: LocalizedSection) => {
     navigate(section.home);
     onNavigate?.();
   };
@@ -74,7 +80,7 @@ export function NavRail({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Flex
       as="nav"
-      aria-label="Sections"
+      aria-label={t("shell.sections")}
       direction="column"
       w={layout.railWidth}
       flexShrink={0}
@@ -86,6 +92,7 @@ export function NavRail({ onNavigate }: { onNavigate?: () => void }) {
         <Flex boxSize={9} align="center" justify="center" borderRadius="lg" bg="brand.500">
           <Leaf size={18} aria-hidden />
         </Flex>
+        {/* Product name is a brand mark — never translated. */}
         <VisuallyHidden>AgriNexa</VisuallyHidden>
       </Flex>
 

@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Flex, Text } from "@chakra-ui/react";
-import { SECTIONS, sectionForPath } from "@/navigation/manifest";
+import { sectionForPath } from "@/navigation/manifest";
+import { useSections } from "@/navigation/useNav";
 
 /**
  * Bottom tab bar for the five primary sections on small screens, so the most
@@ -9,13 +11,14 @@ import { SECTIONS, sectionForPath } from "@/navigation/manifest";
 export function MobileTabBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { t } = useTranslation("nav");
   const active = sectionForPath(pathname);
-  const sections = SECTIONS.filter((s) => !s.footer);
+  const sections = useSections().filter((s) => !s.footer);
 
   return (
     <Flex
       as="nav"
-      aria-label="Sections"
+      aria-label={t("shell.sections")}
       display={{ base: "flex", lg: "none" }}
       flexShrink={0}
       bg="bg.surface"

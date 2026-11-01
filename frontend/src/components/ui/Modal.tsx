@@ -57,7 +57,7 @@ export function Drawer({
   wide?: boolean;
 }) {
   return (
-    <ChakraDrawer isOpen={open} onClose={onClose} placement="right" size={wide ? "lg" : "md"}>
+    <ChakraDrawer isOpen={open} onClose={onClose} placement="end" size={wide ? "lg" : "md"}>
       <DrawerOverlay />
       <DrawerContent bg="bg.surface">
         <DrawerCloseButton />

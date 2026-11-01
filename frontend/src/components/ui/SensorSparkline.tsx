@@ -11,7 +11,8 @@ export function SensorSparkline({ values, color = "#2F6F4E" }: { values: number[
     );
   }
   return (
-    <Box w="100%" h="42px">
+    <Box w="100%" dir="ltr" h="42px">
+      {/* Time runs left-to-right in every locale. */}
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
           <YAxis hide domain={["dataMin", "dataMax"]} />

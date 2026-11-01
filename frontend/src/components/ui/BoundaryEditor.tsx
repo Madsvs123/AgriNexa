@@ -151,7 +151,9 @@ export function BoundaryEditor({
 
   return (
     <Box>
+      {/* Geoman's drawing toolbar is physically positioned; keep it LTR. */}
       <Box
+        dir="ltr"
         position="relative"
         h={height}
         borderWidth="1px"

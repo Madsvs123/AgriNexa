@@ -24,7 +24,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -53,6 +52,7 @@ import { ErrorBanner, SkeletonKpis } from "@/components/ui/FormField";
 import { StatCard, StatusBadge, ChartCard } from "@/components/ui/StatCard";
 import { useRegisterPageTitle } from "@/components/layout/PageTitleContext";
 import { density } from "@/theme";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 
 const TONE_ACCENT: Record<string, string> = {
   healthy: "green.400",
@@ -284,10 +284,10 @@ export default function DashboardPage() {
       <Accordion allowMultiple defaultIndex={[]}>
         <AccordionItem borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.surface" mb={density.card}>
           <AccordionButton py={3} px={4} _hover={{ bg: "bg.subtle" }} borderRadius="xl">
-            <Heading size="sm" flex="1" textAlign="left">
+            <Heading size="sm" flex="1" textAlign="start">
               Field health
             </Heading>
-            <Text fontSize="sm" color="fg.muted" mr={2}>
+            <Text fontSize="sm" color="fg.muted" me={2}>
               {(healthQ.data ?? []).length} fields
             </Text>
             <AccordionIcon />
@@ -305,8 +305,8 @@ export default function DashboardPage() {
                     bg="bg.surface"
                     borderWidth="1px"
                     borderColor="border.default"
-                    borderLeftWidth="4px"
-                    borderLeftColor={TONE_ACCENT[statusTone(f.health_status)] ?? "gray.400"}
+                    borderStartWidth="4px"
+                    borderStartColor={TONE_ACCENT[statusTone(f.health_status)] ?? "gray.400"}
                     borderRadius="lg"
                     p={3}
                     _hover={{ bg: "bg.subtle" }}
@@ -332,10 +332,10 @@ export default function DashboardPage() {
 
         <AccordionItem borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.surface">
           <AccordionButton py={3} px={4} _hover={{ bg: "bg.subtle" }} borderRadius="xl">
-            <Heading size="sm" flex="1" textAlign="left">
+            <Heading size="sm" flex="1" textAlign="start">
               Trends
             </Heading>
-            <Text fontSize="sm" color="fg.muted" mr={2}>
+            <Text fontSize="sm" color="fg.muted" me={2}>
               Expenses · yield vs target
             </Text>
             <AccordionIcon />
@@ -346,34 +346,30 @@ export default function DashboardPage() {
                 <Text fontSize="sm" color="fg.muted" mb={2}>
                   Expenses
                 </Text>
-                <Box h="200px">
-                  <ResponsiveContainer>
-                    <AreaChart data={expensesQ.data ?? []}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                      <XAxis dataKey="date" hide />
-                      <YAxis hide />
-                      <Tooltip />
-                      <Area dataKey="amount" stroke="#2F6F4E" fill="#7CB51833" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </Box>
+                <ChartFrame height="200px">
+                  <AreaChart data={expensesQ.data ?? []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                    <XAxis dataKey="date" hide />
+                    <YAxis hide />
+                    <Tooltip />
+                    <Area dataKey="amount" stroke="#2F6F4E" fill="#7CB51833" />
+                  </AreaChart>
+                  </ChartFrame>
               </Box>
               <Box>
                 <Text fontSize="sm" color="fg.muted" mb={2}>
                   Yield vs target
                 </Text>
-                <Box h="200px">
-                  <ResponsiveContainer>
-                    <BarChart data={yieldsQ.data ?? []}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                      <XAxis dataKey="label" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="actual" fill="#2F6F4E" />
-                      <Bar dataKey="target" fill="#D4A017" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </Box>
+                <ChartFrame height="200px">
+                  <BarChart data={yieldsQ.data ?? []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                    <XAxis dataKey="label" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="actual" fill="#2F6F4E" />
+                    <Bar dataKey="target" fill="#D4A017" />
+                  </BarChart>
+                  </ChartFrame>
               </Box>
             </SimpleGrid>
           </AccordionPanel>

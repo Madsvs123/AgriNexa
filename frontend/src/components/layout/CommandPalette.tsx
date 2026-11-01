@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Badge,
@@ -19,7 +20,8 @@ import { ArrowRight, Clock, Plus, Search, Zap } from "lucide-react";
 import { platformApi } from "@/api/client";
 import { useUiStore, type RecentEntry } from "@/stores/uiStore";
 import { useDebounced } from "@/hooks/useDebounced";
-import { PALETTE_ROUTES, scoreRoute } from "@/navigation/manifest";
+import { scoreRoute } from "@/navigation/manifest";
+import { usePaletteRoutes } from "@/navigation/useNav";
 
 type ItemKind = "recent" | "route" | "action" | "record";
 
@@ -29,29 +31,27 @@ interface PaletteItem {
   hint?: string;
   group: string;
   kind: ItemKind;
+  /** Rendered with `dir="auto"` — a farm name may be in another script. */
+  isUserContent?: boolean;
   run: () => void;
   /** Recorded in recents when chosen. */
   recent?: RecentEntry;
 }
 
-const ACTIONS: Array<{ id: string; label: string; path: string; keywords: string[] }> = [
-  { id: "new-field", label: "New field", path: "/fields/new", keywords: ["add", "create", "boundary"] },
-  { id: "new-farm", label: "New farm", path: "/farms/new", keywords: ["add", "create", "property"] },
-  {
-    id: "new-scout",
-    label: "New scout report",
-    path: "/scouting/new",
-    keywords: ["add", "create", "pest", "walk"],
-  },
+/** Quick actions; labels and keywords resolve from the `nav` catalogue. */
+const ACTIONS: Array<{ id: string; key: string; path: string }> = [
+  { id: "new-field", key: "newField", path: "/fields/new" },
+  { id: "new-farm", key: "newFarm", path: "/farms/new" },
+  { id: "new-scout", key: "newScoutReport", path: "/scouting/new" },
 ];
 
 const RECORD_GROUPS = [
-  { key: "farms", label: "Farms", to: (id: string) => `/farms/${id}` },
-  { key: "fields", label: "Fields", to: (id: string) => `/fields/${id}` },
-  { key: "equipment", label: "Equipment", to: (id: string) => `/equipment/${id}` },
-  { key: "inventory", label: "Inventory", to: (id: string) => `/inventory/${id}` },
-  { key: "crops", label: "Crops", to: () => "/crops" },
-  { key: "tasks", label: "Tasks", to: () => "/tasks" },
+  { key: "farms", to: (id: string) => `/farms/${id}` },
+  { key: "fields", to: (id: string) => `/fields/${id}` },
+  { key: "equipment", to: (id: string) => `/equipment/${id}` },
+  { key: "inventory", to: (id: string) => `/inventory/${id}` },
+  { key: "crops", to: () => "/crops" },
+  { key: "tasks", to: () => "/tasks" },
 ] as const;
 
 const KIND_ICON: Record<ItemKind, typeof Search> = {
@@ -74,6 +74,8 @@ export function CommandPalette() {
   const recents = useUiStore((s) => s.recents);
   const pushRecent = useUiStore((s) => s.pushRecent);
   const navigate = useNavigate();
+  const { t } = useTranslation("nav");
+  const paletteRoutes = usePaletteRoutes();
 
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
@@ -106,41 +108,42 @@ export function CommandPalette() {
       const out: PaletteItem[] = [];
       if (mode !== "actions") {
         for (const r of recents) {
+          // Nav destinations re-resolve so a language switch relabels history;
+          // record entries keep the name the user actually saw.
+          const route = paletteRoutes.find((x) => x.path === r.path);
           out.push({
             key: `recent:${r.path}`,
-            label: r.label,
-            hint: r.group,
-            group: "Recent",
+            label: route?.label ?? r.label,
+            hint: route?.sectionLabel ?? r.group,
+            group: t("palette.groups.recent"),
             kind: "recent",
-            run: go(r.path, r),
+            run: go(r.path, { ...r, label: route?.label ?? r.label }),
           });
         }
       }
       if (mode !== "records") {
         for (const a of ACTIONS) {
+          const label = t(`palette.actions.${a.key}`);
+          const group = t("palette.groups.actions");
           out.push({
             key: `action:${a.id}`,
-            label: a.label,
-            group: "Actions",
+            label,
+            group,
             kind: "action",
-            run: go(a.path, { id: a.id, label: a.label, path: a.path, group: "Actions" }),
+            run: go(a.path, { id: a.id, label, path: a.path, group }),
           });
         }
       }
       if (mode === "all") {
-        for (const route of PALETTE_ROUTES) {
+        const group = t("palette.groups.goTo");
+        for (const route of paletteRoutes) {
           out.push({
             key: `route:${route.id}`,
             label: route.label,
-            hint: route.section,
-            group: "Go to",
+            hint: route.sectionLabel,
+            group,
             kind: "route",
-            run: go(route.path, {
-              id: route.id,
-              label: route.label,
-              path: route.path,
-              group: "Go to",
-            }),
+            run: go(route.path, { id: route.id, label: route.label, path: route.path, group }),
           });
         }
       }
@@ -150,24 +153,30 @@ export function CommandPalette() {
     const out: PaletteItem[] = [];
 
     if (mode !== "records") {
-      const actionHits = ACTIONS.filter(
-        (a) =>
-          a.label.toLowerCase().includes(term.toLowerCase()) ||
-          a.keywords.some((k) => k.includes(term.toLowerCase())),
-      );
-      for (const a of actionHits) {
+      const needle = term.toLowerCase();
+      const group = t("palette.groups.actions");
+      for (const a of ACTIONS) {
+        const label = t(`palette.actions.${a.key}`);
+        const keywords = t(`palette.actionKeywords.${a.key}`, "")
+          .split(",")
+          .map((k) => k.trim().toLowerCase())
+          .filter(Boolean);
+        const hit = label.toLowerCase().includes(needle) || keywords.some((k) => k.includes(needle));
+        if (!hit) continue;
         out.push({
           key: `action:${a.id}`,
-          label: a.label,
-          group: "Actions",
+          label,
+          group,
           kind: "action",
-          run: go(a.path, { id: a.id, label: a.label, path: a.path, group: "Actions" }),
+          run: go(a.path, { id: a.id, label, path: a.path, group }),
         });
       }
     }
 
     if (mode === "all") {
-      const scored = PALETTE_ROUTES.map((r) => ({ route: r, score: scoreRoute(r, term) }))
+      const group = t("palette.groups.goTo");
+      const scored = paletteRoutes
+        .map((r) => ({ route: r, score: scoreRoute(r, term) }))
         .filter((x) => x.score > 0)
         .sort((a, b) => b.score - a.score || a.route.label.localeCompare(b.route.label))
         .slice(0, 6);
@@ -175,15 +184,10 @@ export function CommandPalette() {
         out.push({
           key: `route:${route.id}`,
           label: route.label,
-          hint: route.section,
-          group: "Go to",
+          hint: route.sectionLabel,
+          group,
           kind: "route",
-          run: go(route.path, {
-            id: route.id,
-            label: route.label,
-            path: route.path,
-            group: "Go to",
-          }),
+          run: go(route.path, { id: route.id, label: route.label, path: route.path, group }),
         });
       }
     }
@@ -203,20 +207,23 @@ export function CommandPalette() {
             record.serial,
             record.status,
           ].filter((v): v is string => typeof v === "string" && v.length > 0);
+          const groupLabel = t(`palette.groups.${group.key}`);
           out.push({
             key: `record:${group.key}:${id}`,
             label,
             hint: hintParts.slice(0, 2).join(" · ") || undefined,
-            group: group.label,
+            group: groupLabel,
             kind: "record",
-            run: go(path, { id: `record:${id}`, label, path, group: group.label }),
+            // Record names are user data — shown verbatim, isolated for bidi.
+            isUserContent: true,
+            run: go(path, { id: `record:${id}`, label, path, group: groupLabel }),
           });
         }
       }
     }
 
     return out;
-  }, [term, mode, recents, searchQ.data, navigate, pushRecent, setOpen]);
+  }, [term, mode, recents, searchQ.data, navigate, pushRecent, setOpen, t, paletteRoutes]);
 
   // Keep the highlight in range as results stream in.
   useEffect(() => {
@@ -290,21 +297,21 @@ export function CommandPalette() {
       <ModalOverlay />
       <ModalContent mt="8vh" bg="bg.surface" overflow="hidden">
         <InputGroup>
-          <InputLeftElement h="56px" pl={2} color="fg.muted">
+          <InputLeftElement h="56px" ps={2} color="fg.muted">
             {searchQ.isFetching ? <Spinner size="sm" /> : <Search size={18} aria-hidden />}
           </InputLeftElement>
           <Input
             autoFocus
             variant="unstyled"
             h="56px"
-            pl="44px"
-            pr={4}
+            ps="44px"
+            pe={4}
             fontSize="md"
-            placeholder="Search records, or jump to a page…"
+            placeholder={t("palette.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            aria-label="Search or jump to a page"
+            aria-label={t("palette.ariaLabel")}
             aria-expanded
             aria-controls="palette-results"
             aria-activedescendant={items[cursor] ? `palette-item-${cursor}` : undefined}
@@ -320,7 +327,7 @@ export function CommandPalette() {
           ref={listRef}
           id="palette-results"
           role="listbox"
-          aria-label="Results"
+          aria-label={t("palette.results")}
         >
           {items.map((item, index) => {
             const showHeader = item.group !== lastGroup;
@@ -352,12 +359,12 @@ export function CommandPalette() {
                   w="100%"
                   align="center"
                   gap={3}
-                  textAlign="left"
+                  textAlign="start"
                   px={4}
                   py={2}
                   bg={active ? "bg.subtle" : "transparent"}
-                  borderLeftWidth="2px"
-                  borderLeftColor={active ? "brand.500" : "transparent"}
+                  borderStartWidth="2px"
+                  borderStartColor={active ? "brand.500" : "transparent"}
                   _hover={{ bg: "bg.subtle" }}
                   onMouseEnter={() => setCursor(index)}
                   onClick={item.run}
@@ -365,7 +372,7 @@ export function CommandPalette() {
                   <Box color="fg.muted" flexShrink={0}>
                     <Icon size={15} aria-hidden />
                   </Box>
-                  <Text as="span" flex="1" noOfLines={1}>
+                  <Text as="span" flex="1" noOfLines={1} dir={item.isUserContent ? "auto" : undefined}>
                     {item.label}
                   </Text>
                   {item.hint ? (
@@ -382,10 +389,10 @@ export function CommandPalette() {
             <Box px={4} py={6}>
               <Text color="fg.muted" fontSize="sm">
                 {searchQ.isFetching
-                  ? "Searching…"
+                  ? t("palette.searching")
                   : term.length === 1
-                    ? "Keep typing — record search starts at two characters."
-                    : `No matches for “${term}”. Press Enter for the full search page.`}
+                    ? t("palette.keepTyping")
+                    : t("palette.noMatches", { query: term })}
               </Text>
             </Box>
           ) : null}
@@ -405,21 +412,21 @@ export function CommandPalette() {
         >
           <Flex align="center" gap={1}>
             <Kbd fontSize="10px">↑</Kbd>
-            <Kbd fontSize="10px">↓</Kbd> navigate
+            <Kbd fontSize="10px">↓</Kbd> {t("palette.hints.navigate")}
           </Flex>
           <Flex align="center" gap={1}>
-            <Kbd fontSize="10px">↵</Kbd> open
+            <Kbd fontSize="10px">↵</Kbd> {t("palette.hints.open")}
           </Flex>
           <Flex align="center" gap={1}>
-            <Kbd fontSize="10px">esc</Kbd> close
+            <Kbd fontSize="10px">esc</Kbd> {t("palette.hints.close")}
           </Flex>
           <Box flex="1" />
           <Flex align="center" gap={1}>
-            <Zap size={11} aria-hidden /> <Kbd fontSize="10px">&gt;</Kbd> actions
-            <Kbd fontSize="10px" ml={1}>
+            <Zap size={11} aria-hidden /> <Kbd fontSize="10px">&gt;</Kbd> {t("palette.hints.actions")}
+            <Kbd fontSize="10px" ms={1}>
               #
             </Kbd>{" "}
-            records
+            {t("palette.hints.records")}
           </Flex>
         </Flex>
       </ModalContent>

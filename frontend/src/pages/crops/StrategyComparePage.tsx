@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Badge,
   Box,
@@ -30,6 +30,7 @@ import { ConstraintBars } from "@/components/planning/ConstraintBars";
 import { useScope } from "@/hooks/useScope";
 import { fallbackColor, fmtDelta, fmtMoney, riskScheme } from "@/lib/planning";
 import { formatNumber } from "@/lib/utils";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 
 const MONEY_KEYS = new Set(["totals.revenue", "totals.total_cost", "totals.margin", "totals.margin_per_acre"]);
 
@@ -124,7 +125,7 @@ export default function StrategyComparePage() {
             {cmp.ranking.map((r, rank) => {
               const e = cmp.strategies[r.index];
               return (
-                <Card key={r.strategy_id} variant={rank === 0 ? "inset" : "surface"} as="button" textAlign="left" onClick={() => navigate(`/crops/strategies/${r.strategy_id}`)} _hover={{ borderColor: "brand.300" }}>
+                <Card key={r.strategy_id} variant={rank === 0 ? "inset" : "surface"} as="button" textAlign="start" onClick={() => navigate(`/crops/strategies/${r.strategy_id}`)} _hover={{ borderColor: "brand.300" }}>
                   <CardBody>
                     <Flex align="center" gap={2} mb={1}>
                       <Badge colorScheme={rank === 0 ? "brand" : "gray"}>#{rank + 1}</Badge>
@@ -198,36 +199,32 @@ export default function StrategyComparePage() {
 
           <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
             <ChartCard title="Crop mix (acres)">
-              <Box h="260px">
-                <ResponsiveContainer>
-                  <BarChart data={mixData.rows}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    {mixData.crops.map((c) => (
-                      <Bar key={c} dataKey={c} stackId="mix" fill={colorOf(c)} />
-                    ))}
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+              <ChartFrame height="260px">
+                <BarChart data={mixData.rows}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  {mixData.crops.map((c) => (
+                    <Bar key={c} dataKey={c} stackId="mix" fill={colorOf(c)} />
+                  ))}
+                </BarChart>
+                </ChartFrame>
             </ChartCard>
             <ChartCard title="Revenue, cost, margin">
-              <Box h="260px">
-                <ResponsiveContainer>
-                  <BarChart data={cmp.strategies.map((e) => ({ name: e.name, Revenue: e.totals.revenue, Cost: e.totals.total_cost, Margin: e.totals.margin }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={(v) => `$${Math.round(v / 1000)}k`} />
-                    <Tooltip formatter={(v: number) => fmtMoney(v)} />
-                    <Legend />
-                    <Bar dataKey="Revenue" fill="#3D7EA6" />
-                    <Bar dataKey="Cost" fill="#D4A017" />
-                    <Bar dataKey="Margin" fill="#2F6F4E" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+              <ChartFrame height="260px">
+                <BarChart data={cmp.strategies.map((e) => ({ name: e.name, Revenue: e.totals.revenue, Cost: e.totals.total_cost, Margin: e.totals.margin }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                  <XAxis dataKey="name" />
+                  <YAxis tickFormatter={(v) => `$${Math.round(v / 1000)}k`} />
+                  <Tooltip formatter={(v: number) => fmtMoney(v)} />
+                  <Legend />
+                  <Bar dataKey="Revenue" fill="#3D7EA6" />
+                  <Bar dataKey="Cost" fill="#D4A017" />
+                  <Bar dataKey="Margin" fill="#2F6F4E" />
+                </BarChart>
+                </ChartFrame>
             </ChartCard>
           </SimpleGrid>
 

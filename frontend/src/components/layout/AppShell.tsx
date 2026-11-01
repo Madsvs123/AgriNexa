@@ -15,6 +15,7 @@ import { ContextBar } from "./ContextBar";
 import { CommandPalette } from "./CommandPalette";
 import { MobileTabBar } from "./MobileTabBar";
 import { PageTitleProvider } from "./PageTitleContext";
+import { LanguageNotice } from "./LanguageNotice";
 import { matchRoute } from "@/navigation/manifest";
 import { useAuthStore } from "@/stores/authStore";
 import { useScopeStore } from "@/stores/scopeStore";
@@ -28,7 +29,7 @@ function MobileNav() {
   const close = () => setOpen(false);
 
   return (
-    <Drawer isOpen={open} onClose={close} placement="left">
+    <Drawer isOpen={open} onClose={close} placement="start">
       <DrawerOverlay />
       <DrawerContent maxW={`calc(${layout.railWidth} + ${layout.sectionPanelWidth})`}>
         <DrawerBody p={0}>
@@ -111,6 +112,7 @@ export function AppShell() {
 
         <Flex direction="column" flex="1" minW={0} h="100%">
           <ContextBar />
+          <LanguageNotice />
           <Box
             as="main"
             flex="1"

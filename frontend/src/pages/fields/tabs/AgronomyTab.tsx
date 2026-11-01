@@ -42,7 +42,7 @@ export function AgronomyTab({ fieldId }: { fieldId: string }) {
           {history.length === 0 ? (
             <EmptyState title="No history yet" body="Prior seasons (corn, soy, wheat) will timeline here." />
           ) : (
-            <OrderedList pl="18px">
+            <OrderedList ps="18px">
               {history.map((h) => (
                 <ListItem key={h.id} mb={2.5}>
                   <Text as="span" fontWeight="semibold">

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import { format, parseISO } from "date-fns";
 import {
   Alert,
@@ -18,6 +18,7 @@ import {
 import { farmsApi, getApiError, weatherApi } from "@/api/client";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { ChartCard } from "@/components/ui/StatCard";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 
 export default function WeatherPage() {
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
@@ -111,31 +112,27 @@ export default function WeatherPage() {
       </Flex>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <ChartCard title="Rainfall history">
-          <Box h="220px">
-            <ResponsiveContainer>
-              <BarChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="date" hide />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="rainfall_in" fill="#3D7EA6" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
+          <ChartFrame height="220px">
+            <BarChart data={history}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+              <XAxis dataKey="date" hide />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="rainfall_in" fill="#3D7EA6" />
+            </BarChart>
+            </ChartFrame>
         </ChartCard>
         <ChartCard title="Temperature trend">
-          <Box h="220px">
-            <ResponsiveContainer>
-              <LineChart data={tempLine}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="date" hide />
-                <YAxis />
-                <Tooltip />
-                <Line dataKey="high" stroke="#B54708" dot={false} />
-                <Line dataKey="low" stroke="#175CD3" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
+          <ChartFrame height="220px">
+            <LineChart data={tempLine}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+              <XAxis dataKey="date" hide />
+              <YAxis />
+              <Tooltip />
+              <Line dataKey="high" stroke="#B54708" dot={false} />
+              <Line dataKey="low" stroke="#175CD3" dot={false} />
+            </LineChart>
+            </ChartFrame>
         </ChartCard>
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>

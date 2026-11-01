@@ -1,27 +1,34 @@
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Text } from "@chakra-ui/react";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { breadcrumbsFor } from "@/navigation/manifest";
+import { useNavLabels } from "@/navigation/useNav";
+import { useDirection } from "@/i18n/useDirection";
 import { usePageTitle } from "./PageTitleContext";
 
 /**
  * Breadcrumbs derived from the route manifest's `parent` chain.
  *
- * Only two pages used to hand-roll crumbs; every page gets them now, and the
- * leaf label is replaced with the record's real name when a detail page
- * publishes one through `usePageTitle`.
+ * The leaf label is replaced with the record's own name when a detail page
+ * publishes one through `usePageTitle` — that is user data, so it is shown
+ * verbatim and isolated for bidi rather than translated.
  */
 export function Breadcrumbs() {
   const { pathname } = useLocation();
   const { title } = usePageTitle();
-  const crumbs = breadcrumbsFor(pathname, title ?? undefined);
+  const { labelFor } = useNavLabels();
+  const { isRtl } = useDirection();
+  const crumbs = breadcrumbsFor(pathname, labelFor, title ?? undefined);
 
   if (crumbs.length === 0) return null;
+
+  // The separator points the way the text runs.
+  const Separator = isRtl ? ChevronLeft : ChevronRight;
 
   return (
     <Breadcrumb
       spacing={1.5}
-      separator={<ChevronRight size={13} aria-hidden />}
+      separator={<Separator size={13} aria-hidden />}
       fontSize="sm"
       color="fg.muted"
       minW={0}
@@ -40,6 +47,8 @@ export function Breadcrumbs() {
                 color={isLast ? "fg.default" : "fg.muted"}
                 fontWeight={isLast ? "semibold" : "normal"}
                 noOfLines={1}
+                // Record names may be in a different script from the UI.
+                dir={isLast && title ? "auto" : undefined}
               >
                 {crumb.label}
               </Text>

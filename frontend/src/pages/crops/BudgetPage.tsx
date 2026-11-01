@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
 import { Box } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { ListPage } from "@/components/templates/ListPage";
 import { ChartCard } from "@/components/ui/StatCard";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 import { DataTable } from "@/components/ui/DataTable";
 import { useScope } from "@/hooks/useScope";
 import { fmtMoney } from "@/lib/planning";
@@ -36,18 +37,16 @@ export default function BudgetPage() {
       loading={budgetQ.isLoading}
       stats={
         <ChartCard title="Planned vs actual">
-          <Box h="260px">
-            <ResponsiveContainer>
-              <BarChart data={chart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="category" />
-                <YAxis />
-                <Tooltip formatter={(v: number) => fmtMoney(v)} />
-                <Bar dataKey="actual" fill="#2F6F4E" name="Actual" />
-                <Bar dataKey="planned" fill="#D4A017" name="Planned" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
+          <ChartFrame height="260px">
+            <BarChart data={chart}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+              <XAxis dataKey="category" />
+              <YAxis />
+              <Tooltip formatter={(v: number) => fmtMoney(v)} />
+              <Bar dataKey="actual" fill="#2F6F4E" name="Actual" />
+              <Bar dataKey="planned" fill="#D4A017" name="Planned" />
+            </BarChart>
+            </ChartFrame>
         </ChartCard>
       }
     >

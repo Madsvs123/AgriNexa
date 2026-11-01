@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -48,15 +49,16 @@ export function ScopePicker() {
   const setOrg = useAuthStore((s) => s.setOrg);
   const { farmId, seasonId, applies, setFarmId, setSeasonId } = useScope();
   const { farms, seasons } = useScopeOptions();
+  const { t } = useTranslation("nav");
 
   const org = orgs.find((o) => o.id === currentOrgId);
   const farm = farms.find((f) => f.id === farmId);
   const season = seasons.find((s) => s.id === seasonId);
 
   // Only summarise dimensions the current route actually uses.
-  const parts = [org?.name ?? "Organization"];
-  if (applies.includes("farm")) parts.push(farm?.name ?? "All farms");
-  if (applies.includes("season")) parts.push(season?.name ?? "All seasons");
+  const parts = [org?.name ?? t("shell.organization")];
+  if (applies.includes("farm")) parts.push(farm?.name ?? t("shell.allFarms"));
+  if (applies.includes("season")) parts.push(season?.name ?? t("shell.allSeasons"));
 
   return (
     <Popover placement="bottom-start">
@@ -81,7 +83,7 @@ export function ScopePicker() {
           <Stack spacing={3}>
             <Box>
               <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={1.5}>
-                Organization
+                {t("shell.organization")}
               </Text>
               <Stack spacing={0.5}>
                 {orgs.map((o) => (
@@ -95,7 +97,7 @@ export function ScopePicker() {
                     py={1.5}
                     borderRadius="md"
                     fontSize="sm"
-                    textAlign="left"
+                    textAlign="start"
                     bg={o.id === currentOrgId ? "bg.subtle" : "transparent"}
                     _hover={{ bg: "bg.subtle" }}
                     onClick={() => setOrg(o.id)}
@@ -112,7 +114,7 @@ export function ScopePicker() {
             {applies.includes("farm") ? (
               <Box>
                 <Text as="label" htmlFor="scope-farm" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" display="block" mb={1.5}>
-                  Farm
+                  {t("labels.farm", { ns: "common" })}
                 </Text>
                 <Select
                   id="scope-farm"
@@ -120,7 +122,7 @@ export function ScopePicker() {
                   value={farmId ?? ""}
                   onChange={(e) => setFarmId(e.target.value || null)}
                 >
-                  <option value="">All farms</option>
+                  <option value="">{t("shell.allFarms")}</option>
                   {farms.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name}
@@ -133,7 +135,7 @@ export function ScopePicker() {
             {applies.includes("season") ? (
               <Box>
                 <Text as="label" htmlFor="scope-season" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" display="block" mb={1.5}>
-                  Season
+                  {t("labels.season", { ns: "common" })}
                 </Text>
                 <Select
                   id="scope-season"
@@ -141,7 +143,7 @@ export function ScopePicker() {
                   value={seasonId ?? ""}
                   onChange={(e) => setSeasonId(e.target.value || null)}
                 >
-                  <option value="">All seasons</option>
+                  <option value="">{t("shell.allSeasons")}</option>
                   {seasons.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -153,7 +155,7 @@ export function ScopePicker() {
 
             {!applies.length ? (
               <Text fontSize="sm" color="fg.muted">
-                This page is organization-wide — no farm or season filter applies.
+                {t("shell.orgWidePage")}
               </Text>
             ) : null}
           </Stack>
@@ -170,13 +172,14 @@ export function ScopePicker() {
 export function ScopeFilters() {
   const { farmId, seasonId, applies, setFarmId, setSeasonId } = useScope();
   const { farms, seasons } = useScopeOptions();
+  const { t } = useTranslation("nav");
 
   if (!applies.length) return null;
 
   return (
     <Box px={3} py={3} borderTopWidth="1px" borderColor="border.default">
       <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
-        Scope
+        {t("shell.scope")}
       </Text>
       <Stack spacing={2}>
         {applies.includes("farm") ? (
@@ -184,9 +187,9 @@ export function ScopeFilters() {
             size="sm"
             value={farmId ?? ""}
             onChange={(e) => setFarmId(e.target.value || null)}
-            aria-label="Farm scope"
+            aria-label={t("labels.farm", { ns: "common" })}
           >
-            <option value="">All farms</option>
+            <option value="">{t("shell.allFarms")}</option>
             {farms.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
@@ -199,9 +202,9 @@ export function ScopeFilters() {
             size="sm"
             value={seasonId ?? ""}
             onChange={(e) => setSeasonId(e.target.value || null)}
-            aria-label="Season scope"
+            aria-label={t("labels.season", { ns: "common" })}
           >
-            <option value="">All seasons</option>
+            <option value="">{t("shell.allSeasons")}</option>
             {seasons.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
