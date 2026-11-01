@@ -1,0 +1,50 @@
+{
+  "title": "عمليات الموسم",
+  "subtitle": "المساحة والرطوبة والمياه والتنبيهات على مستوى المؤسسة.",
+  "logScoutReport": "تسجيل كشف حقلي",
+  "openFarmMap": "فتح الخريطة",
+  "bands": {
+    "rightNow": "الآن",
+    "thisSeason": "هذا الموسم"
+  },
+  "tiles": {
+    "openAlerts": "تنبيهات مفتوحة",
+    "sensorAlerts": "تنبيهات المستشعرات",
+    "lowStock": "مخزون منخفض",
+    "openTasks": "مهام مفتوحة",
+    "allProbesHealthy": "جميع المجسات النشطة سليمة.",
+    "aboveReorder": "فوق حد إعادة الطلب.",
+    "nothingQueued": "لا يوجد شيء معلّق."
+  },
+  "kpis": {
+    "acres": "المساحة",
+    "acresHint": "مملوكة + مستأجرة",
+    "activeFields": "الحقول النشطة",
+    "yieldEstimate": "الإنتاجية المقدّرة",
+    "yieldHint": "منذ بداية الموسم",
+    "waterUsed": "المياه المستهلكة",
+    "equipmentUptime": "جاهزية المعدات",
+    "equipmentHint": "آخر 7 أيام"
+  },
+  "cards": {
+    "cropProgress": "تقدم المحاصيل",
+    "noCropPlans": "لا توجد خطط محاصيل في هذا الموسم. أنشئ خطة للبدء.",
+    "irrigation": "الري",
+    "zones": "المناطق",
+    "zonesRunning": "{{running}} / {{total}} قيد التشغيل",
+    "irrigationDetail": "{{gallons}} جالون اليوم · كفاءة {{efficiency}}",
+    "weatherNow": "الطقس الآن",
+    "forecast": "التوقعات",
+    "weatherDetail": "{{conditions}} · الرياح {{wind}} ميل/س · الرطوبة {{humidity}}٪",
+    "noWeather": "اختر مزرعة بها محطة أرصاد لعرض الحالة الجوية.",
+    "fieldHealth": "حالة الحقول",
+    "fieldCount": "{{count}} حقل",
+    "noFieldHealth": "تظهر بطاقات حالة الحقول بمجرد أن تبدأ المجسات بالإرسال.",
+    "noProbe": "لا يوجد مجس",
+    "fallow": "بور",
+    "trends": "الاتجاهات",
+    "trendsHint": "المصروفات · الإنتاجية مقابل المستهدف",
+    "expenses": "المصروفات",
+    "yieldVsTarget": "الإنتاجية مقابل المستهدف"
+  }
+}

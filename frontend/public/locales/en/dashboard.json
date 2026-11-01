@@ -1,0 +1,50 @@
+{
+  "title": "Season operations",
+  "subtitle": "Acres, moisture, water, and alerts across the organization.",
+  "logScoutReport": "Log scout report",
+  "openFarmMap": "Open farm map",
+  "bands": {
+    "rightNow": "Right now",
+    "thisSeason": "This season"
+  },
+  "tiles": {
+    "openAlerts": "Open alerts",
+    "sensorAlerts": "Sensor alerts",
+    "lowStock": "Low stock",
+    "openTasks": "Open tasks",
+    "allProbesHealthy": "All live probes healthy.",
+    "aboveReorder": "Above reorder points.",
+    "nothingQueued": "Nothing queued."
+  },
+  "kpis": {
+    "acres": "Acres",
+    "acresHint": "Owned + operated",
+    "activeFields": "Active fields",
+    "yieldEstimate": "Yield estimate",
+    "yieldHint": "Season to date",
+    "waterUsed": "Water used",
+    "equipmentUptime": "Equipment uptime",
+    "equipmentHint": "Rolling 7-day"
+  },
+  "cards": {
+    "cropProgress": "Crop progress",
+    "noCropPlans": "No crop plans in this season. Add a plan to get started.",
+    "irrigation": "Irrigation",
+    "zones": "Zones",
+    "zonesRunning": "{{running}} / {{total}} running",
+    "irrigationDetail": "{{gallons}} gal today · {{efficiency}} efficiency",
+    "weatherNow": "Weather now",
+    "forecast": "Forecast",
+    "weatherDetail": "{{conditions}} · Wind {{wind}} mph · RH {{humidity}}%",
+    "noWeather": "Select a farm with a weather station to see conditions.",
+    "fieldHealth": "Field health",
+    "fieldCount": "{{count}} fields",
+    "noFieldHealth": "Field health cards appear once probes report in.",
+    "noProbe": "No probe",
+    "fallow": "Fallow",
+    "trends": "Trends",
+    "trendsHint": "Expenses · yield vs target",
+    "expenses": "Expenses",
+    "yieldVsTarget": "Yield vs target"
+  }
+}

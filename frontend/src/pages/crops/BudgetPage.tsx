@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
 import { Box } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
@@ -12,6 +14,8 @@ import { formatCurrency } from "@/i18n/format";
 
 export default function BudgetPage() {
   const { params } = useScope();
+  const { t } = useTranslation("grow");
+  const labels = usePlanningLabels();
   const budgetQ = useQuery({
     queryKey: ["budgets", params],
     queryFn: () =>
@@ -32,20 +36,20 @@ export default function BudgetPage() {
 
   return (
     <ListPage
-      title="Seasonal budget"
-      subtitle="Planned versus actual spend by input category."
+      title={t("budget.title")}
+      subtitle={t("budget.subtitle")}
       error={budgetQ.error ? getApiError(budgetQ.error) : null}
       loading={budgetQ.isLoading}
       stats={
-        <ChartCard title="Planned vs actual">
+        <ChartCard title={t("budget.plannedVsActual")}>
           <ChartFrame height="260px">
             <BarChart data={chart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
               <XAxis dataKey="category" />
               <YAxis />
               <Tooltip formatter={(v: number) => formatCurrency(v)} />
-              <Bar dataKey="actual" fill="#2F6F4E" name="Actual" />
-              <Bar dataKey="planned" fill="#D4A017" name="Planned" />
+              <Bar dataKey="actual" fill="#2F6F4E" name={t("budget.actual")} />
+              <Bar dataKey="planned" fill="#D4A017" name={t("budget.planned")} />
             </BarChart>
             </ChartFrame>
         </ChartCard>
@@ -54,17 +58,17 @@ export default function BudgetPage() {
       <DataTable
         rows={rows}
         rowKey={(r) => r.id}
-        emptyTitle="No budget lines"
-        emptyBody="Add seed, fertilizer, chemical, and custom hire lines for this season."
+        emptyTitle={t("budget.emptyTitle")}
+        emptyBody={t("budget.emptyBody")}
         columns={[
-          { key: "category", header: "Category", render: (r) => r.category[0].toUpperCase() + r.category.slice(1) },
-          { key: "farm_name", header: "Farm", render: (r) => r.farm_name ?? "—" },
-          { key: "season_name", header: "Season", render: (r) => r.season_name ?? "—" },
-          { key: "planned", header: "Planned", render: (r) => formatCurrency(r.planned_amount) },
-          { key: "actual", header: "Actual", render: (r) => formatCurrency(r.actual_amount) },
+          { key: "category", header: t("budget.columns.category"), render: (r) => labels.budgetCategory(r.category) },
+          { key: "farm_name", header: t("budget.columns.farm"), render: (r) => r.farm_name ?? "—" },
+          { key: "season_name", header: t("budget.columns.season"), render: (r) => r.season_name ?? "—" },
+          { key: "planned", header: t("budget.columns.planned"), render: (r) => formatCurrency(r.planned_amount) },
+          { key: "actual", header: t("budget.columns.actual"), render: (r) => formatCurrency(r.actual_amount) },
           {
             key: "variance",
-            header: "Variance",
+            header: t("budget.columns.variance"),
             render: (r) => {
               const v = Number(r.actual_amount) - Number(r.planned_amount);
               return <Box as="span" color={v > 0 ? "red.500" : "green.600"}>{v > 0 ? "+" : ""}{formatCurrency(v)}</Box>;

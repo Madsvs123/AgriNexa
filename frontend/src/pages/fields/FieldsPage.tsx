@@ -1,27 +1,25 @@
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Button, Text } from "@chakra-ui/react";
 import { farmsApi, getApiError } from "@/api/client";
 import { formatAcres } from "@/lib/utils";
 import { DataTable } from "@/components/ui/DataTable";
 import { StatusBadge } from "@/components/ui/StatCard";
 import { FilterBar, FilterSelect } from "@/components/ui/FilterBar";
+import { SOIL_OPTIONS } from "@/lib/planning";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 import { ListPage } from "@/components/templates/ListPage";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useDebounced } from "@/hooks/useDebounced";
 import { useScope } from "@/hooks/useScope";
 
-const SOIL_OPTIONS: Array<[string, string]> = [
-  ["loam", "Loam"],
-  ["clay_loam", "Clay loam"],
-  ["sandy_loam", "Sandy loam"],
-  ["silt_loam", "Silt loam"],
-];
-
 const DEFAULTS = { q: "", soil: "" };
 
 export default function FieldsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("land");
+  const labels = usePlanningLabels();
   const { params: scopeParams } = useScope();
   const { values, setValue, reset, activeCount, apiParams } = useUrlFilters(DEFAULTS);
   const debouncedQ = useDebounced(values.q, 250);
@@ -39,30 +37,30 @@ export default function FieldsPage() {
 
   return (
     <ListPage
-      title="Fields"
-      subtitle="Soil, crop, acres, and moisture for every managed boundary."
+      title={t("fields.title")}
+      subtitle={t("fields.subtitle")}
       error={fieldsQ.error ? getApiError(fieldsQ.error) : null}
       loading={fieldsQ.isLoading}
       actions={
         <Button as={RouterLink} to="/fields/new" colorScheme="brand">
-          Add field
+          {t("fields.addField")}
         </Button>
       }
       filters={
         <FilterBar
           search={values.q}
           onSearchChange={(v) => setValue("q", v)}
-          searchPlaceholder="Search South Bottom, NR-12…"
-          searchLabel="Search fields"
+          searchPlaceholder={t("fields.searchPlaceholder")}
+          searchLabel={t("fields.searchLabel")}
           activeCount={activeCount}
           onReset={reset}
         >
           <FilterSelect
             value={values.soil}
             onChange={(v) => setValue("soil", v)}
-            label="Soil type"
-            allLabel="All soils"
-            options={SOIL_OPTIONS}
+            label={t("fields.soilType")}
+            allLabel={t("fields.allSoils")}
+            options={SOIL_OPTIONS.map((v) => [v, labels.soil(v)] as [string, string])}
           />
         </FilterBar>
       }
@@ -71,29 +69,29 @@ export default function FieldsPage() {
         rows={fieldsQ.data?.results ?? []}
         rowKey={(f) => f.id}
         onRowClick={(f) => navigate(`/fields/${f.id}`)}
-        emptyTitle="No fields mapped"
-        emptyBody="Draw a boundary on North 80 or import a shapefile via the field form."
+        emptyTitle={t("fields.emptyTitle")}
+        emptyBody={t("fields.emptyBody")}
         emptyAction={
           <Button as={RouterLink} to="/fields/new" colorScheme="brand">
-            Add field
+            {t("fields.addField")}
           </Button>
         }
         columns={[
           {
             key: "name",
-            header: "Field",
+            header: t("fields.columns.field"),
             render: (f) => (
               <Text as="span" fontWeight="semibold">
                 {f.name}
               </Text>
             ),
           },
-          { key: "farm_name", header: "Farm", render: (f) => f.farm_name ?? "—" },
-          { key: "soil_type", header: "Soil", render: (f) => f.soil_type || "—" },
-          { key: "crop_name", header: "Crop", render: (f) => f.crop_name ?? "Fallow" },
-          { key: "acres", header: "Acres", render: (f) => formatAcres(f.acres) },
-          { key: "moisture", header: "Moisture", render: (f) => (f.moisture != null ? `${f.moisture}%` : "—") },
-          { key: "health_status", header: "Health", render: (f) => <StatusBadge status={f.health_status} /> },
+          { key: "farm_name", header: t("fields.columns.farm"), render: (f) => f.farm_name ?? "—" },
+          { key: "soil_type", header: t("fields.columns.soil"), render: (f) => (f.soil_type ? labels.soil(f.soil_type) : "—") },
+          { key: "crop_name", header: t("fields.columns.crop"), render: (f) => f.crop_name ?? t("fields.fallow") },
+          { key: "acres", header: t("fields.columns.acres"), render: (f) => formatAcres(f.acres) },
+          { key: "moisture", header: t("fields.columns.moisture"), render: (f) => (f.moisture != null ? `${f.moisture}%` : "—") },
+          { key: "health_status", header: t("fields.columns.health"), render: (f) => <StatusBadge status={f.health_status} /> },
         ]}
       />
     </ListPage>

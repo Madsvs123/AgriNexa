@@ -1,0 +1,66 @@
+{
+  "fields": {
+    "title": "Lotes",
+    "subtitle": "Suelo, cultivo, superficie y humedad de cada límite gestionado.",
+    "searchPlaceholder": "Buscar por nombre o código de lote…",
+    "searchLabel": "Buscar lotes",
+    "addField": "Agregar lote",
+    "soilType": "Tipo de suelo",
+    "allSoils": "Todos los suelos",
+    "emptyTitle": "No hay lotes mapeados",
+    "emptyBody": "Dibuja un límite o importa un shapefile desde el formulario de lote.",
+    "columns": {
+      "field": "Lote",
+      "farm": "Finca",
+      "soil": "Suelo",
+      "crop": "Cultivo",
+      "acres": "Superficie",
+      "moisture": "Humedad",
+      "health": "Estado"
+    },
+    "fallow": "Barbecho"
+  },
+  "farms": {
+    "title": "Fincas",
+    "subtitle": "Cada unidad operada: códigos, superficie y ubicación en el mapa.",
+    "searchPlaceholder": "Buscar por nombre o código de finca…",
+    "searchLabel": "Buscar fincas",
+    "addFarm": "Agregar finca",
+    "filterByRegion": "Filtrar por región",
+    "allRegions": "Todas las regiones",
+    "emptyTitle": "Todavía no hay fincas",
+    "emptyBody": "Crea tu primera finca para comenzar a mapear lotes y sensores.",
+    "columns": {
+      "farm": "Finca",
+      "code": "Código",
+      "acres": "Superficie",
+      "fields": "Lotes",
+      "address": "Dirección"
+    }
+  },
+  "map": {
+    "title": "Mapa de la finca",
+    "farm": "Finca",
+    "layers": "Capas",
+    "legend": "Referencias",
+    "zones": "Zonas",
+    "alerts": "Alertas",
+    "nothingFlagged": "Sin novedades en esta finca.",
+    "farmSummary": "{{acres}} · {{count}} lotes",
+    "openFieldRecord": "Abrir ficha del lote",
+    "noProbe": "Sin sonda",
+    "moisture": "{{value}} % de humedad",
+    "fallow": "Barbecho",
+    "soilUnknown": "Suelo desconocido",
+    "layerNames": {
+      "fields": "Límites de lotes",
+      "sensors": "Sensores",
+      "irrigation": "Zonas de riego",
+      "plots": "Parcelas",
+      "soil": "Capas de suelo",
+      "equipment": "Maquinaria",
+      "alerts": "Alertas",
+      "history": "Actividad histórica"
+    }
+  }
+}

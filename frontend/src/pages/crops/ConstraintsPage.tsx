@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Badge, Button, Card, CardBody, Flex, Heading, Input, Select, SimpleGrid, Switch, Text, Textarea } from "@chakra-ui/react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { ListPage } from "@/components/templates/ListPage";
@@ -19,6 +20,7 @@ export default function ConstraintsPage() {
   const qc = useQueryClient();
   const { farmId, seasonId } = useScope();
   const labels = usePlanningLabels();
+  const { t } = useTranslation("grow");
   const listQ = useQuery({ queryKey: ["resource-constraints"], queryFn: () => cropsApi.constraints() });
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
   const seasonsQ = useQuery({ queryKey: ["seasons"], queryFn: () => cropsApi.seasons() });
@@ -97,27 +99,34 @@ export default function ConstraintsPage() {
 
   return (
     <ListPage
-      title="Resource constraints"
-      subtitle="Water, labor, nitrogen, budget, and acreage limits that plans and strategies are checked against."
+      title={t("constraints.title")}
+      subtitle={t("constraints.subtitle")}
       error={listQ.error ? getApiError(listQ.error) : null}
       loading={listQ.isLoading}
       actions={
         <Button colorScheme="brand" onClick={openNew}>
-          Add constraint
+          {t("constraints.addConstraint")}
         </Button>
       }
       stats={
         <Card variant="surface">
           <CardBody>
             <Flex align="center" gap={2} mb={3} wrap="wrap">
-              <Heading size="sm">Committed plans vs limits</Heading>
+              <Heading size="sm">{t("constraints.committedVsLimits")}</Heading>
               <Text color="fg.muted" fontSize="sm">
-                {usageQ.data ? `${usageQ.data.season}${usageQ.data.farm ? ` · ${usageQ.data.farm}` : " · all farms"} · ${usageQ.data.plan_count} plans` : seasonId ? "Loading…" : "Pick a season in the scope control to see utilisation."}
+                {usageQ.data
+                  ? t("constraints.usageSummary", {
+                      scope: `${usageQ.data.season}${usageQ.data.farm ? ` · ${usageQ.data.farm}` : ` · ${t("constraints.allFarmsScope")}`}`,
+                      count: usageQ.data.plan_count,
+                    })
+                  : seasonId
+                    ? t("table.loading", { ns: "common" })
+                    : t("constraints.pickSeason")}
               </Text>
             </Flex>
             {usageQ.data && !farmId && !usageQ.data.constraints.length ? (
               <Text fontSize="sm" color="fg.muted" mb={3}>
-                Only organization-wide limits apply across all farms. Pick a farm in the scope control to check farm-specific constraints.
+                {t("constraints.orgWideOnly")}
               </Text>
             ) : null}
             {usageQ.data ? (
@@ -134,22 +143,22 @@ export default function ConstraintsPage() {
         rows={listQ.data?.results ?? []}
         rowKey={(c) => c.id}
         onRowClick={openEdit}
-        emptyTitle="No constraints yet"
-        emptyBody="Add an irrigation allocation, a labor ceiling, or a season budget. Hard limits block adoption; soft ones warn."
+        emptyTitle={t("constraints.emptyTitle")}
+        emptyBody={t("constraints.emptyBody")}
         columns={[
-          { key: "label", header: "Resource", render: (c) => c.label ?? c.resource },
-          { key: "limit", header: "Limit", render: fmtLimit },
+          { key: "label", header: t("constraints.resource"), render: (c) => labels.resource(c.resource) },
+          { key: "limit", header: t("constraints.limit"), render: fmtLimit },
           {
             key: "scope",
-            header: "Applies to",
-            render: (c) => [c.farm_name ?? "All farms", c.season_name ?? "All seasons"].join(" · "),
+            header: t("constraints.appliesTo"),
+            render: (c) => [c.farm_name ?? t("constraints.allFarms"), c.season_name ?? t("constraints.allSeasons")].join(" · "),
           },
-          { key: "kind", header: "Kind", render: (c) => <Badge colorScheme={c.is_hard ? "red" : "yellow"} variant="subtle">{c.is_hard ? "Hard" : "Soft"}</Badge> },
-          { key: "notes", header: "Notes", render: (c) => c.notes || "—" },
+          { key: "kind", header: t("constraints.kind"), render: (c) => <Badge colorScheme={c.is_hard ? "red" : "yellow"} variant="subtle">{c.is_hard ? t("constraints.hard") : t("constraints.soft")}</Badge> },
+          { key: "notes", header: t("labels.notes", { ns: "common" }), render: (c) => c.notes || "—" },
         ]}
       />
 
-      <Drawer open={open} title={editing ? "Edit constraint" : "Add constraint"} onClose={() => setOpen(false)}>
+      <Drawer open={open} title={editing ? t("constraints.editConstraint") : t("constraints.addConstraint")} onClose={() => setOpen(false)}>
         <ErrorBanner message={error} />
         <form
           onSubmit={(e) => {
@@ -157,7 +166,7 @@ export default function ConstraintsPage() {
             save.mutate();
           }}
         >
-          <FormField label="Resource" htmlFor="k-res">
+          <FormField label={t("constraints.resource")} htmlFor="k-res">
             <Select
               id="k-res"
               value={resource}
@@ -175,23 +184,23 @@ export default function ConstraintsPage() {
             </Select>
           </FormField>
           <SimpleGrid columns={2} spacingX={4}>
-            <FormField label="Limit" htmlFor="k-limit">
+            <FormField label={t("constraints.limit")} htmlFor="k-limit">
               <Input id="k-limit" type="number" step="0.01" isRequired value={limit} onChange={(e) => setLimit(e.target.value)} />
             </FormField>
-            <FormField label="Unit" htmlFor="k-unit">
+            <FormField label={t("constraints.unit")} htmlFor="k-unit">
               <Input id="k-unit" value={unit} onChange={(e) => setUnit(e.target.value)} />
             </FormField>
-            <FormField label="Farm" htmlFor="k-farm" hint="Blank = organization-wide">
+            <FormField label={t("labels.farm", { ns: "common" })} htmlFor="k-farm" hint={t("constraints.farmHint")}>
               <Select id="k-farm" value={farm} onChange={(e) => setFarm(e.target.value)}>
-                <option value="">All farms</option>
+                <option value="">{t("constraints.allFarms")}</option>
                 {(farmsQ.data?.results ?? []).map((f) => (
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </Select>
             </FormField>
-            <FormField label="Season" htmlFor="k-season" hint="Blank = every season">
+            <FormField label={t("labels.season", { ns: "common" })} htmlFor="k-season" hint={t("constraints.seasonHint")}>
               <Select id="k-season" value={season} onChange={(e) => setSeason(e.target.value)}>
-                <option value="">All seasons</option>
+                <option value="">{t("constraints.allSeasons")}</option>
                 {(seasonsQ.data?.results ?? []).map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
@@ -201,27 +210,29 @@ export default function ConstraintsPage() {
           <Flex align="center" gap={3} mb={4}>
             <Switch id="k-hard" isChecked={hard} onChange={(e) => setHard(e.target.checked)} colorScheme="red" />
             <Text as="label" htmlFor="k-hard" fontSize="sm">
-              Hard limit — strategies that exceed it are infeasible and cannot be adopted without override
+              {t("constraints.hardHint")}
             </Text>
           </Flex>
-          <FormField label="Notes" htmlFor="k-notes">
+          <FormField label={t("labels.notes", { ns: "common" })} htmlFor="k-notes">
             <Textarea id="k-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </FormField>
           <Flex gap={2}>
             <Button type="submit" colorScheme="brand" isDisabled={save.isPending || !limit}>
-              {save.isPending ? "Saving…" : editing ? "Save changes" : "Add constraint"}
+              {save.isPending ? t("actions.saving", { ns: "common" }) : editing ? t("actions.saveChanges", { ns: "common" }) : t("constraints.addConstraint")}
             </Button>
             {editing ? (
-              <Button variant="ghost" colorScheme="red" onClick={() => setConfirmDelete(editing)}>Delete</Button>
+              <Button variant="ghost" colorScheme="red" onClick={() => setConfirmDelete(editing)}>
+                {t("actions.delete", { ns: "common" })}
+              </Button>
             ) : null}
           </Flex>
         </form>
       </Drawer>
       <ConfirmDialog
         open={!!confirmDelete}
-        title="Delete constraint?"
-        body="Strategies will be re-evaluated without it the next time they are opened."
-        confirmLabel="Delete"
+        title={t("constraints.deleteTitle")}
+        body={t("constraints.deleteBody")}
+        confirmLabel={t("actions.delete", { ns: "common" })}
         danger
         onClose={() => setConfirmDelete(null)}
         onConfirm={() => confirmDelete && remove.mutate(confirmDelete.id)}

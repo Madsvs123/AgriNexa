@@ -1,0 +1,50 @@
+{
+  "title": "Operaciones de la campaña",
+  "subtitle": "Superficie, humedad, agua y alertas de toda la organización.",
+  "logScoutReport": "Registrar monitoreo",
+  "openFarmMap": "Abrir mapa",
+  "bands": {
+    "rightNow": "Ahora mismo",
+    "thisSeason": "Esta campaña"
+  },
+  "tiles": {
+    "openAlerts": "Alertas abiertas",
+    "sensorAlerts": "Alertas de sensores",
+    "lowStock": "Stock bajo",
+    "openTasks": "Tareas abiertas",
+    "allProbesHealthy": "Todas las sondas activas están correctas.",
+    "aboveReorder": "Por encima del punto de reposición.",
+    "nothingQueued": "Nada pendiente."
+  },
+  "kpis": {
+    "acres": "Superficie",
+    "acresHint": "Propia + arrendada",
+    "activeFields": "Lotes activos",
+    "yieldEstimate": "Rendimiento estimado",
+    "yieldHint": "Acumulado de la campaña",
+    "waterUsed": "Agua utilizada",
+    "equipmentUptime": "Disponibilidad de maquinaria",
+    "equipmentHint": "Últimos 7 días"
+  },
+  "cards": {
+    "cropProgress": "Avance de cultivos",
+    "noCropPlans": "No hay planes de cultivo en esta campaña. Crea uno para comenzar.",
+    "irrigation": "Riego",
+    "zones": "Zonas",
+    "zonesRunning": "{{running}} / {{total}} en marcha",
+    "irrigationDetail": "{{gallons}} gal hoy · {{efficiency}} de eficiencia",
+    "weatherNow": "Clima actual",
+    "forecast": "Pronóstico",
+    "weatherDetail": "{{conditions}} · Viento {{wind}} mph · HR {{humidity}} %",
+    "noWeather": "Selecciona una finca con estación meteorológica para ver las condiciones.",
+    "fieldHealth": "Estado de los lotes",
+    "fieldCount": "{{count}} lotes",
+    "noFieldHealth": "Las fichas de estado aparecen cuando las sondas empiezan a reportar.",
+    "noProbe": "Sin sonda",
+    "fallow": "Barbecho",
+    "trends": "Tendencias",
+    "trendsHint": "Egresos · rendimiento vs objetivo",
+    "expenses": "Egresos",
+    "yieldVsTarget": "Rendimiento vs objetivo"
+  }
+}

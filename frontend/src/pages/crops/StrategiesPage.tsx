@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 import { Badge, Box, Button, Checkbox, Flex, Input, Select, SimpleGrid, Text, Textarea, Tooltip } from "@chakra-ui/react";
 import { Star } from "lucide-react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
@@ -16,17 +18,14 @@ import { formatNumber } from "@/lib/utils";
 import type { Strategy } from "@/types";
 import { formatCurrency } from "@/i18n/format";
 
-const STATUS: Array<[string, string]> = [
-  ["draft", "Draft"],
-  ["candidate", "Candidate"],
-  ["adopted", "Adopted"],
-  ["archived", "Archived"],
-];
+const STATUS = ["draft", "candidate", "adopted", "archived"] as const;
 const STATUS_SCHEME: Record<string, string> = { draft: "gray", candidate: "blue", adopted: "green", archived: "gray" };
 const DEFAULTS = { status: "" };
 
 export default function StrategiesPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("grow");
+  const labels = usePlanningLabels();
   const qc = useQueryClient();
   const { params: scopeParams, farmId, seasonId } = useScope();
   const { values, setValue, reset, activeCount, apiParams } = useUrlFilters(DEFAULTS);
@@ -78,8 +77,8 @@ export default function StrategiesPage() {
 
   return (
     <ListPage
-      title="Farming strategies"
-      subtitle="Alternative plans for a farm-season, scored on margin, resources, rotation, and risk. Compare, then adopt one."
+      title={t("strategies.title")}
+      subtitle={t("strategies.subtitle")}
       error={listQ.error ? getApiError(listQ.error) : null}
       loading={listQ.isLoading}
       actions={
@@ -90,7 +89,7 @@ export default function StrategiesPage() {
             isDisabled={selected.length < 2}
             onClick={() => navigate(`/crops/strategies/compare?ids=${selected.join(",")}`)}
           >
-            Compare {selected.length ? `(${selected.length})` : ""}
+            {selected.length ? t("strategies.compareCount", { count: selected.length }) : t("strategies.compare")}
           </Button>
           <Button
             colorScheme="brand"
@@ -104,18 +103,18 @@ export default function StrategiesPage() {
               setOpen(true);
             }}
           >
-            New strategy
+            {t("strategies.newStrategy")}
           </Button>
         </>
       }
       filters={
         <FilterBar activeCount={activeCount} onReset={reset}>
-          <FilterSelect value={values.status} onChange={(v) => setValue("status", v)} label="Status" allLabel="All statuses" options={STATUS} />
+          <FilterSelect value={values.status} onChange={(v) => setValue("status", v)} label={t("strategies.status")} allLabel={t("strategies.allStatuses")} options={STATUS.map((v) => [v, labels.strategyStatus(v)] as [string, string])} />
           {selected.length ? (
             <Text fontSize="sm" color="fg.muted">
-              {selected.length} selected ·{" "}
+              {t("strategies.selectedCount", { count: selected.length })} ·{" "}
               <Box as="button" color="brand.500" onClick={() => setSelected([])}>
-                clear
+                {t("strategies.clearSelection")}
               </Box>
             </Text>
           ) : null}
@@ -126,25 +125,25 @@ export default function StrategiesPage() {
         rows={rows}
         rowKey={(s) => s.id}
         onRowClick={(s) => navigate(`/crops/strategies/${s.id}`)}
-        emptyTitle="No strategies yet"
-        emptyBody="Create one from scratch, or open a rotation and generate next season's allocations from it."
+        emptyTitle={t("strategies.emptyTitle")}
+        emptyBody={t("strategies.emptyBody")}
         columns={[
           {
             key: "select",
             header: "",
             render: (s) => (
               <Box onClick={(e) => e.stopPropagation()}>
-                <Checkbox colorScheme="brand" isChecked={selected.includes(s.id)} onChange={(e) => toggle(s.id, e.target.checked)} aria-label={`Select ${s.name}`} />
+                <Checkbox colorScheme="brand" isChecked={selected.includes(s.id)} onChange={(e) => toggle(s.id, e.target.checked)} aria-label={t("actions.select", { ns: "common" })} />
               </Box>
             ),
           },
           {
             key: "name",
-            header: "Strategy",
+            header: t("strategies.columns.strategy"),
             render: (s) => (
               <Flex align="center" gap={2}>
                 {s.is_baseline ? (
-                  <Tooltip label="Baseline — comparisons show deltas against this">
+                  <Tooltip label={t("strategies.baselineTooltip")}>
                     <Box color="wheat.500"><Star size={14} fill="currentColor" /></Box>
                   </Tooltip>
                 ) : null}
@@ -158,20 +157,28 @@ export default function StrategiesPage() {
               </Flex>
             ),
           },
-          { key: "status", header: "Status", render: (s) => <Badge colorScheme={STATUS_SCHEME[s.status] ?? "gray"} textTransform="capitalize">{s.status}</Badge> },
-          { key: "scenario", header: "Scenario", render: (s) => `${RAINFALL_OPTIONS.find(([k]) => k === s.rainfall_scenario)?.[1] ?? s.rainfall_scenario} · ×${Number(s.price_multiplier).toFixed(2)} price` },
-          { key: "acres", header: "Acres", render: (s) => (s.summary?.acres != null ? formatNumber(s.summary.acres, 0) : "—") },
-          { key: "margin", header: "Margin", render: (s) => (s.summary?.margin != null ? `${formatCurrency(s.summary.margin)} · ${formatCurrency(s.summary.margin_per_acre)}/ac` : "—") },
+          { key: "status", header: t("strategies.columns.status"), render: (s) => <Badge colorScheme={STATUS_SCHEME[s.status] ?? "gray"}>{labels.strategyStatus(s.status)}</Badge> },
+          { key: "scenario", header: t("strategies.columns.scenario"), render: (s) => t("strategies.scenarioSummary", { scenario: labels.rainfall(s.rainfall_scenario), price: Number(s.price_multiplier).toFixed(2) }) },
+          { key: "acres", header: t("strategies.columns.acres"), render: (s) => (s.summary?.acres != null ? formatNumber(s.summary.acres, 0) : "—") },
+          { key: "margin", header: t("strategies.columns.margin"), render: (s) => (s.summary?.margin != null ? `${formatCurrency(s.summary.margin)} · ${formatCurrency(s.summary.margin_per_acre)}/ac` : "—") },
           {
             key: "risk",
-            header: "Risk",
+            header: t("strategies.columns.risk"),
             render: (s) => (s.summary?.risk_score != null ? <Badge colorScheme={riskScheme(s.summary.risk_score)}>{s.summary.risk_score}</Badge> : "—"),
           },
           {
             key: "feasible",
-            header: "Feasible",
+            header: t("strategies.columns.feasible"),
             render: (s) =>
-              s.summary?.feasible == null ? "—" : s.summary.feasible ? <Badge colorScheme="green">Yes</Badge> : <Badge colorScheme="red">{s.summary.hard_violations} violation{s.summary.hard_violations === 1 ? "" : "s"}</Badge>,
+              s.summary?.feasible == null ? (
+                "—"
+              ) : s.summary.feasible ? (
+                <Badge colorScheme="green">{t("strategies.yes")}</Badge>
+              ) : (
+                <Badge colorScheme="red">
+                  {t("strategies.violations", { count: s.summary.hard_violations ?? 0 })}
+                </Badge>
+              ),
           },
           {
             key: "actions",
@@ -179,16 +186,20 @@ export default function StrategiesPage() {
             render: (s) => (
               <Flex gap={1} onClick={(e) => e.stopPropagation()}>
                 {!s.is_baseline ? (
-                  <Button size="xs" variant="ghost" onClick={() => setBaseline.mutate(s.id)}>Set baseline</Button>
+                  <Button size="xs" variant="ghost" onClick={() => setBaseline.mutate(s.id)}>
+                    {t("strategies.setBaseline")}
+                  </Button>
                 ) : null}
-                <Button size="xs" variant="ghost" onClick={() => clone.mutate(s.id)}>Clone</Button>
+                <Button size="xs" variant="ghost" onClick={() => clone.mutate(s.id)}>
+                  {t("actions.clone", { ns: "common" })}
+                </Button>
               </Flex>
             ),
           },
         ]}
       />
 
-      <Drawer open={open} title="New strategy" onClose={() => setOpen(false)}>
+      <Drawer open={open} title={t("strategies.newStrategy")} onClose={() => setOpen(false)}>
         <ErrorBanner message={error} />
         <form
           onSubmit={(e) => {
@@ -196,39 +207,41 @@ export default function StrategiesPage() {
             create.mutate();
           }}
         >
-          <FormField label="Name" htmlFor="st-name">
-            <Input id="st-name" isRequired value={name} onChange={(e) => setName(e.target.value)} placeholder="More soy, dry year" />
+          <FormField label={t("labels.name", { ns: "common" })} htmlFor="st-name">
+            <Input id="st-name" isRequired value={name} onChange={(e) => setName(e.target.value)} placeholder={t("strategies.namePlaceholder")} />
           </FormField>
           <SimpleGrid columns={2} spacingX={4}>
-            <FormField label="Farm" htmlFor="st-farm">
+            <FormField label={t("labels.farm", { ns: "common" })} htmlFor="st-farm">
               <Select id="st-farm" value={farm} onChange={(e) => setFarm(e.target.value)} isRequired>
-                <option value="">Select farm</option>
+                <option value="">{t("strategies.selectFarm")}</option>
                 {(farmsQ.data?.results ?? []).map((f) => (
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </Select>
             </FormField>
-            <FormField label="Season" htmlFor="st-season">
+            <FormField label={t("labels.season", { ns: "common" })} htmlFor="st-season">
               <Select id="st-season" value={season} onChange={(e) => setSeason(e.target.value)} isRequired>
-                <option value="">Select season</option>
+                <option value="">{t("strategies.selectSeason")}</option>
                 {(seasonsQ.data?.results ?? []).map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </Select>
             </FormField>
           </SimpleGrid>
-          <FormField label="Rainfall scenario" htmlFor="st-rain">
+          <FormField label={t("strategies.rainfallScenario")} htmlFor="st-rain">
             <Select id="st-rain" value={rainfall} onChange={(e) => setRainfall(e.target.value as "dry" | "normal" | "wet")}>
-              {RAINFALL_OPTIONS.map(([k, l, d]) => (
-                <option key={k} value={k}>{l} — {d}</option>
+              {RAINFALL_OPTIONS.map((k) => (
+                <option key={k} value={k}>
+                  {labels.rainfall(k)} — {labels.rainfallHint(k)}
+                </option>
               ))}
             </Select>
           </FormField>
-          <FormField label="Description" htmlFor="st-desc">
+          <FormField label={t("strategies.description")} htmlFor="st-desc">
             <Textarea id="st-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
           </FormField>
           <Button type="submit" colorScheme="brand" isDisabled={create.isPending || !name || !farm || !season}>
-            {create.isPending ? "Creating…" : "Create and allocate fields"}
+            {create.isPending ? t("strategies.creating") : t("strategies.createAndAllocate")}
           </Button>
         </form>
       </Drawer>

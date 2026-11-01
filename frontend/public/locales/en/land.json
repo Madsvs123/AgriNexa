@@ -1,0 +1,66 @@
+{
+  "fields": {
+    "title": "Fields",
+    "subtitle": "Soil, crop, acres, and moisture for every managed boundary.",
+    "searchPlaceholder": "Search by field name or code…",
+    "searchLabel": "Search fields",
+    "addField": "Add field",
+    "soilType": "Soil type",
+    "allSoils": "All soils",
+    "emptyTitle": "No fields mapped",
+    "emptyBody": "Draw a boundary or import a shapefile from the field form.",
+    "columns": {
+      "field": "Field",
+      "farm": "Farm",
+      "soil": "Soil",
+      "crop": "Crop",
+      "acres": "Acres",
+      "moisture": "Moisture",
+      "health": "Health"
+    },
+    "fallow": "Fallow"
+  },
+  "farms": {
+    "title": "Farms",
+    "subtitle": "Every operated unit — codes, acres, and map position.",
+    "searchPlaceholder": "Search by farm name or code…",
+    "searchLabel": "Search farms",
+    "addFarm": "Add farm",
+    "filterByRegion": "Filter by region",
+    "allRegions": "All regions",
+    "emptyTitle": "No farms yet",
+    "emptyBody": "Create your first farm to start mapping fields and sensors.",
+    "columns": {
+      "farm": "Farm",
+      "code": "Code",
+      "acres": "Acres",
+      "fields": "Fields",
+      "address": "Address"
+    }
+  },
+  "map": {
+    "title": "Farm map",
+    "farm": "Farm",
+    "layers": "Layers",
+    "legend": "Legend",
+    "zones": "Zones",
+    "alerts": "Alerts",
+    "nothingFlagged": "Nothing flagged on this farm.",
+    "farmSummary": "{{acres}} · {{count}} fields",
+    "openFieldRecord": "Open field record",
+    "noProbe": "No probe",
+    "moisture": "{{value}}% moisture",
+    "fallow": "Fallow",
+    "soilUnknown": "Soil unknown",
+    "layerNames": {
+      "fields": "Field boundaries",
+      "sensors": "Sensors",
+      "irrigation": "Irrigation zones",
+      "plots": "Plot subdivisions",
+      "soil": "Soil layers",
+      "equipment": "Equipment",
+      "alerts": "Alerts",
+      "history": "Historical activity"
+    }
+  }
+}

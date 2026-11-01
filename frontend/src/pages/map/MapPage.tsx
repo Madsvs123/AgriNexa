@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Box, Button, Divider, Flex, Select, Stack, Text } from "@chakra-ui/react";
 import { equipmentApi, farmsApi, irrigationApi, platformApi, sensorsApi } from "@/api/client";
 import { formatAcres } from "@/lib/utils";
@@ -33,6 +34,7 @@ function PanelSection({ title, children }: { title: string; children: React.Reac
  * inspector is a docked context panel on wide screens so the map stays visible.
  */
 export default function MapPage() {
+  const { t } = useTranslation("land");
   const { farmId, setFarmId } = useScope();
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
 
@@ -88,10 +90,10 @@ export default function MapPage() {
 
   const tools = (
     <Stack spacing={0} divider={<Divider />}>
-      <PanelSection title="Farm">
+      <PanelSection title={t("map.farm")}>
         <Select
           size="sm"
-          aria-label="Farm"
+          aria-label={t("map.farm")}
           value={selectedFarm}
           onChange={(e) => setFarmId(e.target.value || null)}
         >
@@ -103,28 +105,31 @@ export default function MapPage() {
         </Select>
         {farm ? (
           <Text fontSize="sm" color="fg.muted" mt={2}>
-            {formatAcres(farm.total_acres)} · {fieldsQ.data?.count ?? 0} fields
+            {t("map.farmSummary", {
+              acres: formatAcres(farm.total_acres),
+              count: fieldsQ.data?.count ?? 0,
+            })}
           </Text>
         ) : null}
       </PanelSection>
 
-      <PanelSection title="Layers">
+      <PanelSection title={t("map.layers")}>
         <LayerToggle
           layers={[
-            { key: "fields", label: "Field boundaries", on: layers.fields },
-            { key: "sensors", label: "Sensors", on: layers.sensors },
-            { key: "irrigation", label: "Irrigation zones", on: layers.irrigation },
-            { key: "plots", label: "Plot subdivisions", on: layers.plots },
-            { key: "soil", label: "Soil layers", on: layers.soil },
-            { key: "equipment", label: "Equipment", on: layers.equipment },
-            { key: "alerts", label: "Alerts", on: layers.alerts },
-            { key: "history", label: "Historical activity", on: layers.history },
+            { key: "fields", label: t("map.layerNames.fields"), on: layers.fields },
+            { key: "sensors", label: t("map.layerNames.sensors"), on: layers.sensors },
+            { key: "irrigation", label: t("map.layerNames.irrigation"), on: layers.irrigation },
+            { key: "plots", label: t("map.layerNames.plots"), on: layers.plots },
+            { key: "soil", label: t("map.layerNames.soil"), on: layers.soil },
+            { key: "equipment", label: t("map.layerNames.equipment"), on: layers.equipment },
+            { key: "alerts", label: t("map.layerNames.alerts"), on: layers.alerts },
+            { key: "history", label: t("map.layerNames.history"), on: layers.history },
           ]}
           onChange={(key, on) => setLayers((l) => ({ ...l, [key]: on }))}
         />
       </PanelSection>
 
-      <PanelSection title="Legend">
+      <PanelSection title={t("map.legend")}>
         <Stack spacing={1.5} fontSize="sm">
           <Flex align="center" gap={2}>
             <Box boxSize="10px" borderRadius="sm" bg="#7CB518" /> Healthy
@@ -139,7 +144,7 @@ export default function MapPage() {
       </PanelSection>
 
       {layers.irrigation && (zonesQ.data?.results ?? []).length ? (
-        <PanelSection title="Zones">
+        <PanelSection title={t("map.zones")}>
           <Stack spacing={1.5}>
             {(zonesQ.data?.results ?? []).slice(0, 6).map((z) => (
               <Flex key={z.id} align="center" gap={2} fontSize="sm">
@@ -154,7 +159,7 @@ export default function MapPage() {
       ) : null}
 
       {layers.alerts ? (
-        <PanelSection title="Alerts">
+        <PanelSection title={t("map.alerts")}>
           <Stack spacing={1.5} fontSize="sm" color="fg.muted">
             {alertSensors.slice(0, 4).map((s) => (
               <Text key={s.id} noOfLines={1}>
@@ -167,7 +172,7 @@ export default function MapPage() {
               </Text>
             ))}
             {!alertSensors.length && !(alertsQ.data?.results ?? []).length ? (
-              <Text>Nothing flagged on this farm.</Text>
+              <Text>{t("map.nothingFlagged")}</Text>
             ) : null}
           </Stack>
         </PanelSection>
@@ -180,17 +185,19 @@ export default function MapPage() {
       {picked ? (
         <Stack spacing={3} align="flex-start">
           <Text color="fg.muted">
-            {picked.crop_name ?? "Fallow"} · {formatAcres(picked.acres)}
+            {picked.crop_name ?? t("map.fallow")} · {formatAcres(picked.acres)}
           </Text>
           <Flex align="center" gap={2}>
             <StatusBadge status={picked.health_status} />
-            <Text as="span">{picked.moisture != null ? `${picked.moisture}% moisture` : "No probe"}</Text>
+            <Text as="span">
+              {picked.moisture != null ? t("map.moisture", { value: picked.moisture }) : t("map.noProbe")}
+            </Text>
           </Flex>
           <Text fontSize="sm" color="fg.muted">
-            {picked.soil_type || "Soil unknown"} · {picked.farm_name ?? farm?.name}
+            {picked.soil_type || t("map.soilUnknown")} · {picked.farm_name ?? farm?.name}
           </Text>
           <Button as={RouterLink} to={`/fields/${picked.id}`} colorScheme="brand" size="sm">
-            Open field record
+            {t("map.openFieldRecord")}
           </Button>
         </Stack>
       ) : null}
@@ -198,7 +205,7 @@ export default function MapPage() {
   );
 
   return (
-    <WorkspacePage title="Farm map" tools={tools} inspector={inspector}>
+    <WorkspacePage title={t("map.title")} tools={tools} inspector={inspector}>
       <MapView
         height="100%"
         fields={layers.fields || layers.history ? fieldsQ.data?.results ?? [] : []}

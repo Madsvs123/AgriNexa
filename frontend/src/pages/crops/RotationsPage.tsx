@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Badge, Box, Button, Card, CardBody, Flex, Heading, Input, Select, SimpleGrid, Stack, Text, Textarea } from "@chakra-ui/react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { ListPage } from "@/components/templates/ListPage";
@@ -10,8 +11,11 @@ import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { CropChip } from "@/components/planning/CropChip";
 import { useScope } from "@/hooks/useScope";
 import type { Rotation } from "@/types";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 function StepTimeline({ rotation }: { rotation: Rotation }) {
+  const { t } = useTranslation("grow");
+  const labels = usePlanningLabels();
   const years = Array.from({ length: Math.max(rotation.cycle_years, 1) }, (_, i) => i);
   return (
     <SimpleGrid columns={{ base: 1, sm: Math.min(years.length, 2), md: Math.min(years.length, 4) }} spacing={2}>
@@ -20,16 +24,16 @@ function StepTimeline({ rotation }: { rotation: Rotation }) {
         return (
           <Box key={y} p={2.5} bg="bg.subtle" borderRadius="md" minH="64px">
             <Text fontSize="xs" color="fg.muted" mb={1.5}>
-              Year {y + 1}
+              {t("rotations.yearLabel", { year: y + 1 })}
               {rotation.start_year ? ` · ${rotation.start_year + y}` : ""}
             </Text>
             <Stack spacing={1}>
               {steps.map((s) => (
                 <Flex key={s.id} align="center" gap={2}>
-                  <CropChip name={s.crop_name ?? "Fallow"} color={s.crop_color} size="xs" />
+                  <CropChip name={s.crop_name ?? labels.stepRole("fallow")} color={s.crop_color} size="xs" />
                   {s.role !== "main" ? (
-                    <Badge fontSize="9px" variant="outline" colorScheme="gray" textTransform="capitalize">
-                      {s.role}
+                    <Badge fontSize="9px" variant="outline" colorScheme="gray">
+                      {labels.stepRole(s.role)}
                     </Badge>
                   ) : null}
                   {s.companion_names?.length ? (
@@ -41,7 +45,7 @@ function StepTimeline({ rotation }: { rotation: Rotation }) {
               ))}
               {!steps.length ? (
                 <Text fontSize="xs" color="fg.muted">
-                  empty
+                  {t("rotations.empty")}
                 </Text>
               ) : null}
             </Stack>
@@ -54,6 +58,7 @@ function StepTimeline({ rotation }: { rotation: Rotation }) {
 
 export default function RotationsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("grow");
   const qc = useQueryClient();
   const { params: scopeParams, farmId } = useScope();
   const rotQ = useQuery({
@@ -84,8 +89,8 @@ export default function RotationsPage() {
 
   return (
     <ListPage
-      title="Rotations"
-      subtitle="Multi-year crop sequences with cover crops and companions, assigned to fields and staggered by phase."
+      title={t("rotations.title")}
+      subtitle={t("rotations.subtitle")}
       error={rotQ.error ? getApiError(rotQ.error) : null}
       loading={rotQ.isLoading}
       actions={
@@ -99,13 +104,13 @@ export default function RotationsPage() {
             setOpen(true);
           }}
         >
-          New rotation
+          {t("rotations.newRotation")}
         </Button>
       }
     >
       {!rotations.length ? (
         <Card variant="surface">
-          <EmptyState title="No rotations defined" body="Build a corn–soy–wheat cycle, add a rye cover after corn, then assign fields." />
+          <EmptyState title={t("rotations.emptyTitle")} body={t("rotations.emptyBody")} />
         </Card>
       ) : (
         <Stack spacing={4}>
@@ -123,10 +128,14 @@ export default function RotationsPage() {
                 <Flex align="center" gap={3} mb={3} wrap="wrap">
                   <Heading size="sm">{r.name}</Heading>
                   <Text color="fg.muted" fontSize="sm">
-                    {r.farm_name} · {r.cycle_years}-year cycle · {r.fields.length} field{r.fields.length === 1 ? "" : "s"}
+                    {t("rotations.cycleSummary", {
+                      farm: r.farm_name,
+                      years: r.cycle_years,
+                      count: r.fields.length,
+                    })}
                   </Text>
-                  {!r.is_active ? <Badge colorScheme="gray">inactive</Badge> : null}
-                  {!r.steps.length ? <Badge colorScheme="yellow">no steps yet</Badge> : null}
+                  {!r.is_active ? <Badge colorScheme="gray">{t("rotations.inactive")}</Badge> : null}
+                  {!r.steps.length ? <Badge colorScheme="yellow">{t("rotations.noStepsYet")}</Badge> : null}
                 </Flex>
                 <StepTimeline rotation={r} />
                 {r.notes ? (
@@ -140,7 +149,7 @@ export default function RotationsPage() {
         </Stack>
       )}
 
-      <Drawer open={open} title="New rotation" onClose={() => setOpen(false)}>
+      <Drawer open={open} title={t("rotations.newRotation")} onClose={() => setOpen(false)}>
         <ErrorBanner message={error} />
         <form
           onSubmit={(e) => {
@@ -148,12 +157,12 @@ export default function RotationsPage() {
             create.mutate();
           }}
         >
-          <FormField label="Name" htmlFor="r-name">
-            <Input id="r-name" isRequired value={name} onChange={(e) => setName(e.target.value)} placeholder="Corn–Soy–Wheat + rye cover" />
+          <FormField label={t("labels.name", { ns: "common" })} htmlFor="r-name">
+            <Input id="r-name" isRequired value={name} onChange={(e) => setName(e.target.value)} placeholder={t("rotations.namePlaceholder")} />
           </FormField>
-          <FormField label="Farm" htmlFor="r-farm">
+          <FormField label={t("labels.farm", { ns: "common" })} htmlFor="r-farm">
             <Select id="r-farm" value={farm} onChange={(e) => setFarm(e.target.value)} isRequired>
-              <option value="">Select farm</option>
+              <option value="">{t("rotations.selectFarm")}</option>
               {(farmsQ.data?.results ?? []).map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -161,14 +170,14 @@ export default function RotationsPage() {
               ))}
             </Select>
           </FormField>
-          <FormField label="Year of step 1" htmlFor="r-year" hint="Anchors the cycle to the calendar; fields can be phase-shifted">
+          <FormField label={t("rotations.yearOfStepOne")} htmlFor="r-year" hint={t("rotations.yearHint")}>
             <Input id="r-year" type="number" value={startYear} onChange={(e) => setStartYear(e.target.value)} />
           </FormField>
-          <FormField label="Notes" htmlFor="r-notes">
+          <FormField label={t("labels.notes", { ns: "common" })} htmlFor="r-notes">
             <Textarea id="r-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </FormField>
           <Button type="submit" colorScheme="brand" isDisabled={create.isPending || !name || !farm}>
-            {create.isPending ? "Creating…" : "Create and add steps"}
+            {create.isPending ? t("rotations.creating") : t("rotations.createAndAddSteps")}
           </Button>
         </form>
       </Drawer>

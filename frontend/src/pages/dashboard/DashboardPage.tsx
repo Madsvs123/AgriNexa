@@ -1,5 +1,6 @@
 import { Link as RouterLink } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionButton,
@@ -106,7 +107,8 @@ function AttentionTile({
  * season stands, and trends (collapsed by default).
  */
 export default function DashboardPage() {
-  useRegisterPageTitle("Dashboard");
+  const { t } = useTranslation("dashboard");
+  useRegisterPageTitle(t("title"));
   const { seasonId, params } = useScope();
 
   const results = useQueries({
@@ -135,17 +137,17 @@ export default function DashboardPage() {
     <Box>
       <Flex as="header" align="flex-start" justify="space-between" gap={4} wrap="wrap" mb={density.card}>
         <Box>
-          <Heading size="lg">Season operations</Heading>
+          <Heading size="lg">{t("title")}</Heading>
           <Text color="fg.muted" mt={1}>
-            Acres, moisture, water, and alerts across the organization.
+            {t("subtitle")}
           </Text>
         </Box>
         <Flex gap={2}>
           <Button as={RouterLink} to="/scouting/new" variant="outline" colorScheme="gray">
-            Log scout report
+            {t("logScoutReport")}
           </Button>
           <Button as={RouterLink} to="/map" colorScheme="brand">
-            Open farm map
+            {t("openFarmMap")}
           </Button>
         </Flex>
       </Flex>
@@ -154,65 +156,65 @@ export default function DashboardPage() {
 
       {/* ── Band 1: needs attention ─────────────────────────────────────── */}
       <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
-        Right now
+        {t("bands.rightNow")}
       </Text>
       <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={density.card} mb={density.section}>
         <AttentionTile
           icon={<AlertTriangle size={16} />}
-          label="Open alerts"
+          label={t("tiles.openAlerts")}
           count={summary?.open_alerts ?? 0}
           to="/notifications"
           tone="red.500"
         />
         <AttentionTile
           icon={<Radio size={16} />}
-          label="Sensor alerts"
+          label={t("tiles.sensorAlerts")}
           count={sensorAlerts.length}
           to="/sensors"
           tone="orange.500"
         >
-          {sensorAlerts.slice(0, 2).map((s) => s.name).join(", ") || "All live probes healthy."}
+          {sensorAlerts.slice(0, 2).map((s) => s.name).join(", ") || t("tiles.allProbesHealthy")}
         </AttentionTile>
         <AttentionTile
           icon={<Package size={16} />}
-          label="Low stock"
+          label={t("tiles.lowStock")}
           count={lowStock.length}
           to="/inventory"
           tone="yellow.600"
         >
-          {lowStock.slice(0, 2).map((a) => a.item_name).join(", ") || "Above reorder points."}
+          {lowStock.slice(0, 2).map((a) => a.item_name).join(", ") || t("tiles.aboveReorder")}
         </AttentionTile>
         <AttentionTile
           icon={<Gauge size={16} />}
-          label="Open tasks"
+          label={t("tiles.openTasks")}
           count={openTasks.length}
           to="/tasks"
           tone="blue.500"
         >
-          {openTasks.slice(0, 2).map((t) => t.title).join(", ") || "Nothing queued."}
+          {openTasks.slice(0, 2).map((task) => task.title).join(", ") || t("tiles.nothingQueued")}
         </AttentionTile>
       </SimpleGrid>
 
       {/* ── Band 2: season state ────────────────────────────────────────── */}
       <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
-        This season
+        {t("bands.thisSeason")}
       </Text>
       {summaryQ.isLoading ? (
         <SkeletonKpis count={5} />
       ) : (
         <SimpleGrid columns={{ base: 2, md: 3, xl: 5 }} spacing={density.card} mb={density.card}>
-          <StatCard label="Acres" value={formatAcres(summary?.total_acres)} icon={<MapPinned size={14} />} hint="Owned + operated" />
-          <StatCard label="Active fields" value={formatNumber(summary?.active_fields)} icon={<Wheat size={14} />} />
-          <StatCard label="Yield estimate" value={`${formatNumber(summary?.yield_estimate, 0)} bu`} hint="Season to date" />
-          <StatCard label="Water used" value={`${formatNumber(summary?.water_used, 0)} gal`} icon={<Droplets size={14} />} />
-          <StatCard label="Equipment uptime" value={formatPct(summary?.equipment_uptime)} icon={<Tractor size={14} />} hint="Rolling 7-day" />
+          <StatCard label={t("kpis.acres")} value={formatAcres(summary?.total_acres)} icon={<MapPinned size={14} />} hint={t("kpis.acresHint")} />
+          <StatCard label={t("kpis.activeFields")} value={formatNumber(summary?.active_fields)} icon={<Wheat size={14} />} />
+          <StatCard label={t("kpis.yieldEstimate")} value={`${formatNumber(summary?.yield_estimate, 0)} bu`} hint={t("kpis.yieldHint")} />
+          <StatCard label={t("kpis.waterUsed")} value={`${formatNumber(summary?.water_used, 0)} gal`} icon={<Droplets size={14} />} />
+          <StatCard label={t("kpis.equipmentUptime")} value={formatPct(summary?.equipment_uptime)} icon={<Tractor size={14} />} hint={t("kpis.equipmentHint")} />
         </SimpleGrid>
       )}
 
       <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={density.card} mb={density.section}>
-        <ChartCard title="Crop progress">
+        <ChartCard title={t("cards.cropProgress")}>
           {(progressQ.data ?? []).length === 0 ? (
-            <Text color="fg.muted">No crop plans in this season. Add a plan for corn on North 80.</Text>
+            <Text color="fg.muted">{t("cards.noCropPlans")}</Text>
           ) : (
             (progressQ.data ?? []).slice(0, 5).map((c) => (
               <Box key={c.crop_name} mb={3}>
@@ -238,30 +240,32 @@ export default function DashboardPage() {
         </ChartCard>
 
         <ChartCard
-          title="Irrigation"
+          title={t("cards.irrigation")}
           action={
             <Link as={RouterLink} to="/irrigation" color="brand.500" fontSize="sm">
-              Zones
+              {t("cards.zones")}
             </Link>
           }
         >
           <Text fontFamily="heading" fontSize="3xl" lineHeight="1.1">
-            {irrigQ.data?.zones_running ?? 0}
-            <Text as="span" fontSize="md" color="fg.muted">
-              {" "}
-              / {irrigQ.data?.zones_total ?? 0} running
-            </Text>
+            {t("cards.zonesRunning", {
+              running: irrigQ.data?.zones_running ?? 0,
+              total: irrigQ.data?.zones_total ?? 0,
+            })}
           </Text>
           <Text color="fg.muted" mt={1}>
-            {formatNumber(irrigQ.data?.gallons_today)} gal today · {formatPct(irrigQ.data?.efficiency_pct)} efficiency
+            {t("cards.irrigationDetail", {
+              gallons: formatNumber(irrigQ.data?.gallons_today),
+              efficiency: formatPct(irrigQ.data?.efficiency_pct),
+            })}
           </Text>
         </ChartCard>
 
         <ChartCard
-          title="Weather now"
+          title={t("cards.weatherNow")}
           action={
             <Link as={RouterLink} to="/weather" color="brand.500" fontSize="sm">
-              Forecast
+              {t("cards.forecast")}
             </Link>
           }
         >
@@ -271,11 +275,15 @@ export default function DashboardPage() {
                 {Math.round(weatherQ.data.temperature_f)}°
               </Text>
               <Text color="fg.muted" mt={1}>
-                {weatherQ.data.conditions} · Wind {weatherQ.data.wind_mph} mph · RH {weatherQ.data.humidity}%
+                {t("cards.weatherDetail", {
+                  conditions: weatherQ.data.conditions,
+                  wind: weatherQ.data.wind_mph,
+                  humidity: weatherQ.data.humidity,
+                })}
               </Text>
             </Box>
           ) : (
-            <Text color="fg.muted">Select a farm with a weather station to see conditions.</Text>
+            <Text color="fg.muted">{t("cards.noWeather")}</Text>
           )}
         </ChartCard>
       </SimpleGrid>
@@ -285,16 +293,16 @@ export default function DashboardPage() {
         <AccordionItem borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.surface" mb={density.card}>
           <AccordionButton py={3} px={4} _hover={{ bg: "bg.subtle" }} borderRadius="xl">
             <Heading size="sm" flex="1" textAlign="start">
-              Field health
+              {t("cards.fieldHealth")}
             </Heading>
             <Text fontSize="sm" color="fg.muted" me={2}>
-              {(healthQ.data ?? []).length} fields
+              {t("cards.fieldCount", { count: (healthQ.data ?? []).length })}
             </Text>
             <AccordionIcon />
           </AccordionButton>
           <AccordionPanel px={4} pb={4}>
             {!healthQ.data?.length ? (
-              <Text color="fg.muted">Field health cards appear once probes report in.</Text>
+              <Text color="fg.muted">{t("cards.noFieldHealth")}</Text>
             ) : (
               <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={density.dense}>
                 {(healthQ.data ?? []).slice(0, 8).map((f) => (
@@ -315,12 +323,12 @@ export default function DashboardPage() {
                       {f.name}
                     </Text>
                     <Text color="fg.muted" fontSize="sm">
-                      {f.farm_name} · {f.crop_name ?? "Fallow"}
+                      {f.farm_name} · {f.crop_name ?? t("cards.fallow")}
                     </Text>
                     <Flex align="center" gap={2} mt={2}>
                       <StatusBadge status={f.health_status} />
                       <Text as="span" color="fg.muted" fontSize="sm">
-                        {f.moisture != null ? `${f.moisture}%` : "No probe"}
+                        {f.moisture != null ? `${f.moisture}%` : t("cards.noProbe")}
                       </Text>
                     </Flex>
                   </Box>
@@ -333,10 +341,10 @@ export default function DashboardPage() {
         <AccordionItem borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.surface">
           <AccordionButton py={3} px={4} _hover={{ bg: "bg.subtle" }} borderRadius="xl">
             <Heading size="sm" flex="1" textAlign="start">
-              Trends
+              {t("cards.trends")}
             </Heading>
             <Text fontSize="sm" color="fg.muted" me={2}>
-              Expenses · yield vs target
+              {t("cards.trendsHint")}
             </Text>
             <AccordionIcon />
           </AccordionButton>
@@ -344,7 +352,7 @@ export default function DashboardPage() {
             <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={density.card}>
               <Box>
                 <Text fontSize="sm" color="fg.muted" mb={2}>
-                  Expenses
+                  {t("cards.expenses")}
                 </Text>
                 <ChartFrame height="200px">
                   <AreaChart data={expensesQ.data ?? []}>
@@ -358,7 +366,7 @@ export default function DashboardPage() {
               </Box>
               <Box>
                 <Text fontSize="sm" color="fg.muted" mb={2}>
-                  Yield vs target
+                  {t("cards.yieldVsTarget")}
                 </Text>
                 <ChartFrame height="200px">
                   <BarChart data={yieldsQ.data ?? []}>
