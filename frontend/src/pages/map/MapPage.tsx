@@ -132,14 +132,11 @@ export default function MapPage() {
       <PanelSection title={t("map.legend")}>
         <Stack spacing={1.5} fontSize="sm">
           <Flex align="center" gap={2}>
-            <Box boxSize="10px" borderRadius="sm" bg="#7CB518" /> Healthy
-          </Flex>
+            <Box boxSize="10px" borderRadius="sm" bg="#7CB518" />{t("map.healthy")}</Flex>
           <Flex align="center" gap={2}>
-            <Box boxSize="10px" borderRadius="sm" bg="#D4A017" /> Warning
-          </Flex>
+            <Box boxSize="10px" borderRadius="sm" bg="#D4A017" />{t("map.warning")}</Flex>
           <Flex align="center" gap={2}>
-            <Box boxSize="10px" borderRadius="sm" bg="#B42318" /> Critical
-          </Flex>
+            <Box boxSize="10px" borderRadius="sm" bg="#B42318" />{t("map.critical")}</Flex>
         </Stack>
       </PanelSection>
 

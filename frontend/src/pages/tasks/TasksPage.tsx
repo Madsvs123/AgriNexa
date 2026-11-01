@@ -62,9 +62,7 @@ export default function TasksPage() {
             onClick={() =>
               setEditing({ title: "", description: "", status: "todo", priority: "medium", due_date: null, farm: null, field: null })
             }
-          >
-            New task
-          </Button>
+          >{t("tasks.newTask")}</Button>
         }
       />
       <ErrorBanner message={tasksQ.error ? getApiError(tasksQ.error) : null} />
@@ -142,8 +140,8 @@ export default function TasksPage() {
                 onChange={(e) => setEditing({ ...editing, priority: e.target.value as TaskItem["priority"] })}
               >
                 <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="medium">{t("priority.medium", { ns: "common" })}</option>
+                <option value="high">{t("priority.high", { ns: "common" })}</option>
               </Select>
             </FormField>
             <FormField label={t("tasks.dueDate")} htmlFor="tdue">
@@ -182,9 +180,7 @@ export default function TasksPage() {
                 ))}
               </Select>
             </FormField>
-            <Button colorScheme="brand" isDisabled={save.isPending} onClick={() => save.mutate()}>
-              Save task
-            </Button>
+            <Button colorScheme="brand" isDisabled={save.isPending} onClick={() => save.mutate()}>{t("tasks.saveTask")}</Button>
           </>
         ) : null}
       </Drawer>

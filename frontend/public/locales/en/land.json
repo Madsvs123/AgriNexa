@@ -61,7 +61,10 @@
       "equipment": "Equipment",
       "alerts": "Alerts",
       "history": "Historical activity"
-    }
+    },
+    "healthy": "Healthy",
+    "warning": "Warning",
+    "critical": "Critical"
   },
   "farmDetail": {
     "totalAcres": "Total acres",
@@ -194,5 +197,12 @@
     "postNote": "Post note",
     "posting": "Posting…",
     "noNotes": "No notes on this field yet."
+  },
+  "boundary": {
+    "hint": "Draw with the polygon or rectangle tool, drag vertices to edit, use the bin to clear.",
+    "clear": "Clear boundary",
+    "recenter": "Recenter map",
+    "noSeries": "No series",
+    "layers": "Layers"
   }
 }

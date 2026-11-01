@@ -19,12 +19,8 @@ export default function ScoutingPage() {
         subtitle={t("scouting.subtitle")}
         actions={
           <>
-            <Button as={RouterLink} to="/scouting/treatments" variant="ghost" colorScheme="gray">
-              Treatments
-            </Button>
-            <Button as={RouterLink} to="/scouting/new" colorScheme="brand">
-              New report
-            </Button>
+            <Button as={RouterLink} to="/scouting/treatments" variant="ghost" colorScheme="gray">{t("treatments.title")}</Button>
+            <Button as={RouterLink} to="/scouting/new" colorScheme="brand">{t("scouting.newReport")}</Button>
           </>
         }
       />

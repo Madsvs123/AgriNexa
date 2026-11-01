@@ -75,9 +75,7 @@ export default function FarmFormPage() {
         subtitle={t("farmForm.subtitle")}
         crumbs={
           <>
-            <Link as={RouterLink} to="/farms">
-              Farms
-            </Link>
+            <Link as={RouterLink} to="/farms">{t("farms.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>

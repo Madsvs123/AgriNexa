@@ -37,9 +37,7 @@ export default function IrrigationZonePage() {
         subtitle={`${zone.field_name} · ${zone.method}`}
         crumbs={
           <>
-            <Link as={RouterLink} to="/irrigation">
-              Irrigation
-            </Link>
+            <Link as={RouterLink} to="/irrigation">{t("irrigation.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
@@ -56,9 +54,7 @@ export default function IrrigationZonePage() {
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
-            <Heading size="sm" mb={3}>
-              Schedules
-            </Heading>
+            <Heading size="sm" mb={3}>{t("irrigation.schedules")}</Heading>
             {(schedQ.data?.results ?? []).map((s) => (
               <Flex key={s.id} align="center" gap={2} justify="space-between" mb={2}>
                 <Text as="span">
@@ -71,9 +67,7 @@ export default function IrrigationZonePage() {
         </Card>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
-            <Heading size="sm" mb={3}>
-              Water usage
-            </Heading>
+            <Heading size="sm" mb={3}>{t("irrigation.waterUsage")}</Heading>
             {(usageQ.data?.results ?? []).slice(0, 8).map((u) => (
               <Flex key={u.id} align="center" gap={2} justify="space-between" mb={2}>
                 <Text as="span">{u.gallons} gal</Text>

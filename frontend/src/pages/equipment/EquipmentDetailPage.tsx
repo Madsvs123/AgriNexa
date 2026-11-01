@@ -39,9 +39,7 @@ export default function EquipmentDetailPage() {
         subtitle={`${e.year ?? ""} ${e.make} ${e.model} · ${e.farm_name}`}
         crumbs={
           <>
-            <Link as={RouterLink} to="/equipment">
-              Equipment
-            </Link>
+            <Link as={RouterLink} to="/equipment">{t("equipment.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
@@ -61,9 +59,7 @@ export default function EquipmentDetailPage() {
         </Box>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
-            <Heading size="sm" mb={3}>
-              Breakdowns
-            </Heading>
+            <Heading size="sm" mb={3}>{t("equipment.breakdowns")}</Heading>
             {(bdQ.data?.results ?? []).map((b) => (
               <Box key={b.id} mb={2}>
                 <Text as="strong">{formatDateTime(b.occurred_at)}</Text> — {b.description}
@@ -76,9 +72,7 @@ export default function EquipmentDetailPage() {
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Box>
-          <Heading size="sm" mb={3}>
-            Maintenance schedule
-          </Heading>
+          <Heading size="sm" mb={3}>{t("equipment.maintenanceSchedule")}</Heading>
           <DataTable
             rows={maintQ.data?.results ?? []}
             rowKey={(r) => r.id}
@@ -92,9 +86,7 @@ export default function EquipmentDetailPage() {
           />
         </Box>
         <Box>
-          <Heading size="sm" mb={3}>
-            Fuel logs
-          </Heading>
+          <Heading size="sm" mb={3}>{t("equipment.fuelLogs")}</Heading>
           <DataTable
             rows={fuelQ.data?.results ?? []}
             rowKey={(r) => r.id}
@@ -109,9 +101,7 @@ export default function EquipmentDetailPage() {
         </Box>
       </SimpleGrid>
       <Box as="section" mt={4}>
-        <Heading size="sm" mb={3}>
-          Service history
-        </Heading>
+        <Heading size="sm" mb={3}>{t("equipment.serviceHistory")}</Heading>
         <DataTable
           rows={svcQ.data?.results ?? []}
           rowKey={(r) => r.id}

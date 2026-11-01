@@ -259,7 +259,7 @@ export default function CropPlanDetailPage() {
                           emptyTitle={t("planDetail.noApplicationsTitle")}
                           emptyBody={t("planDetail.noApplicationsBody")}
                           columns={[
-                            { key: "product_name", header: "Product" },
+                            { key: "product_name", header: t("detail.columns.product") },
                             { key: "target_pest", header: t("detail.columns.target"), render: (r) => r.target_pest || "—" },
                             { key: "rate", header: t("detail.columns.rate"), render: (r) => `${formatNumber(r.rate_per_acre, 1)} ${r.unit}/ac` },
                             { key: "application_date", header: t("detail.columns.applied"), render: (r) => formatDate(r.application_date) },

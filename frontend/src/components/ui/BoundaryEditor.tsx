@@ -6,6 +6,7 @@ import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import { Badge, Box, Button, Flex, HStack, Text } from "@chakra-ui/react";
 import type { GeoJSONPolygon } from "@/types";
+import { useTranslation } from "react-i18next";
 
 const EARTH_RADIUS_M = 6371008.8;
 const SQ_M_PER_ACRE = 4046.8564224;
@@ -148,6 +149,7 @@ export function BoundaryEditor({
 }) {
   const [satellite, setSatellite] = useState(false);
   const acres = useMemo(() => polygonAcres(value), [value]);
+  const { t } = useTranslation("land");
 
   return (
     <Box>
@@ -208,13 +210,9 @@ export function BoundaryEditor({
           <Badge colorScheme={value ? "green" : "gray"}>{value ? "Boundary set" : "No boundary"}</Badge>
           {value ? <Text fontSize="sm" color="fg.muted">≈ {acres.toFixed(1)} acres</Text> : null}
         </HStack>
-        <Text fontSize="sm" color="fg.muted">
-          Draw with the polygon or rectangle tool, drag vertices to edit, use the bin to clear.
-        </Text>
+        <Text fontSize="sm" color="fg.muted">{t("boundary.hint")}</Text>
         {value ? (
-          <Button size="xs" variant="ghost" colorScheme="red" onClick={() => onChange(null)}>
-            Clear boundary
-          </Button>
+          <Button size="xs" variant="ghost" colorScheme="red" onClick={() => onChange(null)}>{t("boundary.clear")}</Button>
         ) : null}
       </Flex>
     </Box>

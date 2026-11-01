@@ -8,55 +8,202 @@
     "settings": "Ajustes"
   },
   "routes": {
-    "dashboard": { "label": "Panel", "keywords": "resumen, indicadores, kpi, hoy" },
-    "notifications": { "label": "Notificaciones", "keywords": "alertas, bandeja" },
-    "search": { "label": "Resultados de búsqueda", "keywords": "buscar, encontrar" },
-    "map": { "label": "Mapa de la finca", "keywords": "límites, gis, capas, satélite, suelo, parcelas" },
-    "farms": { "label": "Fincas", "keywords": "predios, establecimientos, campos" },
-    "farm-new": { "label": "Agregar finca", "keywords": "" },
-    "farm-detail": { "label": "Finca", "keywords": "" },
-    "farm-edit": { "label": "Editar finca", "keywords": "" },
-    "fields": { "label": "Lotes", "keywords": "acres, superficie, límites, suelo, parcelas" },
-    "field-new": { "label": "Agregar lote", "keywords": "" },
-    "field-detail": { "label": "Lote", "keywords": "" },
-    "field-edit": { "label": "Editar lote", "keywords": "" },
-    "crop-plans": { "label": "Planes de cultivo", "keywords": "siembra, plan de campaña, calendario, cultivo intercalado, policultivo" },
-    "crop-plan-detail": { "label": "Plan de cultivo", "keywords": "" },
-    "strategies": { "label": "Estrategias", "keywords": "escenario, simulación, comparar, alternativa, margen, riesgo" },
-    "strategy-compare": { "label": "Comparar estrategias", "keywords": "lado a lado, versus, ranking" },
-    "strategy-detail": { "label": "Estrategia", "keywords": "" },
-    "rotations": { "label": "Rotaciones", "keywords": "secuencia, cultivo de cobertura, multicampaña, plurianual, ciclo" },
-    "rotation-detail": { "label": "Rotación", "keywords": "" },
-    "crops": { "label": "Catálogo", "keywords": "cultivos, variedades, híbrido, cultivar, semilla, ventanas de siembra, maíz, soja, trigo" },
-    "varieties": { "label": "Variedades", "keywords": "híbrido, cultivar, semilla, madurez" },
-    "planting-windows": { "label": "Ventanas de siembra", "keywords": "helada, fechas de siembra, cosechar antes de, temperatura del suelo" },
-    "constraints": { "label": "Restricciones", "keywords": "recursos, agua, mano de obra, nitrógeno, capacidad, límites" },
-    "seasons": { "label": "Campañas", "keywords": "año, ciclo, temporada" },
-    "budget": { "label": "Presupuesto", "keywords": "costo, gasto, margen, egresos" },
-    "irrigation": { "label": "Riego", "keywords": "agua, zonas, pivote, goteo, programación" },
-    "irrigation-zone": { "label": "Zona", "keywords": "" },
-    "sensors": { "label": "Sensores", "keywords": "sondas, humedad, telemetría, iot" },
-    "sensor-detail": { "label": "Sensor", "keywords": "" },
-    "weather": { "label": "Clima", "keywords": "pronóstico, lluvia, viento, helada, grados día" },
-    "scouting": { "label": "Monitoreo", "keywords": "plagas, enfermedades, malezas, recorrida, informe" },
-    "scout-new": { "label": "Nuevo informe de monitoreo", "keywords": "" },
-    "treatments": { "label": "Tratamientos", "keywords": "aplicación, plaguicida, pulverización, químico" },
-    "scout-detail": { "label": "Informe de monitoreo", "keywords": "" },
-    "equipment": { "label": "Maquinaria", "keywords": "equipos, tractor, sembradora, mantenimiento, combustible" },
-    "equipment-detail": { "label": "Maquinaria", "keywords": "" },
-    "inventory": { "label": "Inventario", "keywords": "stock, semilla, fertilizante, químico, sku, reposición" },
-    "inventory-detail": { "label": "Artículo", "keywords": "" },
-    "tasks": { "label": "Tareas", "keywords": "pendientes, órdenes de trabajo, asignaciones, tablero" },
-    "analytics": { "label": "Analítica", "keywords": "rendimiento, agua, costo, tendencias, gráficos" },
-    "reports": { "label": "Informes", "keywords": "exportar, pdf, csv, generar" },
-    "documents": { "label": "Documentos", "keywords": "archivos, contratos, adjuntos, subidas" },
-    "settings": { "label": "General", "keywords": "preferencias, configuración" },
-    "organization": { "label": "Organización", "keywords": "empresa, inquilino, facturación" },
-    "team": { "label": "Equipo", "keywords": "miembros, personas, personal" },
-    "roles": { "label": "Roles", "keywords": "permisos, control de acceso" },
-    "invitations": { "label": "Invitaciones", "keywords": "invitar, incorporación" },
-    "access": { "label": "Acceso a fincas", "keywords": "permisos, concesiones, alcance" },
-    "profile": { "label": "Perfil", "keywords": "cuenta, mi cuenta, contraseña" }
+    "dashboard": {
+      "label": "Panel",
+      "keywords": "resumen, indicadores, kpi, hoy"
+    },
+    "notifications": {
+      "label": "Notificaciones",
+      "keywords": "alertas, bandeja"
+    },
+    "search": {
+      "label": "Resultados de búsqueda",
+      "keywords": "buscar, encontrar"
+    },
+    "map": {
+      "label": "Mapa de la finca",
+      "keywords": "límites, gis, capas, satélite, suelo, parcelas"
+    },
+    "farms": {
+      "label": "Fincas",
+      "keywords": "predios, establecimientos, campos"
+    },
+    "farm-new": {
+      "label": "Agregar finca",
+      "keywords": ""
+    },
+    "farm-detail": {
+      "label": "Finca",
+      "keywords": ""
+    },
+    "farm-edit": {
+      "label": "Editar finca",
+      "keywords": ""
+    },
+    "fields": {
+      "label": "Lotes",
+      "keywords": "acres, superficie, límites, suelo, parcelas"
+    },
+    "field-new": {
+      "label": "Agregar lote",
+      "keywords": ""
+    },
+    "field-detail": {
+      "label": "Lote",
+      "keywords": ""
+    },
+    "field-edit": {
+      "label": "Editar lote",
+      "keywords": ""
+    },
+    "crop-plans": {
+      "label": "Planes de cultivo",
+      "keywords": "siembra, plan de campaña, calendario, cultivo intercalado, policultivo"
+    },
+    "crop-plan-detail": {
+      "label": "Plan de cultivo",
+      "keywords": ""
+    },
+    "strategies": {
+      "label": "Estrategias",
+      "keywords": "escenario, simulación, comparar, alternativa, margen, riesgo"
+    },
+    "strategy-compare": {
+      "label": "Comparar estrategias",
+      "keywords": "lado a lado, versus, ranking"
+    },
+    "strategy-detail": {
+      "label": "Estrategia",
+      "keywords": ""
+    },
+    "rotations": {
+      "label": "Rotaciones",
+      "keywords": "secuencia, cultivo de cobertura, multicampaña, plurianual, ciclo"
+    },
+    "rotation-detail": {
+      "label": "Rotación",
+      "keywords": ""
+    },
+    "crops": {
+      "label": "Catálogo",
+      "keywords": "cultivos, variedades, híbrido, cultivar, semilla, ventanas de siembra, maíz, soja, trigo"
+    },
+    "varieties": {
+      "label": "Variedades",
+      "keywords": "híbrido, cultivar, semilla, madurez"
+    },
+    "planting-windows": {
+      "label": "Ventanas de siembra",
+      "keywords": "helada, fechas de siembra, cosechar antes de, temperatura del suelo"
+    },
+    "constraints": {
+      "label": "Restricciones",
+      "keywords": "recursos, agua, mano de obra, nitrógeno, capacidad, límites"
+    },
+    "seasons": {
+      "label": "Campañas",
+      "keywords": "año, ciclo, temporada"
+    },
+    "budget": {
+      "label": "Presupuesto",
+      "keywords": "costo, gasto, margen, egresos"
+    },
+    "irrigation": {
+      "label": "Riego",
+      "keywords": "agua, zonas, pivote, goteo, programación"
+    },
+    "irrigation-zone": {
+      "label": "Zona",
+      "keywords": ""
+    },
+    "sensors": {
+      "label": "Sensores",
+      "keywords": "sondas, humedad, telemetría, iot"
+    },
+    "sensor-detail": {
+      "label": "Sensor",
+      "keywords": ""
+    },
+    "weather": {
+      "label": "Clima",
+      "keywords": "pronóstico, lluvia, viento, helada, grados día"
+    },
+    "scouting": {
+      "label": "Monitoreo",
+      "keywords": "plagas, enfermedades, malezas, recorrida, informe"
+    },
+    "scout-new": {
+      "label": "Nuevo informe de monitoreo",
+      "keywords": ""
+    },
+    "treatments": {
+      "label": "Tratamientos",
+      "keywords": "aplicación, plaguicida, pulverización, químico"
+    },
+    "scout-detail": {
+      "label": "Informe de monitoreo",
+      "keywords": ""
+    },
+    "equipment": {
+      "label": "Maquinaria",
+      "keywords": "equipos, tractor, sembradora, mantenimiento, combustible"
+    },
+    "equipment-detail": {
+      "label": "Maquinaria",
+      "keywords": ""
+    },
+    "inventory": {
+      "label": "Inventario",
+      "keywords": "stock, semilla, fertilizante, químico, sku, reposición"
+    },
+    "inventory-detail": {
+      "label": "Artículo",
+      "keywords": ""
+    },
+    "tasks": {
+      "label": "Tareas",
+      "keywords": "pendientes, órdenes de trabajo, asignaciones, tablero"
+    },
+    "analytics": {
+      "label": "Analítica",
+      "keywords": "rendimiento, agua, costo, tendencias, gráficos"
+    },
+    "reports": {
+      "label": "Informes",
+      "keywords": "exportar, pdf, csv, generar"
+    },
+    "documents": {
+      "label": "Documentos",
+      "keywords": "archivos, contratos, adjuntos, subidas"
+    },
+    "settings": {
+      "label": "General",
+      "keywords": "preferencias, configuración"
+    },
+    "organization": {
+      "label": "Organización",
+      "keywords": "empresa, inquilino, facturación"
+    },
+    "team": {
+      "label": "Equipo",
+      "keywords": "miembros, personas, personal"
+    },
+    "roles": {
+      "label": "Roles",
+      "keywords": "permisos, control de acceso"
+    },
+    "invitations": {
+      "label": "Invitaciones",
+      "keywords": "invitar, incorporación"
+    },
+    "access": {
+      "label": "Acceso a fincas",
+      "keywords": "permisos, concesiones, alcance"
+    },
+    "profile": {
+      "label": "Perfil",
+      "keywords": "cuenta, mi cuenta, contraseña"
+    }
   },
   "shell": {
     "sections": "Secciones",
@@ -76,7 +223,9 @@
     "account": "Cuenta",
     "signOut": "Cerrar sesión",
     "farmerProfile": "Perfil del productor",
-    "joined": "se unió {{when}}"
+    "joined": "se unió {{when}}",
+    "openNotificationCenter": "Abrir centro de notificaciones",
+    "quietYard": "Todo tranquilo. Las alertas de helada, sensores e inventario aparecerán aquí."
   },
   "palette": {
     "placeholder": "Busca registros o salta a una página…",

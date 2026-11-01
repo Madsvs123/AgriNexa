@@ -31,13 +31,11 @@ export default function SeasonsPage() {
         subtitle={t("seasons.subtitle")}
         crumbs={
           <>
-            <Link as={RouterLink} to="/crops">
-              Crops
-            </Link>
+            <Link as={RouterLink} to="/crops">{t("catalog.pageTitle")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
-            <Text as="span">Seasons</Text>
+            <Text as="span">{t("seasons.title")}</Text>
           </>
         }
         actions={
@@ -97,13 +95,9 @@ export default function SeasonsPage() {
               onChange={(e) => setForm({ ...form, end_date: e.target.value })}
             />
           </FormField>
-          <Checkbox isChecked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })}>
-            Active season
-          </Checkbox>
+          <Checkbox isChecked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })}>{t("seasons.activeSeason")}</Checkbox>
           <Box mt={3.5}>
-            <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>
-              Save
-            </Button>
+            <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>{t("actions.save", { ns: "common" })}</Button>
           </Box>
         </form>
       </Drawer>

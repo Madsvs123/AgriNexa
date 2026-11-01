@@ -61,7 +61,10 @@
       "equipment": "Maquinaria",
       "alerts": "Alertas",
       "history": "Actividad histórica"
-    }
+    },
+    "healthy": "Saludable",
+    "warning": "Advertencia",
+    "critical": "Crítico"
   },
   "farmDetail": {
     "totalAcres": "Superficie total",
@@ -194,5 +197,12 @@
     "postNote": "Publicar nota",
     "posting": "Publicando…",
     "noNotes": "Todavía no hay notas en este lote."
+  },
+  "boundary": {
+    "hint": "Dibuja con la herramienta de polígono o rectángulo, arrastra los vértices para editar, usa la papelera para borrar.",
+    "clear": "Borrar límite",
+    "recenter": "Centrar mapa",
+    "noSeries": "Sin serie",
+    "layers": "Capas"
   }
 }

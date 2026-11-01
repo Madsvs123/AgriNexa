@@ -8,55 +8,202 @@
     "settings": "الإعدادات"
   },
   "routes": {
-    "dashboard": { "label": "لوحة المتابعة", "keywords": "نظرة عامة, مؤشرات, ملخص, اليوم" },
-    "notifications": { "label": "الإشعارات", "keywords": "تنبيهات, صندوق الوارد" },
-    "search": { "label": "نتائج البحث", "keywords": "بحث, إيجاد" },
-    "map": { "label": "خريطة المزرعة", "keywords": "حدود, نظم معلومات جغرافية, طبقات, أقمار صناعية, تربة, قطع" },
-    "farms": { "label": "المزارع", "keywords": "ممتلكات, مواقع, عزب" },
-    "farm-new": { "label": "إضافة مزرعة", "keywords": "" },
-    "farm-detail": { "label": "مزرعة", "keywords": "" },
-    "farm-edit": { "label": "تعديل المزرعة", "keywords": "" },
-    "fields": { "label": "الحقول", "keywords": "مساحة, قطع أرض, حدود, تربة" },
-    "field-new": { "label": "إضافة حقل", "keywords": "" },
-    "field-detail": { "label": "حقل", "keywords": "" },
-    "field-edit": { "label": "تعديل الحقل", "keywords": "" },
-    "crop-plans": { "label": "خطط المحاصيل", "keywords": "زراعة, خطة موسمية, جدول, تحميل, زراعة مختلطة" },
-    "crop-plan-detail": { "label": "خطة محصول", "keywords": "" },
-    "strategies": { "label": "الاستراتيجيات", "keywords": "سيناريو, محاكاة, مقارنة, بديل, هامش, مخاطر" },
-    "strategy-compare": { "label": "مقارنة الاستراتيجيات", "keywords": "جنبًا إلى جنب, مقابل, ترتيب" },
-    "strategy-detail": { "label": "استراتيجية", "keywords": "" },
-    "rotations": { "label": "الدورات الزراعية", "keywords": "تعاقب, محصول تغطية, متعدد المواسم, متعدد السنوات, دورة" },
-    "rotation-detail": { "label": "دورة زراعية", "keywords": "" },
-    "crops": { "label": "دليل المحاصيل", "keywords": "محاصيل, أصناف, هجين, سلالة, بذور, مواعيد الزراعة, ذرة, فول صويا, قمح" },
-    "varieties": { "label": "الأصناف", "keywords": "هجين, سلالة, بذور, نضج" },
-    "planting-windows": { "label": "مواعيد الزراعة", "keywords": "صقيع, تواريخ البذر, الحصاد قبل, حرارة التربة" },
-    "constraints": { "label": "قيود الموارد", "keywords": "موارد, مياه, عمالة, نيتروجين, طاقة استيعابية, حدود" },
-    "seasons": { "label": "المواسم", "keywords": "سنة, دورة" },
-    "budget": { "label": "الميزانية", "keywords": "تكلفة, إنفاق, هامش, مصروفات" },
-    "irrigation": { "label": "الري", "keywords": "مياه, مناطق, محوري, تنقيط, جدولة" },
-    "irrigation-zone": { "label": "منطقة ري", "keywords": "" },
-    "sensors": { "label": "المستشعرات", "keywords": "مجسات, رطوبة, قياس عن بعد, إنترنت الأشياء" },
-    "sensor-detail": { "label": "مستشعر", "keywords": "" },
-    "weather": { "label": "الطقس", "keywords": "توقعات, مطر, رياح, صقيع, وحدات حرارية" },
-    "scouting": { "label": "الكشف الحقلي", "keywords": "آفات, أمراض, أعشاب, جولة, تقرير" },
-    "scout-new": { "label": "تقرير كشف جديد", "keywords": "" },
-    "treatments": { "label": "المعالجات", "keywords": "رش, مبيد, تطبيق, كيماويات" },
-    "scout-detail": { "label": "تقرير كشف", "keywords": "" },
-    "equipment": { "label": "المعدات", "keywords": "آلات, جرار, بذارة, صيانة, وقود" },
-    "equipment-detail": { "label": "معدة", "keywords": "" },
-    "inventory": { "label": "المخزون", "keywords": "رصيد, بذور, أسمدة, كيماويات, رمز الصنف, إعادة الطلب" },
-    "inventory-detail": { "label": "صنف", "keywords": "" },
-    "tasks": { "label": "المهام", "keywords": "قائمة المهام, أوامر عمل, تكليفات, لوحة" },
-    "analytics": { "label": "التحليلات", "keywords": "إنتاجية, مياه, تكلفة, اتجاهات, رسوم بيانية" },
-    "reports": { "label": "التقارير", "keywords": "تصدير, pdf, csv, إنشاء" },
-    "documents": { "label": "المستندات", "keywords": "ملفات, عقود, مرفقات, تحميلات" },
-    "settings": { "label": "نظرة عامة", "keywords": "تفضيلات, إعدادات" },
-    "organization": { "label": "المؤسسة", "keywords": "شركة, مستأجر, فوترة" },
-    "team": { "label": "الفريق", "keywords": "أعضاء, أشخاص, موظفون" },
-    "roles": { "label": "الأدوار", "keywords": "صلاحيات, التحكم بالوصول" },
-    "invitations": { "label": "الدعوات", "keywords": "دعوة, انضمام" },
-    "access": { "label": "صلاحيات المزارع", "keywords": "صلاحيات, منح, نطاق" },
-    "profile": { "label": "الملف الشخصي", "keywords": "حساب, حسابي, كلمة المرور" }
+    "dashboard": {
+      "label": "لوحة المتابعة",
+      "keywords": "نظرة عامة, مؤشرات, ملخص, اليوم"
+    },
+    "notifications": {
+      "label": "الإشعارات",
+      "keywords": "تنبيهات, صندوق الوارد"
+    },
+    "search": {
+      "label": "نتائج البحث",
+      "keywords": "بحث, إيجاد"
+    },
+    "map": {
+      "label": "خريطة المزرعة",
+      "keywords": "حدود, نظم معلومات جغرافية, طبقات, أقمار صناعية, تربة, قطع"
+    },
+    "farms": {
+      "label": "المزارع",
+      "keywords": "ممتلكات, مواقع, عزب"
+    },
+    "farm-new": {
+      "label": "إضافة مزرعة",
+      "keywords": ""
+    },
+    "farm-detail": {
+      "label": "مزرعة",
+      "keywords": ""
+    },
+    "farm-edit": {
+      "label": "تعديل المزرعة",
+      "keywords": ""
+    },
+    "fields": {
+      "label": "الحقول",
+      "keywords": "مساحة, قطع أرض, حدود, تربة"
+    },
+    "field-new": {
+      "label": "إضافة حقل",
+      "keywords": ""
+    },
+    "field-detail": {
+      "label": "حقل",
+      "keywords": ""
+    },
+    "field-edit": {
+      "label": "تعديل الحقل",
+      "keywords": ""
+    },
+    "crop-plans": {
+      "label": "خطط المحاصيل",
+      "keywords": "زراعة, خطة موسمية, جدول, تحميل, زراعة مختلطة"
+    },
+    "crop-plan-detail": {
+      "label": "خطة محصول",
+      "keywords": ""
+    },
+    "strategies": {
+      "label": "الاستراتيجيات",
+      "keywords": "سيناريو, محاكاة, مقارنة, بديل, هامش, مخاطر"
+    },
+    "strategy-compare": {
+      "label": "مقارنة الاستراتيجيات",
+      "keywords": "جنبًا إلى جنب, مقابل, ترتيب"
+    },
+    "strategy-detail": {
+      "label": "استراتيجية",
+      "keywords": ""
+    },
+    "rotations": {
+      "label": "الدورات الزراعية",
+      "keywords": "تعاقب, محصول تغطية, متعدد المواسم, متعدد السنوات, دورة"
+    },
+    "rotation-detail": {
+      "label": "دورة زراعية",
+      "keywords": ""
+    },
+    "crops": {
+      "label": "دليل المحاصيل",
+      "keywords": "محاصيل, أصناف, هجين, سلالة, بذور, مواعيد الزراعة, ذرة, فول صويا, قمح"
+    },
+    "varieties": {
+      "label": "الأصناف",
+      "keywords": "هجين, سلالة, بذور, نضج"
+    },
+    "planting-windows": {
+      "label": "مواعيد الزراعة",
+      "keywords": "صقيع, تواريخ البذر, الحصاد قبل, حرارة التربة"
+    },
+    "constraints": {
+      "label": "قيود الموارد",
+      "keywords": "موارد, مياه, عمالة, نيتروجين, طاقة استيعابية, حدود"
+    },
+    "seasons": {
+      "label": "المواسم",
+      "keywords": "سنة, دورة"
+    },
+    "budget": {
+      "label": "الميزانية",
+      "keywords": "تكلفة, إنفاق, هامش, مصروفات"
+    },
+    "irrigation": {
+      "label": "الري",
+      "keywords": "مياه, مناطق, محوري, تنقيط, جدولة"
+    },
+    "irrigation-zone": {
+      "label": "منطقة ري",
+      "keywords": ""
+    },
+    "sensors": {
+      "label": "المستشعرات",
+      "keywords": "مجسات, رطوبة, قياس عن بعد, إنترنت الأشياء"
+    },
+    "sensor-detail": {
+      "label": "مستشعر",
+      "keywords": ""
+    },
+    "weather": {
+      "label": "الطقس",
+      "keywords": "توقعات, مطر, رياح, صقيع, وحدات حرارية"
+    },
+    "scouting": {
+      "label": "الكشف الحقلي",
+      "keywords": "آفات, أمراض, أعشاب, جولة, تقرير"
+    },
+    "scout-new": {
+      "label": "تقرير كشف جديد",
+      "keywords": ""
+    },
+    "treatments": {
+      "label": "المعالجات",
+      "keywords": "رش, مبيد, تطبيق, كيماويات"
+    },
+    "scout-detail": {
+      "label": "تقرير كشف",
+      "keywords": ""
+    },
+    "equipment": {
+      "label": "المعدات",
+      "keywords": "آلات, جرار, بذارة, صيانة, وقود"
+    },
+    "equipment-detail": {
+      "label": "معدة",
+      "keywords": ""
+    },
+    "inventory": {
+      "label": "المخزون",
+      "keywords": "رصيد, بذور, أسمدة, كيماويات, رمز الصنف, إعادة الطلب"
+    },
+    "inventory-detail": {
+      "label": "صنف",
+      "keywords": ""
+    },
+    "tasks": {
+      "label": "المهام",
+      "keywords": "قائمة المهام, أوامر عمل, تكليفات, لوحة"
+    },
+    "analytics": {
+      "label": "التحليلات",
+      "keywords": "إنتاجية, مياه, تكلفة, اتجاهات, رسوم بيانية"
+    },
+    "reports": {
+      "label": "التقارير",
+      "keywords": "تصدير, pdf, csv, إنشاء"
+    },
+    "documents": {
+      "label": "المستندات",
+      "keywords": "ملفات, عقود, مرفقات, تحميلات"
+    },
+    "settings": {
+      "label": "نظرة عامة",
+      "keywords": "تفضيلات, إعدادات"
+    },
+    "organization": {
+      "label": "المؤسسة",
+      "keywords": "شركة, مستأجر, فوترة"
+    },
+    "team": {
+      "label": "الفريق",
+      "keywords": "أعضاء, أشخاص, موظفون"
+    },
+    "roles": {
+      "label": "الأدوار",
+      "keywords": "صلاحيات, التحكم بالوصول"
+    },
+    "invitations": {
+      "label": "الدعوات",
+      "keywords": "دعوة, انضمام"
+    },
+    "access": {
+      "label": "صلاحيات المزارع",
+      "keywords": "صلاحيات, منح, نطاق"
+    },
+    "profile": {
+      "label": "الملف الشخصي",
+      "keywords": "حساب, حسابي, كلمة المرور"
+    }
   },
   "shell": {
     "sections": "الأقسام",
@@ -76,7 +223,9 @@
     "account": "الحساب",
     "signOut": "تسجيل الخروج",
     "farmerProfile": "ملف المزارع",
-    "joined": "انضم {{when}}"
+    "joined": "انضم {{when}}",
+    "openNotificationCenter": "فتح مركز الإشعارات",
+    "quietYard": "لا جديد. ستظهر هنا تنبيهات الصقيع والمستشعرات والمخزون."
   },
   "palette": {
     "placeholder": "ابحث في السجلات أو انتقل إلى صفحة…",

@@ -117,9 +117,7 @@ export default function OrganizationPage() {
             />
           </FormField>
         </SimpleGrid>
-        <Button type="submit" colorScheme="brand">
-          Save organization
-        </Button>
+        <Button type="submit" colorScheme="brand">{t("organization.save")}</Button>
       </Box>
     </Box>
   );

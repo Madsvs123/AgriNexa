@@ -79,9 +79,7 @@ export default function FieldFormPage() {
         subtitle={t("fieldForm.subtitle")}
         crumbs={
           <>
-            <Link as={RouterLink} to="/fields">
-              Fields
-            </Link>
+            <Link as={RouterLink} to="/fields">{t("fields.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>

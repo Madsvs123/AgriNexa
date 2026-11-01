@@ -20,7 +20,11 @@
     "pestsHint": "e.g. Corn rootworm, Japanese beetle",
     "weeds": "Weeds",
     "weedsHint": "e.g. Waterhemp, Foxtail",
-    "dropPhotos": "Drop canopy or pest photos"
+    "dropPhotos": "Drop canopy or pest photos",
+    "reportHeading": "Report",
+    "photos": "Photos",
+    "planTreatment": "Plan treatment",
+    "newReport": "New report"
   },
   "treatments": {
     "title": "Treatments",
@@ -32,7 +36,10 @@
     "scheduled": "Scheduled",
     "planTreatment": "Plan treatment",
     "productPlaceholder": "e.g. Headline AMP",
-    "scheduledDate": "Scheduled date"
+    "scheduledDate": "Scheduled date",
+    "heading": "Treatments",
+    "newTreatment": "New treatment",
+    "savePlan": "Save plan"
   },
   "irrigation": {
     "title": "Irrigation",
@@ -48,7 +55,12 @@
     "reason": "Reason",
     "moisture": "Moisture",
     "threshold": "Threshold",
-    "lastRun": "Last run"
+    "lastRun": "Last run",
+    "manualOverride": "Manual override",
+    "schedules": "Schedules",
+    "recommendations": "Recommendations",
+    "runSet": "Run set",
+    "waterUsage": "Water usage"
   },
   "tasks": {
     "title": "Tasks",
@@ -57,7 +69,9 @@
     "description": "Description",
     "priority": "Priority",
     "dueDate": "Due date",
-    "none": "None"
+    "none": "None",
+    "newTask": "New task",
+    "saveTask": "Save task"
   },
   "sensors": {
     "title": "Sensors",
@@ -67,14 +81,16 @@
     "lastReading": "Last reading",
     "battery": "Battery",
     "signal": "Signal",
-    "history": "History"
+    "history": "History",
+    "deviceHealth": "Device health"
   },
   "weather": {
     "title": "Weather",
     "subtitle": "Conditions, forecast, and agronomic recommendations.",
     "rainfallHistory": "Rainfall history",
     "temperatureTrend": "Temperature trend",
-    "noRecommendations": "Spray windows and planting advice appear when a forecast is available."
+    "noRecommendations": "Spray windows and planting advice appear when a forecast is available.",
+    "recommendations": "Recommendations"
   },
   "equipment": {
     "title": "Equipment",
@@ -99,7 +115,11 @@
     "noServiceTitle": "No dealer tickets",
     "noServiceBody": "Shop invoices from the dealer will list here.",
     "summary": "Summary",
-    "vendor": "Vendor"
+    "vendor": "Vendor",
+    "breakdowns": "Breakdowns",
+    "maintenanceSchedule": "Maintenance schedule",
+    "fuelLogs": "Fuel logs",
+    "serviceHistory": "Service history"
   },
   "inventory": {
     "title": "Inventory",
@@ -126,6 +146,10 @@
     "movementPlaceholder": "e.g. Issued to planter",
     "reorderAlert": "{{count}} reorder alert(s) — {{item}} is below the reorder point.",
     "reorderBadge": "Reorder",
-    "okBadge": "OK"
+    "okBadge": "OK",
+    "recordMovement": "Record movement",
+    "saveMovement": "Save movement",
+    "categoryLine": "Category",
+    "farmLine": "Farm {{farm}}"
   }
 }

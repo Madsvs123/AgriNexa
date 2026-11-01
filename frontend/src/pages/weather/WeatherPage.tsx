@@ -154,9 +154,7 @@ export default function WeatherPage() {
         {!recQ.data?.length ? (
           <Card as="article" variant="outline" borderColor="border.default" bg="bg.surface">
             <CardBody>
-              <Heading size="sm" mb={2}>
-                Recommendations
-              </Heading>
+              <Heading size="sm" mb={2}>{t("weather.recommendations")}</Heading>
               <Text color="fg.muted">{t("weather.noRecommendations")}</Text>
             </CardBody>
           </Card>

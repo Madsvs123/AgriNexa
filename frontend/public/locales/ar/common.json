@@ -29,7 +29,12 @@
     "seeAll": "عرض الكل",
     "select": "اختيار",
     "upload": "رفع",
-    "view": "عرض"
+    "view": "عرض",
+    "continue": "متابعة",
+    "download": "تنزيل",
+    "resend": "إعادة الإرسال",
+    "markRead": "تعليم كمقروء",
+    "markAllRead": "تعليم الكل كمقروء"
   },
   "labels": {
     "acres": "المساحة",
@@ -117,5 +122,17 @@
   "theme": {
     "dark": "الوضع الداكن",
     "light": "الوضع الفاتح"
+  },
+  "severity": {
+    "low": "منخفضة",
+    "medium": "متوسطة",
+    "high": "مرتفعة",
+    "critical": "حرجة"
+  },
+  "priority": {
+    "low": "منخفضة",
+    "medium": "متوسطة",
+    "high": "مرتفعة",
+    "urgent": "عاجلة"
   }
 }

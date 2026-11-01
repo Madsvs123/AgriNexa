@@ -4,6 +4,7 @@ import { formatDate } from "@/lib/utils";
 import { fitScheme } from "@/lib/planning";
 import { usePlanningMessage } from "./PlanningMessage";
 import { usePlanningLabels } from "@/lib/usePlanningLabels";
+import { useTranslation } from "react-i18next";
 
 function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -28,6 +29,7 @@ export function AssessmentPanel({
   loading?: boolean;
   compact?: boolean;
 }) {
+  const { t } = useTranslation("grow");
   const render = usePlanningMessage();
   const labels = usePlanningLabels();
 
@@ -43,7 +45,7 @@ export function AssessmentPanel({
   if (!data) {
     return (
       <Text color="fg.muted" fontSize="sm">
-        Pick a field, crop, and planting date to see how it fits the window.
+        {t("assessment.pickToSee", "Pick a field, crop, and planting date to see how it fits the window.")}
       </Text>
     );
   }
@@ -55,18 +57,12 @@ export function AssessmentPanel({
           {labels.fit(data.fit)}
         </Badge>
         {data.harvest_ok === false ? (
-          <Badge colorScheme="red" variant="outline">
-            Misses harvest-by
-          </Badge>
+          <Badge colorScheme="red" variant="outline">{t("assessment.missesHarvestBy")}</Badge>
         ) : data.harvest_ok ? (
-          <Badge colorScheme="green" variant="outline">
-            Harvest in time
-          </Badge>
+          <Badge colorScheme="green" variant="outline">{t("assessment.harvestInTime")}</Badge>
         ) : null}
         {data.soil_match === false ? (
-          <Badge colorScheme="orange" variant="outline">
-            Soil mismatch
-          </Badge>
+          <Badge colorScheme="orange" variant="outline">{t("assessment.soilMismatch")}</Badge>
         ) : null}
         <Badge
           colorScheme={data.rotation.score >= 80 ? "green" : data.rotation.score >= 60 ? "yellow" : "red"}
@@ -77,28 +73,28 @@ export function AssessmentPanel({
       </Flex>
 
       <SimpleGrid columns={compact ? 2 : { base: 2, md: 4 }} spacing={3}>
-        <Fact label="Window" value={w.start ? `${formatDate(w.start)} – ${formatDate(w.end)}` : "—"} />
-        <Fact label="Late until" value={formatDate(w.late_end)} />
-        <Fact label="Harvest by" value={formatDate(w.harvest_by)} />
+        <Fact label={t("assessment.window")} value={w.start ? `${formatDate(w.start)} – ${formatDate(w.end)}` : "—"} />
+        <Fact label={t("assessment.lateUntil")} value={formatDate(w.late_end)} />
+        <Fact label={t("assessment.harvestBy")} value={formatDate(w.harvest_by)} />
         <Fact
-          label="Projected harvest"
+          label={t("assessment.projectedHarvest")}
           value={data.projected_harvest ? `${formatDate(data.projected_harvest)} · ${data.days_to_maturity}d` : "—"}
         />
       </SimpleGrid>
 
       {!w.defined ? (
         <Text fontSize="xs" color="fg.muted">
-          Using the category default window — add a planting window for this crop to refine it.
+          {t("assessment.categoryDefault", "Using the category default window — add a planting window for this crop to refine it.")}
         </Text>
       ) : w.source ? (
         <Text fontSize="xs" color="fg.muted">
-          Window source: {w.source}
+          {t("assessment.windowSource", { source: w.source, defaultValue: "Window source: {{source}}" })}
         </Text>
       ) : null}
 
       {data.rotation.lineage.length ? (
         <Text fontSize="sm" color="fg.muted">
-          Field history:{" "}
+          {t("assessment.fieldHistory", "Field history:")}{" "}
           {data.rotation.lineage.map((l) => `${l.name}${l.year ? ` (${l.year})` : ""}`).join(" ← ")}
         </Text>
       ) : null}
@@ -127,7 +123,7 @@ export function AssessmentPanel({
       {!data.warnings.length && !data.conflicts.length ? (
         <Alert status="success" variant="left-accent" borderRadius="md" py={2} fontSize="sm">
           <AlertIcon boxSize={4} />
-          No issues found for this planting.
+          {t("assessment.noIssues", "No issues found for this planting.")}
         </Alert>
       ) : null}
     </Stack>

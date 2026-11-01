@@ -412,7 +412,10 @@
       "crops": "Crops",
       "varieties": "Varieties",
       "windows": "Planting windows"
-    }
+    },
+    "varietyPlaceholder": "e.g. DKC 62-08",
+    "diseasePlaceholder": "e.g. gray leaf spot, SCN",
+    "traitsPlaceholder": "e.g. VT2P, drought-tolerant"
   },
   "detail": {
     "leaveFallow": "Leave fallow",
@@ -593,7 +596,8 @@
     "namePlaceholder": "e.g. 2026",
     "start": "Start",
     "end": "End",
-    "activeToggle": "Active"
+    "activeToggle": "Active",
+    "activeSeason": "Active season"
   },
   "compare": {
     "title": "Compare strategies",
@@ -632,5 +636,25 @@
     "creating": "Creating…",
     "fieldAcresHint": "Field is {{acres}}; blank = whole field",
     "recommendation": "{{days}}d · harvest {{harvest}} · {{margin}}/ac"
+  },
+  "assessment": {
+    "window": "Window",
+    "lateUntil": "Late until",
+    "harvestBy": "Harvest by",
+    "projectedHarvest": "Projected harvest",
+    "missesHarvestBy": "Misses harvest-by",
+    "harvestInTime": "Harvest in time",
+    "soilMismatch": "Soil mismatch"
+  },
+  "metrics": {
+    "revenue": "Revenue",
+    "totalCost": "Total cost",
+    "netMargin": "Net margin",
+    "acres": "Acres",
+    "labor": "Labor",
+    "water": "Water",
+    "nitrogenBalance": "N balance",
+    "seedInputs": "Seed {{seed}} · inputs {{inputs}}",
+    "nitrogenHint": "Demand {{demand}} · fixed {{fixed}}"
   }
 }

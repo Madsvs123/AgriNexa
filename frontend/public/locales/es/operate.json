@@ -20,7 +20,11 @@
     "pestsHint": "p. ej. Gusano de la raíz del maíz, escarabajo japonés",
     "weeds": "Malezas",
     "weedsHint": "p. ej. Yuyo colorado, cola de zorro",
-    "dropPhotos": "Arrastra fotos del canopeo o de plagas"
+    "dropPhotos": "Arrastra fotos del canopeo o de plagas",
+    "reportHeading": "Informe",
+    "photos": "Fotos",
+    "planTreatment": "Planificar tratamiento",
+    "newReport": "Nuevo informe"
   },
   "treatments": {
     "title": "Tratamientos",
@@ -32,7 +36,10 @@
     "scheduled": "Programado",
     "planTreatment": "Planificar tratamiento",
     "productPlaceholder": "p. ej. Headline AMP",
-    "scheduledDate": "Fecha programada"
+    "scheduledDate": "Fecha programada",
+    "heading": "Tratamientos",
+    "newTreatment": "Nuevo tratamiento",
+    "savePlan": "Guardar plan"
   },
   "irrigation": {
     "title": "Riego",
@@ -48,7 +55,12 @@
     "reason": "Motivo",
     "moisture": "Humedad",
     "threshold": "Umbral",
-    "lastRun": "Último turno"
+    "lastRun": "Último turno",
+    "manualOverride": "Anulación manual",
+    "schedules": "Programaciones",
+    "recommendations": "Recomendaciones",
+    "runSet": "Ejecutar turno",
+    "waterUsage": "Uso de agua"
   },
   "tasks": {
     "title": "Tareas",
@@ -57,7 +69,9 @@
     "description": "Descripción",
     "priority": "Prioridad",
     "dueDate": "Fecha límite",
-    "none": "Ninguno"
+    "none": "Ninguno",
+    "newTask": "Nueva tarea",
+    "saveTask": "Guardar tarea"
   },
   "sensors": {
     "title": "Sensores",
@@ -67,14 +81,16 @@
     "lastReading": "Última lectura",
     "battery": "Batería",
     "signal": "Señal",
-    "history": "Historial"
+    "history": "Historial",
+    "deviceHealth": "Estado del dispositivo"
   },
   "weather": {
     "title": "Clima",
     "subtitle": "Condiciones, pronóstico y recomendaciones agronómicas.",
     "rainfallHistory": "Historial de precipitaciones",
     "temperatureTrend": "Tendencia de temperatura",
-    "noRecommendations": "Las ventanas de aplicación y los consejos de siembra aparecen cuando hay pronóstico disponible."
+    "noRecommendations": "Las ventanas de aplicación y los consejos de siembra aparecen cuando hay pronóstico disponible.",
+    "recommendations": "Recomendaciones"
   },
   "equipment": {
     "title": "Maquinaria",
@@ -99,7 +115,11 @@
     "noServiceTitle": "No hay tickets del concesionario",
     "noServiceBody": "Las facturas de taller del concesionario aparecerán aquí.",
     "summary": "Resumen",
-    "vendor": "Proveedor"
+    "vendor": "Proveedor",
+    "breakdowns": "Averías",
+    "maintenanceSchedule": "Plan de mantenimiento",
+    "fuelLogs": "Registros de combustible",
+    "serviceHistory": "Historial de servicio"
   },
   "inventory": {
     "title": "Inventario",
@@ -126,6 +146,10 @@
     "movementPlaceholder": "p. ej. Entregado a la sembradora",
     "reorderAlert": "{{count}} alerta(s) de reposición: {{item}} está por debajo del punto de reposición.",
     "reorderBadge": "Reponer",
-    "okBadge": "Correcto"
+    "okBadge": "Correcto",
+    "recordMovement": "Registrar movimiento",
+    "saveMovement": "Guardar movimiento",
+    "categoryLine": "Categoría",
+    "farmLine": "Finca {{farm}}"
   }
 }

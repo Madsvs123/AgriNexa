@@ -57,9 +57,7 @@ export function PlotsTab({ field }: { field: Field }) {
             title={t("plotsTab.emptyTitle")}
             body={t("plotsTab.emptyBody")}
             action={
-              <Button size="sm" colorScheme="brand" onClick={() => setOpen(true)}>
-                Add plot
-              </Button>
+              <Button size="sm" colorScheme="brand" onClick={() => setOpen(true)}>{t("plotsTab.addPlot")}</Button>
             }
           />
         </Card>

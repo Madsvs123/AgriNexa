@@ -60,9 +60,7 @@ export default function RolesPage() {
               setPerms([]);
               setOpen(true);
             }}
-          >
-            New role
-          </Button>
+          >{t("roles.newRole")}</Button>
         }
       />
       <ErrorBanner message={rolesQ.error ? getApiError(rolesQ.error) : null} />
@@ -84,9 +82,7 @@ export default function RolesPage() {
                     setPerms(r.permissions ?? []);
                     setOpen(true);
                   }}
-                >
-                  Edit
-                </Button>
+                >{t("actions.edit", { ns: "common" })}</Button>
               </Flex>
               <Text color="fg.muted" mt={1}>
                 {r.description}
@@ -110,9 +106,7 @@ export default function RolesPage() {
           <Input id="rdesc" value={description} onChange={(e) => setDescription(e.target.value)} />
         </FormField>
         <Box as="fieldset">
-          <Text as="legend" fontWeight="medium" mb={1}>
-            Permissions
-          </Text>
+          <Text as="legend" fontWeight="medium" mb={1}>{t("roles.permissions")}</Text>
           <Stack spacing={1}>
             {ROLE_PERMISSIONS.map((p) => (
               <Checkbox key={p.key} isChecked={perms.includes(p.key)} onChange={() => toggle(p.key)} py={1}>
@@ -124,9 +118,7 @@ export default function RolesPage() {
             ))}
           </Stack>
         </Box>
-        <Button colorScheme="brand" mt={3} isDisabled={save.isPending} onClick={() => save.mutate()}>
-          Save role
-        </Button>
+        <Button colorScheme="brand" mt={3} isDisabled={save.isPending} onClick={() => save.mutate()}>{t("roles.saveRole")}</Button>
       </Drawer>
     </Box>
   );

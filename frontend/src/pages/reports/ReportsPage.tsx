@@ -90,9 +90,7 @@ export default function ReportsPage() {
             header: t("reports.file"),
             render: (r) =>
               r.file ? (
-                <Link href={r.file} isExternal color="brand.500">
-                  Download
-                </Link>
+                <Link href={r.file} isExternal color="brand.500">{t("actions.download", { ns: "common" })}</Link>
               ) : (
                 "—"
               ),

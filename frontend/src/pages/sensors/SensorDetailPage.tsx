@@ -61,9 +61,7 @@ export default function SensorDetailPage() {
         subtitle={`${sensor.sensor_type_name ?? type?.name ?? "Probe"} · ${sensor.field_name ?? sensor.farm_name}`}
         crumbs={
           <>
-            <Link as={RouterLink} to="/sensors">
-              Sensors
-            </Link>
+            <Link as={RouterLink} to="/sensors">{t("sensors.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
@@ -92,9 +90,7 @@ export default function SensorDetailPage() {
         <Stack spacing={4}>
           <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
             <CardBody>
-              <Heading size="sm" mb={2}>
-                Device health
-              </Heading>
+              <Heading size="sm" mb={2}>{t("sensors.deviceHealth")}</Heading>
               <StatusBadge status={healthQ.data?.status ?? sensor.status} />
               <Text color="fg.muted">Last seen {formatDateTime(healthQ.data?.last_seen)}</Text>
               <List styleType="disc" ps={5}>

@@ -71,9 +71,7 @@ export default function IrrigationPage() {
                 borderRadius="full"
                 my={2}
               />
-              <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setOverrideId(z.id)}>
-                Manual override
-              </Button>
+              <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setOverrideId(z.id)}>{t("irrigation.manualOverride")}</Button>
             </CardBody>
           </Card>
         ))}
@@ -87,9 +85,7 @@ export default function IrrigationPage() {
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
-            <Heading size="sm" mb={3}>
-              Schedules
-            </Heading>
+            <Heading size="sm" mb={3}>{t("irrigation.schedules")}</Heading>
             {(schedQ.data?.results ?? []).map((s) => (
               <Flex key={s.id} align="center" gap={2} justify="space-between" mb={2.5}>
                 <Box>
@@ -106,9 +102,7 @@ export default function IrrigationPage() {
         </Card>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
-            <Heading size="sm" mb={3}>
-              Recommendations
-            </Heading>
+            <Heading size="sm" mb={3}>{t("irrigation.recommendations")}</Heading>
             {(recQ.data ?? []).filter((r) => !dismissedIds.includes(r.id)).map((r) => (
               <Box key={r.id} borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.subtle" p={4} mb={2}>
                 <Flex align="center" gap={2}>
@@ -120,12 +114,8 @@ export default function IrrigationPage() {
                   {r.suggested_minutes} min suggested · {formatDateTime(r.created_at)}
                 </Text>
                 <Flex align="center" gap={2} mt={2}>
-                  <Button colorScheme="brand" size="sm" onClick={() => setOverrideId(r.zone)}>
-                    Apply
-                  </Button>
-                  <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setDismissedIds((ids) => [...ids, r.id])}>
-                    Dismiss
-                  </Button>
+                  <Button colorScheme="brand" size="sm" onClick={() => setOverrideId(r.zone)}>{t("actions.apply", { ns: "common" })}</Button>
+                  <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setDismissedIds((ids) => [...ids, r.id])}>{t("actions.dismiss", { ns: "common" })}</Button>
                 </Flex>
               </Box>
             ))}
@@ -166,12 +156,8 @@ export default function IrrigationPage() {
         onClose={() => setOverrideId(null)}
         footer={
           <>
-            <Button variant="ghost" colorScheme="gray" onClick={() => setOverrideId(null)}>
-              Cancel
-            </Button>
-            <Button colorScheme="brand" isDisabled={override.isPending} onClick={() => override.mutate()}>
-              Run set
-            </Button>
+            <Button variant="ghost" colorScheme="gray" onClick={() => setOverrideId(null)}>{t("actions.cancel", { ns: "common" })}</Button>
+            <Button colorScheme="brand" isDisabled={override.isPending} onClick={() => override.mutate()}>{t("irrigation.runSet")}</Button>
           </>
         }
       >

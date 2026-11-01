@@ -25,9 +25,7 @@ export default function NotificationsPage() {
         title={t("notifications.title")}
         subtitle={t("notifications.subtitle")}
         actions={
-          <Button variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>
-            Mark all read
-          </Button>
+          <Button variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>{t("actions.markAllRead", { ns: "common" })}</Button>
         }
       />
       <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
@@ -59,9 +57,7 @@ export default function NotificationsPage() {
                   {formatDateTime(n.created_at)}
                 </Text>
                 {!n.is_read ? (
-                  <Button variant="ghost" colorScheme="gray" size="sm" mt={2} onClick={() => read.mutate(n.id)}>
-                    Mark read
-                  </Button>
+                  <Button variant="ghost" colorScheme="gray" size="sm" mt={2} onClick={() => read.mutate(n.id)}>{t("actions.markRead", { ns: "common" })}</Button>
                 ) : null}
               </CardBody>
             </Card>

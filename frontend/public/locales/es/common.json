@@ -29,7 +29,12 @@
     "seeAll": "Ver todo",
     "select": "Seleccionar",
     "upload": "Subir",
-    "view": "Ver"
+    "view": "Ver",
+    "continue": "Continuar",
+    "download": "Descargar",
+    "resend": "Reenviar",
+    "markRead": "Marcar como leída",
+    "markAllRead": "Marcar todas como leídas"
   },
   "labels": {
     "acres": "Acres",
@@ -105,5 +110,17 @@
   "theme": {
     "dark": "Modo oscuro",
     "light": "Modo claro"
+  },
+  "severity": {
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "critical": "Crítica"
+  },
+  "priority": {
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "urgent": "Urgente"
   }
 }

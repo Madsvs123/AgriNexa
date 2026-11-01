@@ -190,7 +190,7 @@ export function VarietiesTab() {
               </Select>
             </FormField>
             <FormField label={t("labels.name", { ns: "common" })} htmlFor="v-name">
-              <Input id="v-name" isRequired value={form.name} onChange={set("name")} placeholder="DKC 62-08" />
+              <Input id="v-name" isRequired value={form.name} onChange={set("name")} placeholder={t("catalog.varietyPlaceholder")} />
             </FormField>
           </SimpleGrid>
           <SimpleGrid columns={{ base: 2, md: 3 }} spacingX={4}>
@@ -229,10 +229,10 @@ export function VarietiesTab() {
             </FormField>
           </SimpleGrid>
           <FormField label={t("catalog.fields.diseaseResistance")} htmlFor="v-dis" hint={t("catalog.fields.commaSeparated")}>
-            <Input id="v-dis" value={form.disease_resistance} onChange={set("disease_resistance")} placeholder="gray leaf spot, SCN" />
+            <Input id="v-dis" value={form.disease_resistance} onChange={set("disease_resistance")} placeholder={t("catalog.diseasePlaceholder")} />
           </FormField>
           <FormField label={t("catalog.fields.traits")} htmlFor="v-traits" hint={t("catalog.fields.commaSeparated")}>
-            <Input id="v-traits" value={form.traits} onChange={set("traits")} placeholder="VT2P, drought-tolerant" />
+            <Input id="v-traits" value={form.traits} onChange={set("traits")} placeholder={t("catalog.traitsPlaceholder")} />
           </FormField>
           <FormField label={t("catalog.fields.suitableSoils")} hint={t("catalog.fields.soilsHint")}>
             <Wrap spacing={2}>

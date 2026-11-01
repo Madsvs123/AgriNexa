@@ -35,9 +35,7 @@ export default function InvitationsPage() {
             header: "",
             render: (i) =>
               i.status === "pending" ? (
-                <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => resend.mutate(i.id)}>
-                  Resend
-                </Button>
+                <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => resend.mutate(i.id)}>{t("actions.resend", { ns: "common" })}</Button>
               ) : null,
           },
         ]}

@@ -1,13 +1,13 @@
 import { Box, Checkbox, Flex, Stack, Text } from "@chakra-ui/react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
+import { useTranslation } from "react-i18next";
 
 export function SensorSparkline({ values, color = "#2F6F4E" }: { values: number[]; color?: string }) {
+  const { t } = useTranslation("land");
   const data = values.map((v, i) => ({ i, v }));
   if (!data.length) {
     return (
-      <Text as="span" fontSize="sm" color="fg.muted">
-        No series
-      </Text>
+      <Text as="span" fontSize="sm" color="fg.muted">{t("boundary.noSeries")}</Text>
     );
   }
   return (
@@ -65,6 +65,8 @@ export function LayerToggle({
   layers: { key: string; label: string; on: boolean }[];
   onChange: (key: string, on: boolean) => void;
 }) {
+  const { t } = useTranslation("land");
+
   return (
     <Stack
       spacing={2}
@@ -75,9 +77,7 @@ export function LayerToggle({
       borderRadius="lg"
       boxShadow="md"
     >
-      <Text fontWeight="semibold" fontSize="sm">
-        Layers
-      </Text>
+      <Text fontWeight="semibold" fontSize="sm">{t("boundary.layers")}</Text>
       {layers.map((l) => (
         <Checkbox key={l.key} isChecked={l.on} onChange={(e) => onChange(l.key, e.target.checked)} colorScheme="brand">
           {l.label}

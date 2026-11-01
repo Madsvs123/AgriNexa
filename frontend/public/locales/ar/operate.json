@@ -20,7 +20,11 @@
     "pestsHint": "مثال: دودة جذور الذرة، الخنفساء اليابانية",
     "weeds": "الأعشاب",
     "weedsHint": "مثال: القطيفة، ذيل الثعلب",
-    "dropPhotos": "أسقط صور المجموع الخضري أو الآفات"
+    "dropPhotos": "أسقط صور المجموع الخضري أو الآفات",
+    "reportHeading": "التقرير",
+    "photos": "الصور",
+    "planTreatment": "تخطيط معالجة",
+    "newReport": "تقرير جديد"
   },
   "treatments": {
     "title": "المعالجات",
@@ -32,7 +36,10 @@
     "scheduled": "التاريخ المجدول",
     "planTreatment": "تخطيط معالجة",
     "productPlaceholder": "مثال: Headline AMP",
-    "scheduledDate": "التاريخ المجدول"
+    "scheduledDate": "التاريخ المجدول",
+    "heading": "المعالجات",
+    "newTreatment": "معالجة جديدة",
+    "savePlan": "حفظ الخطة"
   },
   "irrigation": {
     "title": "الري",
@@ -48,7 +55,12 @@
     "reason": "السبب",
     "moisture": "الرطوبة",
     "threshold": "العتبة",
-    "lastRun": "آخر تشغيل"
+    "lastRun": "آخر تشغيل",
+    "manualOverride": "تجاوز يدوي",
+    "schedules": "الجداول",
+    "recommendations": "التوصيات",
+    "runSet": "تشغيل الدورة",
+    "waterUsage": "استهلاك المياه"
   },
   "tasks": {
     "title": "المهام",
@@ -57,7 +69,9 @@
     "description": "الوصف",
     "priority": "الأولوية",
     "dueDate": "تاريخ الاستحقاق",
-    "none": "لا شيء"
+    "none": "لا شيء",
+    "newTask": "مهمة جديدة",
+    "saveTask": "حفظ المهمة"
   },
   "sensors": {
     "title": "المستشعرات",
@@ -67,14 +81,16 @@
     "lastReading": "آخر قراءة",
     "battery": "البطارية",
     "signal": "الإشارة",
-    "history": "السجل"
+    "history": "السجل",
+    "deviceHealth": "حالة الجهاز"
   },
   "weather": {
     "title": "الطقس",
     "subtitle": "الحالة الجوية والتوقعات والتوصيات الزراعية.",
     "rainfallHistory": "سجل هطول الأمطار",
     "temperatureTrend": "اتجاه درجة الحرارة",
-    "noRecommendations": "تظهر مواعيد الرش ونصائح الزراعة عند توفر توقعات جوية."
+    "noRecommendations": "تظهر مواعيد الرش ونصائح الزراعة عند توفر توقعات جوية.",
+    "recommendations": "التوصيات"
   },
   "equipment": {
     "title": "المعدات",
@@ -99,7 +115,11 @@
     "noServiceTitle": "لا توجد تذاكر من الوكيل",
     "noServiceBody": "ستظهر هنا فواتير الورشة من الوكيل.",
     "summary": "الملخص",
-    "vendor": "المورّد"
+    "vendor": "المورّد",
+    "breakdowns": "الأعطال",
+    "maintenanceSchedule": "جدول الصيانة",
+    "fuelLogs": "سجلات الوقود",
+    "serviceHistory": "سجل الخدمة"
   },
   "inventory": {
     "title": "المخزون",
@@ -126,6 +146,10 @@
     "movementPlaceholder": "مثال: صُرف إلى البذارة",
     "reorderAlert": "{{count}} تنبيه إعادة طلب — {{item}} تحت حد إعادة الطلب.",
     "reorderBadge": "إعادة الطلب",
-    "okBadge": "سليم"
+    "okBadge": "سليم",
+    "recordMovement": "تسجيل حركة",
+    "saveMovement": "حفظ الحركة",
+    "categoryLine": "الفئة",
+    "farmLine": "المزرعة {{farm}}"
   }
 }

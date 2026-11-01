@@ -50,9 +50,7 @@ export default function TeamPage() {
         title={t("team.title")}
         subtitle={t("team.subtitle")}
         actions={
-          <Button colorScheme="brand" onClick={() => setInviteOpen(true)}>
-            Invite member
-          </Button>
+          <Button colorScheme="brand" onClick={() => setInviteOpen(true)}>{t("team.inviteMember")}</Button>
         }
       />
       <ErrorBanner message={membersQ.error ? getApiError(membersQ.error) : null} />
@@ -94,13 +92,9 @@ export default function TeamPage() {
               header: "",
               render: (m) =>
                 m.is_owner ? (
-                  <Tag size="sm" colorScheme="gray" variant="subtle">
-                    Owner
-                  </Tag>
+                  <Tag size="sm" colorScheme="gray" variant="subtle">{t("team.owner")}</Tag>
                 ) : (
-                  <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setRemoveId(m.id)}>
-                    Remove
-                  </Button>
+                  <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setRemoveId(m.id)}>{t("actions.remove", { ns: "common" })}</Button>
                 ),
             },
           ]}
@@ -108,9 +102,7 @@ export default function TeamPage() {
       </Box>
       <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
         <CardBody>
-          <Heading size="sm" mb={3}>
-            Teams
-          </Heading>
+          <Heading size="sm" mb={3}>{t("team.teams")}</Heading>
           <Flex
             as="form"
             align="center"
@@ -121,9 +113,7 @@ export default function TeamPage() {
             }}
           >
             <Input placeholder={t("team.crewPlaceholder")} value={teamName} onChange={(e) => setTeamName(e.target.value)} />
-            <Button type="submit" colorScheme="brand" flexShrink={0} isDisabled={!teamName}>
-              Add team
-            </Button>
+            <Button type="submit" colorScheme="brand" flexShrink={0} isDisabled={!teamName}>{t("team.addTeam")}</Button>
           </Flex>
           <Flex align="center" gap={2} wrap="wrap" mt={3}>
             {(teamsQ.data?.results ?? []).map((t) => (
@@ -148,9 +138,7 @@ export default function TeamPage() {
             ))}
           </Select>
         </FormField>
-        <Button colorScheme="brand" isDisabled={inviteMut.isPending} onClick={() => inviteMut.mutate()}>
-          Send invite
-        </Button>
+        <Button colorScheme="brand" isDisabled={inviteMut.isPending} onClick={() => inviteMut.mutate()}>{t("team.sendInvite")}</Button>
       </Drawer>
       <ConfirmDialog
         open={!!removeId}

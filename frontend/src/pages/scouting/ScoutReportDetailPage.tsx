@@ -45,13 +45,11 @@ export default function ScoutReportDetailPage() {
         subtitle={`${r.farm_name ?? ""} · ${formatDateTime(r.observed_at)}`}
         crumbs={
           <>
-            <Link as={RouterLink} to="/scouting/treatments">
-              Scouting
-            </Link>
+            <Link as={RouterLink} to="/scouting/treatments">{t("scouting.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
-            <Text as="span">Report</Text>
+            <Text as="span">{t("scouting.reportHeading")}</Text>
           </>
         }
       />
@@ -65,25 +63,19 @@ export default function ScoutReportDetailPage() {
               </Box>
             </Flex>
             <Text>{r.notes}</Text>
-            <Heading size="sm" mt={4} mb={2}>
-              Diseases
-            </Heading>
+            <Heading size="sm" mt={4} mb={2}>{t("scouting.diseases")}</Heading>
             {(r.diseases ?? []).map((d, i) => (
               <Flex key={i} align="center" gap={2}>
                 <StatusBadge status={d.severity} /> {d.name}
               </Flex>
             ))}
-            <Heading size="sm" mt={4} mb={2}>
-              Pests
-            </Heading>
+            <Heading size="sm" mt={4} mb={2}>{t("scouting.pests")}</Heading>
             {(r.pests ?? []).map((d, i) => (
               <Flex key={i} align="center" gap={2}>
                 <StatusBadge status={d.severity} /> {d.name}
               </Flex>
             ))}
-            <Heading size="sm" mt={4} mb={2}>
-              Weeds
-            </Heading>
+            <Heading size="sm" mt={4} mb={2}>{t("scouting.weeds")}</Heading>
             {(r.weeds ?? []).map((d, i) => (
               <Flex key={i} align="center" gap={2}>
                 <StatusBadge status={d.severity} /> {d.name}
@@ -93,9 +85,7 @@ export default function ScoutReportDetailPage() {
         </Card>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
-            <Heading size="sm" mb={3}>
-              Photos
-            </Heading>
+            <Heading size="sm" mb={3}>{t("scouting.photos")}</Heading>
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
               {(r.photos ?? []).map((p, i) => (
                 <Box as="figure" key={p.id ?? i}>
@@ -107,9 +97,7 @@ export default function ScoutReportDetailPage() {
               ))}
             </SimpleGrid>
             {!r.photos?.length ? <Text color="fg.muted">{t("scouting.noPhotos")}</Text> : null}
-            <Button as={RouterLink} to="/scouting/treatments" colorScheme="brand" mt={3}>
-              Plan treatment
-            </Button>
+            <Button as={RouterLink} to="/scouting/treatments" colorScheme="brand" mt={3}>{t("scouting.planTreatment")}</Button>
           </CardBody>
         </Card>
       </SimpleGrid>

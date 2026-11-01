@@ -4,6 +4,7 @@ import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { platformApi } from "@/api/client";
 import type { NotificationItem } from "@/types";
 import { fromNow } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function NotificationPanel({
   items,
@@ -12,6 +13,7 @@ export function NotificationPanel({
   items: NotificationItem[];
   onSeeAll: () => void;
 }) {
+  const { t } = useTranslation("nav");
   const qc = useQueryClient();
   const navigate = useNavigate();
   const read = useMutation({
@@ -26,16 +28,12 @@ export function NotificationPanel({
   return (
     <Box>
       <Flex align="center" px={4} py={3} borderBottomWidth="1px" borderColor="border.default">
-        <Text fontWeight="semibold">Notifications</Text>
+        <Text fontWeight="semibold">{t("shell.notifications")}</Text>
         <Box flex="1" />
-        <Button size="xs" variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>
-          Mark all read
-        </Button>
+        <Button size="xs" variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>{t("actions.markAllRead", { ns: "common" })}</Button>
       </Flex>
       {items.length === 0 ? (
-        <Text color="fg.muted" p={4} fontSize="sm">
-          Quiet in the yard. Frost, sensor, and inventory alerts will land here.
-        </Text>
+        <Text color="fg.muted" p={4} fontSize="sm">{t("shell.quietYard")}</Text>
       ) : (
         items.map((n) => (
           <Box
@@ -60,9 +58,7 @@ export function NotificationPanel({
         ))
       )}
       <Box p={2.5}>
-        <Button w="100%" variant="ghost" colorScheme="gray" size="sm" onClick={onSeeAll}>
-          Open notification center
-        </Button>
+        <Button w="100%" variant="ghost" colorScheme="gray" size="sm" onClick={onSeeAll}>{t("shell.openNotificationCenter")}</Button>
       </Box>
     </Box>
   );

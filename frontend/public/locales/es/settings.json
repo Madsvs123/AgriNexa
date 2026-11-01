@@ -17,7 +17,11 @@
     "crewPlaceholder": "p. ej. Cuadrilla de riego nocturno",
     "defaultRole": "Predeterminado",
     "removeTitle": "¿Quitar al miembro?",
-    "removeBody": "Perderá el acceso a las fincas y sensores de esta organización."
+    "removeBody": "Perderá el acceso a las fincas y sensores de esta organización.",
+    "owner": "Propietario",
+    "teams": "Cuadrillas",
+    "addTeam": "Agregar cuadrilla",
+    "sendInvite": "Enviar invitación"
   },
   "profile": {
     "title": "Perfil del productor",
@@ -36,7 +40,8 @@
     "language": "Idioma de la interfaz",
     "languageHint": "También define el idioma de los correos y las alertas.",
     "languageAuto": "Según mi dispositivo y ubicación",
-    "saved": "Guardado."
+    "saved": "Guardado.",
+    "save": "Guardar perfil"
   },
   "organization": {
     "title": "Organización",
@@ -49,7 +54,8 @@
     "unitSystem": "Sistema de unidades",
     "imperial": "Imperial (acres, galones)",
     "metric": "Métrico (hectáreas, litros)",
-    "seasonStartMonth": "Mes de inicio de campaña"
+    "seasonStartMonth": "Mes de inicio de campaña",
+    "save": "Guardar organización"
   },
   "invitations": {
     "title": "Invitaciones",
@@ -77,6 +83,9 @@
     "title": "Roles",
     "subtitle": "Conjuntos de permisos para operarios, agrónomos y administradores.",
     "name": "Nombre",
-    "description": "Descripción"
+    "description": "Descripción",
+    "newRole": "Nuevo rol",
+    "permissions": "Permisos",
+    "saveRole": "Guardar rol"
   }
 }

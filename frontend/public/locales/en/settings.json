@@ -17,7 +17,11 @@
     "crewPlaceholder": "e.g. Night irrigation crew",
     "defaultRole": "Default",
     "removeTitle": "Remove member?",
-    "removeBody": "They will lose access to this organization's farms and sensors."
+    "removeBody": "They will lose access to this organization's farms and sensors.",
+    "owner": "Owner",
+    "teams": "Teams",
+    "addTeam": "Add team",
+    "sendInvite": "Send invite"
   },
   "profile": {
     "title": "Farmer profile",
@@ -36,7 +40,8 @@
     "language": "Interface language",
     "languageHint": "Also sets the language of emails and alerts.",
     "languageAuto": "Match my device and location",
-    "saved": "Saved."
+    "saved": "Saved.",
+    "save": "Save profile"
   },
   "organization": {
     "title": "Organization",
@@ -49,7 +54,8 @@
     "unitSystem": "Unit system",
     "imperial": "Imperial (acres, gallons)",
     "metric": "Metric (hectares, liters)",
-    "seasonStartMonth": "Season start month"
+    "seasonStartMonth": "Season start month",
+    "save": "Save organization"
   },
   "invitations": {
     "title": "Invitations",
@@ -77,6 +83,9 @@
     "title": "Roles",
     "subtitle": "Permission sets for operators, agronomists, and admins.",
     "name": "Name",
-    "description": "Description"
+    "description": "Description",
+    "newRole": "New role",
+    "permissions": "Permissions",
+    "saveRole": "Save role"
   }
 }

@@ -12,9 +12,7 @@ export default function NotFoundPage() {
         <CardBody>
           <Box boxSize={12} borderRadius="full" bg="brand.50" _dark={{ bg: "whiteAlpha.200" }} mb={3} />
           <Text mb={4}>{t("notFound.body")}</Text>
-          <Button as={RouterLink} to="/home" colorScheme="brand">
-            Back to dashboard
-          </Button>
+          <Button as={RouterLink} to="/home" colorScheme="brand">{t("notFound.backToDashboard")}</Button>
         </CardBody>
       </Card>
     </Box>

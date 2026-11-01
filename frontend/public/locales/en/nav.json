@@ -8,55 +8,202 @@
     "settings": "Settings"
   },
   "routes": {
-    "dashboard": { "label": "Dashboard", "keywords": "overview, kpi, summary, today" },
-    "notifications": { "label": "Notifications", "keywords": "alerts, inbox" },
-    "search": { "label": "Search results", "keywords": "find" },
-    "map": { "label": "Farm map", "keywords": "boundaries, gis, layers, satellite, soil, plots" },
-    "farms": { "label": "Farms", "keywords": "properties, sites, ranch" },
-    "farm-new": { "label": "Add farm", "keywords": "" },
-    "farm-detail": { "label": "Farm", "keywords": "" },
-    "farm-edit": { "label": "Edit farm", "keywords": "" },
-    "fields": { "label": "Fields", "keywords": "acres, parcels, boundaries, soil" },
-    "field-new": { "label": "Add field", "keywords": "" },
-    "field-detail": { "label": "Field", "keywords": "" },
-    "field-edit": { "label": "Edit field", "keywords": "" },
-    "crop-plans": { "label": "Crop plans", "keywords": "planting, seasonal plan, schedule, intercrop, mixed cropping" },
-    "crop-plan-detail": { "label": "Crop plan", "keywords": "" },
-    "strategies": { "label": "Strategies", "keywords": "scenario, what-if, compare, alternative, margin, risk" },
-    "strategy-compare": { "label": "Compare strategies", "keywords": "side by side, versus, ranking" },
-    "strategy-detail": { "label": "Strategy", "keywords": "" },
-    "rotations": { "label": "Rotations", "keywords": "sequence, cover crop, multi-season, multi-year, cycle" },
-    "rotation-detail": { "label": "Rotation", "keywords": "" },
-    "crops": { "label": "Catalog", "keywords": "crops, varieties, hybrid, cultivar, seed, planting windows, corn, soy, wheat" },
-    "varieties": { "label": "Varieties", "keywords": "hybrid, cultivar, seed, maturity" },
-    "planting-windows": { "label": "Planting windows", "keywords": "frost, sowing dates, harvest by, soil temperature" },
-    "constraints": { "label": "Constraints", "keywords": "resources, water budget, labor, nitrogen, capacity, limits" },
-    "seasons": { "label": "Seasons", "keywords": "year, cycle" },
-    "budget": { "label": "Budget", "keywords": "cost, spend, margin, expenses" },
-    "irrigation": { "label": "Irrigation", "keywords": "water, zones, pivot, drip, schedule" },
-    "irrigation-zone": { "label": "Zone", "keywords": "" },
-    "sensors": { "label": "Sensors", "keywords": "probes, moisture, telemetry, iot" },
-    "sensor-detail": { "label": "Sensor", "keywords": "" },
-    "weather": { "label": "Weather", "keywords": "forecast, rain, wind, frost, gdd" },
-    "scouting": { "label": "Scouting", "keywords": "pest, disease, weeds, walk, report" },
-    "scout-new": { "label": "New scout report", "keywords": "" },
-    "treatments": { "label": "Treatments", "keywords": "spray, pesticide, application, chemical" },
-    "scout-detail": { "label": "Scout report", "keywords": "" },
-    "equipment": { "label": "Equipment", "keywords": "machinery, tractor, planter, maintenance, fuel" },
-    "equipment-detail": { "label": "Equipment", "keywords": "" },
-    "inventory": { "label": "Inventory", "keywords": "stock, seed, fertilizer, chemical, sku, reorder" },
-    "inventory-detail": { "label": "Item", "keywords": "" },
-    "tasks": { "label": "Tasks", "keywords": "todo, work orders, assignments, board" },
-    "analytics": { "label": "Analytics", "keywords": "yield, water, cost, trends, charts" },
-    "reports": { "label": "Reports", "keywords": "export, pdf, csv, generate" },
-    "documents": { "label": "Documents", "keywords": "files, contracts, uploads, attachments" },
-    "settings": { "label": "Overview", "keywords": "preferences, configuration" },
-    "organization": { "label": "Organization", "keywords": "company, tenant, billing" },
-    "team": { "label": "Team", "keywords": "members, people, staff" },
-    "roles": { "label": "Roles", "keywords": "permissions, access control" },
-    "invitations": { "label": "Invitations", "keywords": "invite, onboard" },
-    "access": { "label": "Farm access", "keywords": "permissions, grants, scoping" },
-    "profile": { "label": "Profile", "keywords": "account, me, password" }
+    "dashboard": {
+      "label": "Dashboard",
+      "keywords": "overview, kpi, summary, today"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "keywords": "alerts, inbox"
+    },
+    "search": {
+      "label": "Search results",
+      "keywords": "find"
+    },
+    "map": {
+      "label": "Farm map",
+      "keywords": "boundaries, gis, layers, satellite, soil, plots"
+    },
+    "farms": {
+      "label": "Farms",
+      "keywords": "properties, sites, ranch"
+    },
+    "farm-new": {
+      "label": "Add farm",
+      "keywords": ""
+    },
+    "farm-detail": {
+      "label": "Farm",
+      "keywords": ""
+    },
+    "farm-edit": {
+      "label": "Edit farm",
+      "keywords": ""
+    },
+    "fields": {
+      "label": "Fields",
+      "keywords": "acres, parcels, boundaries, soil"
+    },
+    "field-new": {
+      "label": "Add field",
+      "keywords": ""
+    },
+    "field-detail": {
+      "label": "Field",
+      "keywords": ""
+    },
+    "field-edit": {
+      "label": "Edit field",
+      "keywords": ""
+    },
+    "crop-plans": {
+      "label": "Crop plans",
+      "keywords": "planting, seasonal plan, schedule, intercrop, mixed cropping"
+    },
+    "crop-plan-detail": {
+      "label": "Crop plan",
+      "keywords": ""
+    },
+    "strategies": {
+      "label": "Strategies",
+      "keywords": "scenario, what-if, compare, alternative, margin, risk"
+    },
+    "strategy-compare": {
+      "label": "Compare strategies",
+      "keywords": "side by side, versus, ranking"
+    },
+    "strategy-detail": {
+      "label": "Strategy",
+      "keywords": ""
+    },
+    "rotations": {
+      "label": "Rotations",
+      "keywords": "sequence, cover crop, multi-season, multi-year, cycle"
+    },
+    "rotation-detail": {
+      "label": "Rotation",
+      "keywords": ""
+    },
+    "crops": {
+      "label": "Catalog",
+      "keywords": "crops, varieties, hybrid, cultivar, seed, planting windows, corn, soy, wheat"
+    },
+    "varieties": {
+      "label": "Varieties",
+      "keywords": "hybrid, cultivar, seed, maturity"
+    },
+    "planting-windows": {
+      "label": "Planting windows",
+      "keywords": "frost, sowing dates, harvest by, soil temperature"
+    },
+    "constraints": {
+      "label": "Constraints",
+      "keywords": "resources, water budget, labor, nitrogen, capacity, limits"
+    },
+    "seasons": {
+      "label": "Seasons",
+      "keywords": "year, cycle"
+    },
+    "budget": {
+      "label": "Budget",
+      "keywords": "cost, spend, margin, expenses"
+    },
+    "irrigation": {
+      "label": "Irrigation",
+      "keywords": "water, zones, pivot, drip, schedule"
+    },
+    "irrigation-zone": {
+      "label": "Zone",
+      "keywords": ""
+    },
+    "sensors": {
+      "label": "Sensors",
+      "keywords": "probes, moisture, telemetry, iot"
+    },
+    "sensor-detail": {
+      "label": "Sensor",
+      "keywords": ""
+    },
+    "weather": {
+      "label": "Weather",
+      "keywords": "forecast, rain, wind, frost, gdd"
+    },
+    "scouting": {
+      "label": "Scouting",
+      "keywords": "pest, disease, weeds, walk, report"
+    },
+    "scout-new": {
+      "label": "New scout report",
+      "keywords": ""
+    },
+    "treatments": {
+      "label": "Treatments",
+      "keywords": "spray, pesticide, application, chemical"
+    },
+    "scout-detail": {
+      "label": "Scout report",
+      "keywords": ""
+    },
+    "equipment": {
+      "label": "Equipment",
+      "keywords": "machinery, tractor, planter, maintenance, fuel"
+    },
+    "equipment-detail": {
+      "label": "Equipment",
+      "keywords": ""
+    },
+    "inventory": {
+      "label": "Inventory",
+      "keywords": "stock, seed, fertilizer, chemical, sku, reorder"
+    },
+    "inventory-detail": {
+      "label": "Item",
+      "keywords": ""
+    },
+    "tasks": {
+      "label": "Tasks",
+      "keywords": "todo, work orders, assignments, board"
+    },
+    "analytics": {
+      "label": "Analytics",
+      "keywords": "yield, water, cost, trends, charts"
+    },
+    "reports": {
+      "label": "Reports",
+      "keywords": "export, pdf, csv, generate"
+    },
+    "documents": {
+      "label": "Documents",
+      "keywords": "files, contracts, uploads, attachments"
+    },
+    "settings": {
+      "label": "Overview",
+      "keywords": "preferences, configuration"
+    },
+    "organization": {
+      "label": "Organization",
+      "keywords": "company, tenant, billing"
+    },
+    "team": {
+      "label": "Team",
+      "keywords": "members, people, staff"
+    },
+    "roles": {
+      "label": "Roles",
+      "keywords": "permissions, access control"
+    },
+    "invitations": {
+      "label": "Invitations",
+      "keywords": "invite, onboard"
+    },
+    "access": {
+      "label": "Farm access",
+      "keywords": "permissions, grants, scoping"
+    },
+    "profile": {
+      "label": "Profile",
+      "keywords": "account, me, password"
+    }
   },
   "shell": {
     "sections": "Sections",
@@ -76,7 +223,9 @@
     "account": "Account",
     "signOut": "Sign out",
     "farmerProfile": "Farmer profile",
-    "joined": "joined {{when}}"
+    "joined": "joined {{when}}",
+    "openNotificationCenter": "Open notification center",
+    "quietYard": "Quiet in the yard. Frost, sensor, and inventory alerts will land here."
   },
   "palette": {
     "placeholder": "Search records, or jump to a page…",

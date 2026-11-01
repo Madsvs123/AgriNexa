@@ -412,7 +412,10 @@
       "crops": "Cultivos",
       "varieties": "Variedades",
       "windows": "Ventanas de siembra"
-    }
+    },
+    "varietyPlaceholder": "p. ej. DKC 62-08",
+    "diseasePlaceholder": "p. ej. mancha gris, SCN",
+    "traitsPlaceholder": "p. ej. VT2P, tolerante a sequía"
   },
   "detail": {
     "leaveFallow": "Dejar en barbecho",
@@ -593,7 +596,8 @@
     "namePlaceholder": "p. ej. 2026",
     "start": "Inicio",
     "end": "Fin",
-    "activeToggle": "Activa"
+    "activeToggle": "Activa",
+    "activeSeason": "Campaña activa"
   },
   "compare": {
     "title": "Comparar estrategias",
@@ -632,5 +636,25 @@
     "creating": "Creando…",
     "fieldAcresHint": "El lote tiene {{acres}}; en blanco = todo el lote",
     "recommendation": "{{days}} d · cosecha {{harvest}} · {{margin}}/ac"
+  },
+  "assessment": {
+    "window": "Ventana",
+    "lateUntil": "Tardía hasta",
+    "harvestBy": "Cosechar antes de",
+    "projectedHarvest": "Cosecha prevista",
+    "missesHarvestBy": "No llega a la fecha de cosecha",
+    "harvestInTime": "Cosecha a tiempo",
+    "soilMismatch": "Suelo no apto"
+  },
+  "metrics": {
+    "revenue": "Ingresos",
+    "totalCost": "Costo total",
+    "netMargin": "Margen neto",
+    "acres": "Superficie",
+    "labor": "Mano de obra",
+    "water": "Agua",
+    "nitrogenBalance": "Balance de N",
+    "seedInputs": "Semilla {{seed}} · insumos {{inputs}}",
+    "nitrogenHint": "Demanda {{demand}} · fijado {{fixed}}"
   }
 }

@@ -92,9 +92,7 @@ export default function ScoutReportNewPage() {
         subtitle={t("scouting.newSubtitle")}
         crumbs={
           <>
-            <Link as={RouterLink} to="/scouting">
-              Scouting
-            </Link>
+            <Link as={RouterLink} to="/scouting">{t("scouting.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
@@ -149,9 +147,9 @@ export default function ScoutReportNewPage() {
                   onChange={(e) => setForm({ ...form, severity: e.target.value as typeof form.severity })}
                 >
                   <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
+                  <option value="medium">{t("severity.medium", { ns: "common" })}</option>
+                  <option value="high">{t("severity.high", { ns: "common" })}</option>
+                  <option value="critical">{t("severity.critical", { ns: "common" })}</option>
                 </Select>
               </FormField>
               <SeverityMeter value={form.severity} />
@@ -192,15 +190,11 @@ export default function ScoutReportNewPage() {
           ) : null}
           <Flex align="center" gap={2} mt={4}>
             {step > 0 ? (
-              <Button variant="ghost" colorScheme="gray" onClick={() => setStep((s) => s - 1)}>
-                Back
-              </Button>
+              <Button variant="ghost" colorScheme="gray" onClick={() => setStep((s) => s - 1)}>{t("actions.back", { ns: "common" })}</Button>
             ) : null}
             <Spacer />
             {step < 4 ? (
-              <Button colorScheme="brand" onClick={() => setStep((s) => s + 1)}>
-                Continue
-              </Button>
+              <Button colorScheme="brand" onClick={() => setStep((s) => s + 1)}>{t("actions.continue", { ns: "common" })}</Button>
             ) : (
               <Button type="submit" colorScheme="brand" isDisabled={pending || !form.field}>
                 {pending ? "Saving…" : "Submit report"}

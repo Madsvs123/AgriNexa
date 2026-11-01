@@ -8,7 +8,7 @@
     "category": "Category",
     "uploaded": "Uploaded",
     "file": "File",
-    "upload": "Upload document",
+    "upload": "Upload",
     "contract": "Contract",
     "soilTest": "Soil test",
     "insurance": "Insurance",
@@ -62,7 +62,8 @@
   "notFound": {
     "title": "Field not on the map",
     "subtitle": "That route is fallow — nothing is planted here.",
-    "body": "The page you requested is not part of AgriNexa operations."
+    "body": "The page you requested is not part of AgriNexa operations.",
+    "backToDashboard": "Back to dashboard"
   },
   "invite": {
     "title": "Join the crew",

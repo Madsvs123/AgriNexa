@@ -8,9 +8,11 @@ import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/
 import { StatCard, StatusBadge } from "@/components/ui/StatCard";
 import { Drawer } from "@/components/ui/Modal";
 import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 export default function InventoryDetailPage() {
   const { t } = useTranslation("operate");
+  const labels = usePlanningLabels();
   const { id = "" } = useParams();
   const qc = useQueryClient();
   const itemQ = useQuery({ queryKey: ["inventory-item", id], queryFn: () => inventoryApi.get(id), enabled: !!id });
@@ -51,9 +53,7 @@ export default function InventoryDetailPage() {
         subtitle={`${item.sku} · ${item.location}`}
         crumbs={
           <>
-            <Link as={RouterLink} to="/inventory">
-              Inventory
-            </Link>
+            <Link as={RouterLink} to="/inventory">{t("inventory.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
@@ -61,9 +61,7 @@ export default function InventoryDetailPage() {
           </>
         }
         actions={
-          <Button colorScheme="brand" onClick={() => setOpen(true)}>
-            Record movement
-          </Button>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>{t("inventory.recordMovement")}</Button>
         }
       />
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
@@ -78,8 +76,9 @@ export default function InventoryDetailPage() {
       <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
         <CardBody>
           <Text>
-            Category <Text as="strong">{item.category.replace("_", " ")}</Text>
-            {item.farm_name ? ` · Farm ${item.farm_name}` : ""}
+            {t("inventory.categoryLine")}{" "}
+            <Text as="strong">{labels.budgetCategory(item.category)}</Text>
+            {item.farm_name ? ` · ${t("inventory.farmLine", { farm: item.farm_name })}` : ""}
           </Text>
           <Text color="fg.muted">{t("inventory.movementsHint")}</Text>
         </CardBody>
@@ -99,9 +98,7 @@ export default function InventoryDetailPage() {
         <FormField label={t("labels.notes", { ns: "common" })} htmlFor="mnotes">
           <Input id="mnotes" value={move.notes} onChange={(e) => setMove({ ...move, notes: e.target.value })} placeholder={t("inventory.movementPlaceholder")} />
         </FormField>
-        <Button colorScheme="brand" isDisabled={mut.isPending} onClick={() => mut.mutate()}>
-          Save movement
-        </Button>
+        <Button colorScheme="brand" isDisabled={mut.isPending} onClick={() => mut.mutate()}>{t("inventory.saveMovement")}</Button>
       </Drawer>
     </Box>
   );

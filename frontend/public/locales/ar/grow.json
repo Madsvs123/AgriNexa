@@ -424,7 +424,10 @@
       "crops": "المحاصيل",
       "varieties": "الأصناف",
       "windows": "مواعيد الزراعة"
-    }
+    },
+    "varietyPlaceholder": "مثال: DKC 62-08",
+    "diseasePlaceholder": "مثال: التبقع الرمادي، SCN",
+    "traitsPlaceholder": "مثال: VT2P، مقاوم للجفاف"
   },
   "detail": {
     "leaveFallow": "تركه بورًا",
@@ -609,7 +612,8 @@
     "namePlaceholder": "مثال: 2026",
     "start": "البداية",
     "end": "النهاية",
-    "activeToggle": "نشط"
+    "activeToggle": "نشط",
+    "activeSeason": "الموسم النشط"
   },
   "compare": {
     "title": "مقارنة الاستراتيجيات",
@@ -652,5 +656,25 @@
     "creating": "جارٍ الإنشاء…",
     "fieldAcresHint": "مساحة الحقل {{acres}}؛ فارغ = كامل الحقل",
     "recommendation": "{{days}} يوم · الحصاد {{harvest}} · {{margin}}/أكر"
+  },
+  "assessment": {
+    "window": "الموعد",
+    "lateUntil": "متأخر حتى",
+    "harvestBy": "الحصاد قبل",
+    "projectedHarvest": "الحصاد المتوقع",
+    "missesHarvestBy": "يتجاوز موعد الحصاد",
+    "harvestInTime": "الحصاد في وقته",
+    "soilMismatch": "تربة غير مناسبة"
+  },
+  "metrics": {
+    "revenue": "الإيرادات",
+    "totalCost": "إجمالي التكلفة",
+    "netMargin": "صافي الهامش",
+    "acres": "المساحة",
+    "labor": "العمالة",
+    "water": "المياه",
+    "nitrogenBalance": "رصيد النيتروجين",
+    "seedInputs": "البذور {{seed}} · المدخلات {{inputs}}",
+    "nitrogenHint": "الاحتياج {{demand}} · المثبّت {{fixed}}"
   }
 }

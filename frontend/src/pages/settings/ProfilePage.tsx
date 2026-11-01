@@ -136,9 +136,7 @@ export default function ProfilePage() {
         <FormField label={t("profile.bio")} htmlFor="pbio">
           <Textarea id="pbio" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} />
         </FormField>
-        <Button type="submit" colorScheme="brand">
-          Save profile
-        </Button>
+        <Button type="submit" colorScheme="brand">{t("profile.save")}</Button>
       </Box>
     </Box>
   );

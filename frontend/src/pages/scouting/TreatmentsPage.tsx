@@ -39,19 +39,15 @@ export default function TreatmentsPage() {
         subtitle={t("treatments.subtitle")}
         crumbs={
           <>
-            <Link as={RouterLink} to="/scouting">
-              Scouting
-            </Link>
+            <Link as={RouterLink} to="/scouting">{t("scouting.title")}</Link>
             <Text as="span" mx={1}>
               /
             </Text>
-            <Text as="span">Treatments</Text>
+            <Text as="span">{t("treatments.heading")}</Text>
           </>
         }
         actions={
-          <Button colorScheme="brand" onClick={() => setOpen(true)}>
-            New treatment
-          </Button>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>{t("treatments.newTreatment")}</Button>
         }
       />
       <ErrorBanner message={treatQ.error ? getApiError(treatQ.error) : null} />
@@ -97,9 +93,7 @@ export default function TreatmentsPage() {
           <FormField label={t("labels.notes", { ns: "common" })} htmlFor="tnotes">
             <Textarea id="tnotes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </FormField>
-          <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>
-            Save plan
-          </Button>
+          <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>{t("treatments.savePlan")}</Button>
         </form>
       </Drawer>
     </Box>

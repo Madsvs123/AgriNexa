@@ -6,6 +6,7 @@ import { Box, Button, HStack, IconButton } from "@chakra-ui/react";
 import { Crosshair } from "lucide-react";
 import type { Equipment, Field, GeoJSONPolygon, IrrigationZone, Plot, Sensor, SoilLayer, StatusLevel } from "@/types";
 import { healthColor } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export const SOIL_COLORS: Record<string, string> = {
   clay: "#8C5A3C",
@@ -105,6 +106,7 @@ export function MapView({
   zoom?: number;
   controls?: boolean;
 }) {
+  const { t } = useTranslation("land");
   const [sat, setSat] = useState(satellite);
   const [fitSignal, setFitSignal] = useState(0);
 
@@ -266,7 +268,7 @@ export function MapView({
       {controls ? (
         <HStack position="absolute" top={2} right={2} zIndex={1000} spacing={1}>
           <IconButton
-            aria-label="Recenter map"
+            aria-label={t("boundary.recenter")}
             icon={<Crosshair size={14} />}
             size="xs"
             colorScheme="gray"

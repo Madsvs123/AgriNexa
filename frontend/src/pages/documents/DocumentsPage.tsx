@@ -42,9 +42,7 @@ export default function DocumentsPage() {
         title={t("documents.title")}
         subtitle={t("documents.subtitle")}
         actions={
-          <Button colorScheme="brand" onClick={() => setOpen(true)}>
-            Upload
-          </Button>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>{t("documents.upload")}</Button>
         }
       />
       <ErrorBanner message={docsQ.error ? getApiError(docsQ.error) : null} />
@@ -63,9 +61,7 @@ export default function DocumentsPage() {
             header: t("documents.file"),
             render: (d) =>
               d.file ? (
-                <Link href={d.file} target="_blank" rel="noreferrer" color="brand.500">
-                  Open
-                </Link>
+                <Link href={d.file} target="_blank" rel="noreferrer" color="brand.500">{t("actions.open", { ns: "common" })}</Link>
               ) : (
                 "—"
               ),
@@ -106,9 +102,7 @@ export default function DocumentsPage() {
           mt={3}
           isDisabled={!file || !title || upload.isPending}
           onClick={() => upload.mutate()}
-        >
-          Upload
-        </Button>
+        >{t("documents.upload")}</Button>
       </Drawer>
     </Box>
   );

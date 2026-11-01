@@ -8,7 +8,7 @@
     "category": "Categoría",
     "uploaded": "Subido",
     "file": "Archivo",
-    "upload": "Subir documento",
+    "upload": "Subir",
     "contract": "Contrato",
     "soilTest": "Análisis de suelo",
     "insurance": "Seguro",
@@ -62,7 +62,8 @@
   "notFound": {
     "title": "Lote fuera del mapa",
     "subtitle": "Esa ruta está en barbecho: aquí no hay nada sembrado.",
-    "body": "La página que solicitaste no forma parte de las operaciones de AgriNexa."
+    "body": "La página que solicitaste no forma parte de las operaciones de AgriNexa.",
+    "backToDashboard": "Volver al panel"
   },
   "invite": {
     "title": "Únete al equipo",
