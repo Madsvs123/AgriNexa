@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Box, Button, Checkbox, Input, Link, Text } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { formatDate } from "@/lib/utils";
@@ -11,6 +12,7 @@ import { Drawer } from "@/components/ui/Modal";
 
 export default function SeasonsPage() {
   const qc = useQueryClient();
+  const { t } = useTranslation("grow");
   const seasonsQ = useQuery({ queryKey: ["seasons"], queryFn: () => cropsApi.seasons() });
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", start_date: "", end_date: "", is_active: true });
@@ -25,8 +27,8 @@ export default function SeasonsPage() {
   return (
     <Box>
       <PageHeader
-        title="Seasons"
-        subtitle="Planning windows used by the top-bar season filter."
+        title={t("seasons.title")}
+        subtitle={t("seasons.subtitle")}
         crumbs={
           <>
             <Link as={RouterLink} to="/crops">
@@ -40,7 +42,7 @@ export default function SeasonsPage() {
         }
         actions={
           <Button colorScheme="brand" onClick={() => setOpen(true)}>
-            Add season
+            {t("seasons.addSeason")}
           </Button>
         }
       />
@@ -48,36 +50,36 @@ export default function SeasonsPage() {
       <DataTable
         rows={seasonsQ.data?.results ?? []}
         rowKey={(s) => s.id}
-        emptyTitle="No seasons"
-        emptyBody="Create 2026 and mark it active before planting starts."
+        emptyTitle={t("seasons.emptyTitle")}
+        emptyBody={t("seasons.emptyBody")}
         columns={[
-          { key: "name", header: "Season" },
-          { key: "start_date", header: "Start", render: (s) => formatDate(s.start_date) },
-          { key: "end_date", header: "End", render: (s) => formatDate(s.end_date) },
+          { key: "name", header: t("detail.columns.season") },
+          { key: "start_date", header: t("detail.columns.start"), render: (s) => formatDate(s.start_date) },
+          { key: "end_date", header: t("detail.columns.end"), render: (s) => formatDate(s.end_date) },
           {
             key: "is_active",
-            header: "Status",
+            header: t("detail.columns.status"),
             render: (s) => <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "Active" : "Closed"} />,
           },
         ]}
       />
-      <Drawer open={open} title="Add season" onClose={() => setOpen(false)}>
+      <Drawer open={open} title={t("seasons.addSeason")} onClose={() => setOpen(false)}>
         <form
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
             create.mutate();
           }}
         >
-          <FormField label="Name" htmlFor="sname">
+          <FormField label={t("labels.name", { ns: "common" })} htmlFor="sname">
             <Input
               id="sname"
               isRequired
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="2026"
+              placeholder={t("seasons.namePlaceholder")}
             />
           </FormField>
-          <FormField label="Start" htmlFor="sstart">
+          <FormField label={t("seasons.start")} htmlFor="sstart">
             <Input
               id="sstart"
               type="date"
@@ -86,7 +88,7 @@ export default function SeasonsPage() {
               onChange={(e) => setForm({ ...form, start_date: e.target.value })}
             />
           </FormField>
-          <FormField label="End" htmlFor="send">
+          <FormField label={t("seasons.end")} htmlFor="send">
             <Input
               id="send"
               type="date"

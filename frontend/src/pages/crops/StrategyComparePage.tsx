@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Badge,
@@ -47,6 +48,7 @@ export default function StrategyComparePage() {
   const [params, setParams] = useSearchParams();
   const ids = useMemo(() => (params.get("ids") ?? "").split(",").filter(Boolean), [params]);
   const { params: scopeParams } = useScope();
+  const { t } = useTranslation("grow");
 
   const listQ = useQuery({
     queryKey: ["strategies", "compare-picker", scopeParams],
@@ -80,19 +82,19 @@ export default function StrategyComparePage() {
 
   return (
     <ListPage
-      title="Compare strategies"
-      subtitle="Side-by-side economics, resources, rotation fit, and risk. Deltas are against the baseline."
+      title={t("compare.title")}
+      subtitle={t("compare.subtitle")}
       error={cmpQ.error ? getApiError(cmpQ.error) : listQ.error ? getApiError(listQ.error) : null}
       loading={!picking && cmpQ.isLoading}
       actions={
         <>
           {!picking ? (
             <Button variant="outline" colorScheme="gray" onClick={() => setParams({})}>
-              Change selection
+              {t("compare.changeSelection")}
             </Button>
           ) : null}
           <Button as={RouterLink} to="/crops/strategies" variant="ghost" colorScheme="gray">
-            All strategies
+            {t("compare.allStrategies")}
           </Button>
         </>
       }
@@ -100,7 +102,7 @@ export default function StrategyComparePage() {
       {picking ? (
         <Card variant="surface">
           <CardBody>
-            <Heading size="sm" mb={3}>Pick strategies to compare</Heading>
+            <Heading size="sm" mb={3}>{t("compare.pickTitle")}</Heading>
             <Stack spacing={2} mb={4}>
               {(listQ.data?.results ?? []).map((s) => (
                 <Checkbox key={s.id} colorScheme="brand" isChecked={picker.includes(s.id)} onChange={(e) => setPicker((cur) => (e.target.checked ? [...cur, s.id] : cur.filter((x) => x !== s.id)))}>
@@ -112,10 +114,10 @@ export default function StrategyComparePage() {
                   </Text>
                 </Checkbox>
               ))}
-              {!listQ.data?.results.length ? <EmptyState title="No strategies in scope" body="Create strategies for this farm and season first." /> : null}
+              {!listQ.data?.results.length ? <EmptyState title={t("compare.noneTitle")} body={t("compare.noneBody")} /> : null}
             </Stack>
             <Button colorScheme="brand" isDisabled={picker.length < 2} onClick={() => setParams({ ids: picker.join(",") })}>
-              Compare {picker.length ? `(${picker.length})` : ""}
+              {picker.length ? t("compare.compareCount", { count: picker.length }) : t("compare.compare")}
             </Button>
           </CardBody>
         </Card>
@@ -137,8 +139,8 @@ export default function StrategyComparePage() {
                       {formatCurrency(e.totals.margin)} margin · {formatCurrency(e.totals.margin_per_acre)}/ac
                     </Text>
                     <Flex gap={2} mt={2} wrap="wrap">
-                      <Badge colorScheme={riskScheme(e.risk_score)}>risk {e.risk_score}</Badge>
-                      <Badge colorScheme={e.feasible ? "green" : "red"}>{e.feasible ? "feasible" : `${e.hard_violations} violation${e.hard_violations === 1 ? "" : "s"}`}</Badge>
+                      <Badge colorScheme={riskScheme(e.risk_score)}>{t("compare.risk")} {e.risk_score}</Badge>
+                      <Badge colorScheme={e.feasible ? "green" : "red"}>{e.feasible ? t("compare.feasible") : t("compare.violations", { count: e.hard_violations })}</Badge>
                       <Badge variant="outline" textTransform="capitalize">{e.assumptions.rainfall_scenario}</Badge>
                     </Flex>
                   </CardBody>
@@ -154,7 +156,7 @@ export default function StrategyComparePage() {
                 <Table size="sm" variant="simple">
                   <Thead>
                     <Tr>
-                      <Th>Metric</Th>
+                      <Th>{t("compare.metric")}</Th>
                       {cmp.strategies.map((e) => (
                         <Th key={e.strategy_id} isNumeric>
                           <Flex justify="flex-end" align="center" gap={1}>
@@ -170,7 +172,7 @@ export default function StrategyComparePage() {
                       <Tr key={m.key}>
                         <Td>
                           <Text fontWeight="semibold">{m.label}</Text>
-                          <Text fontSize="10px" color="fg.muted">{m.higher_is_better ? "higher is better" : "lower is better"}</Text>
+                          <Text fontSize="10px" color="fg.muted">{m.higher_is_better ? t("compare.higherBetter") : t("compare.lowerBetter")}</Text>
                         </Td>
                         {m.values.map((v, i) => {
                           const best = m.best_index === i && cmp.strategies.length > 1;
@@ -185,7 +187,7 @@ export default function StrategyComparePage() {
                                   {formatDelta(d, { currency: MONEY_KEYS.has(m.key) ? "USD" : undefined, digits: m.key === "diversity_index" ? 2 : 0 })}
                                 </Text>
                               ) : isBaseline && cmp.strategies.length > 1 ? (
-                                <Text fontSize="xs" color="fg.muted">baseline</Text>
+                                <Text fontSize="xs" color="fg.muted">{t("compare.baselineCell")}</Text>
                               ) : null}
                             </Td>
                           );
@@ -199,7 +201,7 @@ export default function StrategyComparePage() {
           </Card>
 
           <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
-            <ChartCard title="Crop mix (acres)">
+            <ChartCard title={t("compare.cropMixChart")}>
               <ChartFrame height="260px">
                 <BarChart data={mixData.rows}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -213,7 +215,7 @@ export default function StrategyComparePage() {
                 </BarChart>
                 </ChartFrame>
             </ChartCard>
-            <ChartCard title="Revenue, cost, margin">
+            <ChartCard title={t("compare.economicsChart")}>
               <ChartFrame height="260px">
                 <BarChart data={cmp.strategies.map((e) => ({ name: e.name, Revenue: e.totals.revenue, Cost: e.totals.total_cost, Margin: e.totals.margin }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -233,7 +235,7 @@ export default function StrategyComparePage() {
             {cmp.strategies.map((e) => (
               <Card key={e.strategy_id} variant="surface">
                 <CardBody>
-                  <Heading size="xs" mb={3}>{e.name} · constraints</Heading>
+                  <Heading size="xs" mb={3}>{t("compare.constraintsFor", { name: e.name })}</Heading>
                   <ConstraintBars results={e.constraints} compact />
                 </CardBody>
               </Card>

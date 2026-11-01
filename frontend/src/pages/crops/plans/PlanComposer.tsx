@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 import { Badge, Box, Button, Card, CardBody, Flex, Input, Select, SimpleGrid, Stack, Text, Textarea } from "@chakra-ui/react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { Drawer } from "@/components/ui/Modal";
@@ -9,6 +11,7 @@ import { ComponentsEditor } from "@/components/planning/ComponentsEditor";
 import { useDebounced } from "@/hooks/useDebounced";
 import { PLANTING_SYSTEMS } from "@/lib/planning";
 import { formatDate } from "@/lib/utils";
+import { formatAcres } from "@/lib/utils";
 import type { PlantingSystem, StrategyComponent } from "@/types";
 import { formatCurrency } from "@/i18n/format";
 
@@ -29,6 +32,8 @@ export function PlanComposer({
   defaultFarm?: string | null;
 }) {
   const qc = useQueryClient();
+  const { t } = useTranslation("grow");
+  const labels = usePlanningLabels();
   const seasonsQ = useQuery({ queryKey: ["seasons"], queryFn: () => cropsApi.seasons() });
   const fieldsQ = useQuery({
     queryKey: ["fields", { farm: defaultFarm }],
@@ -130,7 +135,7 @@ export function PlanComposer({
   const mixed = system !== "monoculture" && system !== "cover";
 
   return (
-    <Drawer open={open} title="New crop plan" onClose={onClose} wide>
+    <Drawer open={open} title={t("composer.title")} onClose={onClose} wide>
       <ErrorBanner message={error} />
       <form
         onSubmit={(e) => {
@@ -139,9 +144,9 @@ export function PlanComposer({
         }}
       >
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
-          <FormField label="Season" htmlFor="p-season">
+          <FormField label={t("labels.season", { ns: "common" })} htmlFor="p-season">
             <Select id="p-season" value={season} onChange={(e) => setSeason(e.target.value)} isRequired>
-              <option value="">Select season</option>
+              <option value="">{t("composer.selectSeason")}</option>
               {(seasonsQ.data?.results ?? []).map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -149,9 +154,9 @@ export function PlanComposer({
               ))}
             </Select>
           </FormField>
-          <FormField label="Field" htmlFor="p-field">
+          <FormField label={t("labels.field", { ns: "common" })} htmlFor="p-field">
             <Select id="p-field" value={field} onChange={(e) => setField(e.target.value)} isRequired>
-              <option value="">Select field</option>
+              <option value="">{t("composer.selectField")}</option>
               {fields.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name} · {f.acres} ac{f.farm_name ? ` · ${f.farm_name}` : ""}
@@ -159,7 +164,7 @@ export function PlanComposer({
               ))}
             </Select>
           </FormField>
-          <FormField label="Crop" htmlFor="p-crop">
+          <FormField label={t("labels.crop", { ns: "common" })} htmlFor="p-crop">
             <Select
               id="p-crop"
               value={crop}
@@ -170,7 +175,7 @@ export function PlanComposer({
               }}
               isRequired
             >
-              <option value="">Select crop</option>
+              <option value="">{t("composer.selectCrop")}</option>
               {crops.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -178,31 +183,31 @@ export function PlanComposer({
               ))}
             </Select>
           </FormField>
-          <FormField label="Planting system" htmlFor="p-sys">
+          <FormField label={t("plans.plantingSystem")} htmlFor="p-sys">
             <Select id="p-sys" value={system} onChange={(e) => setSystem(e.target.value as PlantingSystem)}>
-              {PLANTING_SYSTEMS.map(([v, l]) => (
+              {PLANTING_SYSTEMS.map((v) => (
                 <option key={v} value={v}>
-                  {l}
+                  {labels.plantingSystem(v)}
                 </option>
               ))}
             </Select>
           </FormField>
-          <FormField label="Planting date" htmlFor="p-date">
+          <FormField label={t("labels.planting", { ns: "common" })} htmlFor="p-date">
             <Input id="p-date" type="date" value={plantingDate} onChange={(e) => setPlantingDate(e.target.value)} />
           </FormField>
-          <FormField label="Acres" htmlFor="p-acres" hint={selectedField ? `Field is ${selectedField.acres} ac; blank = whole field` : undefined}>
+          <FormField label={t("labels.acres", { ns: "common" })} htmlFor="p-acres" hint={selectedField ? t("composer.fieldAcresHint", { acres: formatAcres(selectedField.acres) }) : undefined}>
             <Input id="p-acres" type="number" step="0.1" value={acres} onChange={(e) => setAcres(e.target.value)} />
           </FormField>
         </SimpleGrid>
 
         <Text fontSize="xs" color="fg.muted" mb={2}>
-          {PLANTING_SYSTEMS.find(([v]) => v === system)?.[2]}
+          {labels.plantingSystemHint(system)}
         </Text>
 
         {/* Variety: recommendations ranked for this field + date */}
-        <FormField label="Variety" htmlFor="p-var" hint={cropVarieties.length ? "Ranked for this field and planting date" : "No varieties defined for this crop"}>
+        <FormField label={t("labels.variety", { ns: "common" })} htmlFor="p-var" hint={cropVarieties.length ? t("composer.rankedHint") : t("composer.noVarieties")}>
           <Select id="p-var" value={variety} onChange={(e) => setVariety(e.target.value)} isDisabled={!cropVarieties.length}>
-            <option value="">{cropVarieties.length ? "Decide later" : "None"}</option>
+            <option value="">{cropVarieties.length ? t("composer.decideLater") : t("composer.noVarieties")}</option>
             {cropVarieties.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.name} · {v.days_to_maturity}d
@@ -224,10 +229,14 @@ export function PlanComposer({
               >
                 <CardBody py={2.5}>
                   <Flex align="center" gap={2} wrap="wrap">
-                    <Badge colorScheme={i === 0 ? "brand" : "gray"}>{i === 0 ? "Best fit" : `#${i + 1}`}</Badge>
+                    <Badge colorScheme={i === 0 ? "brand" : "gray"}>{i === 0 ? t("composer.bestFit") : `#${i + 1}`}</Badge>
                     <Text fontWeight="semibold">{r.name}</Text>
                     <Text fontSize="sm" color="fg.muted">
-                      {r.days_to_maturity}d · harvest {formatDate(r.projected_harvest)} · {formatCurrency(r.projected_margin_per_acre)}/ac
+                      {t("composer.recommendation", {
+                        days: r.days_to_maturity,
+                        harvest: formatDate(r.projected_harvest),
+                        margin: formatCurrency(r.projected_margin_per_acre),
+                      })}
                     </Text>
                     <Box flex="1" />
                     <Text fontSize="sm" fontWeight="semibold">
@@ -244,7 +253,7 @@ export function PlanComposer({
         ) : null}
 
         {mixed ? (
-          <FormField label="Mixed-cropping components" hint="Secondary crops and their share of the field">
+          <FormField label={t("detail.mixedComponents")} hint={t("composer.componentsHint")}>
             <ComponentsEditor
               value={components}
               onChange={setComponents}
@@ -259,18 +268,18 @@ export function PlanComposer({
         <Card variant="inset" mb={4}>
           <CardBody>
             <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
-              Assessment
+              {t("composer.assessment")}
             </Text>
             <AssessmentPanel data={assessQ.data} loading={assessQ.isFetching} compact />
           </CardBody>
         </Card>
 
-        <FormField label="Notes" htmlFor="p-notes">
+        <FormField label={t("labels.notes", { ns: "common" })} htmlFor="p-notes">
           <Textarea id="p-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
         </FormField>
 
         <Button type="submit" colorScheme="brand" isDisabled={create.isPending || !season || !field || !crop}>
-          {create.isPending ? "Creating…" : "Create plan"}
+          {create.isPending ? t("composer.creating") : t("composer.createPlan")}
         </Button>
       </form>
     </Drawer>

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 import { Badge, Box, Button, Card, CardBody, Flex, Heading, Select, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { DetailPage } from "@/components/templates/DetailPage";
@@ -20,6 +22,8 @@ export default function CropPlanDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useTranslation("grow");
+  const labels = usePlanningLabels();
   const planQ = useQuery({ queryKey: ["crop-plan", id], queryFn: () => cropsApi.getPlan(id), enabled: !!id });
   const assessQ = useQuery({ queryKey: ["crop-plan-assessment", id], queryFn: () => cropsApi.planAssessment(id), enabled: !!id });
   const schedQ = useQuery({ queryKey: ["planting-schedules", id], queryFn: () => cropsApi.plantingSchedules({ crop_plan: id }), enabled: !!id });
@@ -95,18 +99,18 @@ export default function CropPlanDetailPage() {
     <>
       <DetailPage
         loading={planQ.isLoading}
-        error={planQ.error ? getApiError(planQ.error) : !plan && !planQ.isLoading ? "Plan not found." : null}
+        error={planQ.error ? getApiError(planQ.error) : !plan && !planQ.isLoading ? t("planDetail.notFound") : null}
         title={plan ? `${plan.crop_name} on ${plan.field_name}` : "Crop plan"}
         subtitle={
           plan ? (
             <Flex align="center" gap={2} wrap="wrap">
               <Text>
-                {plan.season_name} · {plan.variety_name ?? "variety TBD"} · {plan.farm_name}
+                {plan.season_name} · {plan.variety_name ?? t("planDetail.varietyTbd")} · {plan.farm_name}
               </Text>
-              <Badge textTransform="capitalize" colorScheme={plan.planting_system === "monoculture" ? "gray" : "brand"}>
-                {plan.planting_system}
+              <Badge colorScheme={plan.planting_system === "monoculture" ? "gray" : "brand"}>
+                {labels.plantingSystem(plan.planting_system)}
               </Badge>
-              {plan.strategy_name ? <Badge variant="outline">from “{plan.strategy_name}”</Badge> : null}
+              {plan.strategy_name ? <Badge variant="outline">{t("detail.fromRotation", { name: plan.strategy_name })}</Badge> : null}
             </Flex>
           ) : undefined
         }
@@ -119,19 +123,19 @@ export default function CropPlanDetailPage() {
                 value={plan.status}
                 onChange={(e) => setStatus.mutate(e.target.value)}
                 isDisabled={setStatus.isPending}
-                aria-label="Plan status"
+                aria-label={t("planDetail.planStatus")}
               >
-                {["planned", "planted", "growing", "harvested", "cancelled"].map((s) => (
+                {(["planned", "planted", "growing", "harvested", "cancelled"] as const).map((s) => (
                   <option key={s} value={s}>
-                    {s[0].toUpperCase() + s.slice(1)}
+                    {labels.planStatus(s)}
                   </option>
                 ))}
               </Select>
               <Button as={RouterLink} to={`/fields/${plan.field}`} variant="outline" colorScheme="gray" size="sm">
-                Open field
+                {t("planDetail.openField")}
               </Button>
               <Button variant="ghost" colorScheme="red" size="sm" onClick={() => setConfirmDelete(true)}>
-                Delete
+                {t("actions.delete", { ns: "common" })}
               </Button>
             </>
           ) : null
@@ -139,10 +143,10 @@ export default function CropPlanDetailPage() {
         kpis={
           plan
             ? [
-                <StatCard key="acres" label="Acres" value={formatAcres(plan.effective_acres)} />,
-                <StatCard key="target" label="Target yield" value={plan.target_yield ? `${formatNumber(plan.target_yield, 0)} ${plan.yield_unit}/ac` : "—"} />,
-                <StatCard key="plant" label="Planting" value={formatDate(plan.planting_date)} />,
-                <StatCard key="harvest" label="Harvest" value={formatDate(plan.expected_harvest_date)} hint={assessQ.data ? `${assessQ.data.days_to_maturity} days to maturity` : undefined} />,
+                <StatCard key="acres" label={t("labels.acres", { ns: "common" })} value={formatAcres(plan.effective_acres)} />,
+                <StatCard key="target" label={t("planDetail.targetYield")} value={plan.target_yield ? `${formatNumber(plan.target_yield, 0)} ${plan.yield_unit}/ac` : "—"} />,
+                <StatCard key="plant" label={t("labels.planting", { ns: "common" })} value={formatDate(plan.planting_date)} />,
+                <StatCard key="harvest" label={t("labels.harvest", { ns: "common" })} value={formatDate(plan.expected_harvest_date)} hint={assessQ.data ? t("planDetail.daysToMaturity", { count: assessQ.data.days_to_maturity }) : undefined} />,
               ]
             : undefined
         }
@@ -151,13 +155,13 @@ export default function CropPlanDetailPage() {
             ? [
                 {
                   id: "overview",
-                  label: "Overview",
+                  label: t("planDetail.overviewTab"),
                   render: () => (
                     <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
                       <Card variant="surface">
                         <CardBody>
                           <Heading size="sm" mb={3}>
-                            Window & rotation
+                            {t("planDetail.windowAndRotation")}
                           </Heading>
                           <AssessmentPanel data={assessQ.data} loading={assessQ.isLoading} />
                         </CardBody>
@@ -165,15 +169,15 @@ export default function CropPlanDetailPage() {
                       <Card variant="surface">
                         <CardBody>
                           <Flex align="center" mb={3}>
-                            <Heading size="sm">Crop mix</Heading>
+                            <Heading size="sm">{t("planDetail.cropMix")}</Heading>
                             <Box flex="1" />
                             <Button size="sm" variant="outline" colorScheme="gray" onClick={openComponents}>
-                              {plan.components.length ? "Edit mix" : "Add intercrop"}
+                              {plan.components.length ? t("planDetail.editMix") : t("planDetail.addIntercrop")}
                             </Button>
                           </Flex>
                           <Stack spacing={2}>
                             <Flex align="center" gap={3} p={2.5} bg="bg.subtle" borderRadius="md">
-                              <CropChip name={plan.crop_name ?? "Crop"} color={plan.crop_color} detail={plan.variety_name ?? "primary"} />
+                              <CropChip name={plan.crop_name ?? "Crop"} color={plan.crop_color} detail={plan.variety_name ?? t("planDetail.primary")} />
                               <Box flex="1" />
                               <Text fontSize="sm" fontWeight="semibold">
                                 {primaryShare}%
@@ -190,7 +194,7 @@ export default function CropPlanDetailPage() {
                             ))}
                             {!plan.components.length ? (
                               <Text fontSize="sm" color="fg.muted">
-                                Monoculture. Add an intercrop, relay, or cover component to model a mixed system.
+                                {t("planDetail.monocultureHint")}
                               </Text>
                             ) : null}
                           </Stack>
@@ -206,60 +210,60 @@ export default function CropPlanDetailPage() {
                 },
                 {
                   id: "schedule",
-                  label: "Schedule",
+                  label: t("planDetail.scheduleTab"),
                   render: () => (
                     <DataTable
                       rows={schedQ.data?.results ?? []}
                       rowKey={(s) => s.id}
-                      emptyTitle="No scheduled stages"
-                      emptyBody="Tillage, planting, side-dress, and harvest stages will list here."
+                      emptyTitle={t("planDetail.noStagesTitle")}
+                      emptyBody={t("planDetail.noStagesBody")}
                       columns={[
-                        { key: "stage", header: "Stage" },
-                        { key: "scheduled_date", header: "Scheduled", render: (s) => formatDate(s.scheduled_date) },
-                        { key: "completed_date", header: "Completed", render: (s) => (s.completed_date ? formatDate(s.completed_date) : <StatusBadge status="pending" label="Pending" />) },
-                        { key: "notes", header: "Notes", render: (s) => s.notes || "—" },
+                        { key: "stage", header: t("detail.columns.stage") },
+                        { key: "scheduled_date", header: t("detail.columns.scheduled"), render: (s) => formatDate(s.scheduled_date) },
+                        { key: "completed_date", header: t("detail.columns.completed"), render: (s) => (s.completed_date ? formatDate(s.completed_date) : <StatusBadge status="pending" label={t("status.pending", { ns: "common" })} />) },
+                        { key: "notes", header: t("labels.notes", { ns: "common" }), render: (s) => s.notes || "—" },
                       ]}
                     />
                   ),
                 },
                 {
                   id: "inputs",
-                  label: "Inputs",
+                  label: t("planDetail.inputsTab"),
                   render: () => (
                     <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
                       <Box>
                         <Heading size="sm" mb={3}>
-                          Fertilizer
+                          {t("planDetail.fertilizer")}
                         </Heading>
                         <DataTable
                           rows={fertQ.data?.results ?? []}
                           rowKey={(r) => r.id}
-                          emptyTitle="No fertilizer events"
-                          emptyBody="MAP, UAN, and side-dress passes will list here."
+                          emptyTitle={t("planDetail.noFertilizerTitle")}
+                          emptyBody={t("planDetail.noFertilizerBody")}
                           columns={[
-                            { key: "product_name", header: "Product", render: (r) => `${r.product_name}${r.nutrient_analysis ? ` (${r.nutrient_analysis})` : ""}` },
-                            { key: "rate", header: "Rate", render: (r) => `${formatNumber(r.rate_per_acre, 1)} ${r.unit}/ac` },
-                            { key: "application_date", header: "Date", render: (r) => formatDate(r.application_date) },
-                            { key: "method", header: "Method", render: (r) => r.method || "—" },
-                            { key: "cost", header: "Cost", render: (r) => formatCurrency(r.cost) },
+                            { key: "product_name", header: t("detail.columns.product"), render: (r) => `${r.product_name}${r.nutrient_analysis ? ` (${r.nutrient_analysis})` : ""}` },
+                            { key: "rate", header: t("detail.columns.rate"), render: (r) => `${formatNumber(r.rate_per_acre, 1)} ${r.unit}/ac` },
+                            { key: "application_date", header: t("detail.columns.date"), render: (r) => formatDate(r.application_date) },
+                            { key: "method", header: t("detail.columns.method"), render: (r) => r.method || "—" },
+                            { key: "cost", header: t("labels.cost", { ns: "common" }), render: (r) => formatCurrency(r.cost) },
                           ]}
                         />
                       </Box>
                       <Box>
                         <Heading size="sm" mb={3}>
-                          Pesticide applications
+                          {t("planDetail.pesticides")}
                         </Heading>
                         <DataTable
                           rows={pestQ.data?.results ?? []}
                           rowKey={(r) => r.id}
-                          emptyTitle="No applications"
-                          emptyBody="Post-emerge and fungicide passes will list here."
+                          emptyTitle={t("planDetail.noApplicationsTitle")}
+                          emptyBody={t("planDetail.noApplicationsBody")}
                           columns={[
                             { key: "product_name", header: "Product" },
-                            { key: "target_pest", header: "Target", render: (r) => r.target_pest || "—" },
-                            { key: "rate", header: "Rate", render: (r) => `${formatNumber(r.rate_per_acre, 1)} ${r.unit}/ac` },
-                            { key: "application_date", header: "Applied", render: (r) => formatDate(r.application_date) },
-                            { key: "phi", header: "PHI / REI", render: (r) => `${r.phi_days}d / ${r.reentry_hours}h` },
+                            { key: "target_pest", header: t("detail.columns.target"), render: (r) => r.target_pest || "—" },
+                            { key: "rate", header: t("detail.columns.rate"), render: (r) => `${formatNumber(r.rate_per_acre, 1)} ${r.unit}/ac` },
+                            { key: "application_date", header: t("detail.columns.applied"), render: (r) => formatDate(r.application_date) },
+                            { key: "phi", header: t("detail.columns.phi"), render: (r) => `${r.phi_days}d / ${r.reentry_hours}h` },
                           ]}
                         />
                       </Box>
@@ -271,9 +275,9 @@ export default function CropPlanDetailPage() {
         }
       />
 
-      <Drawer open={compOpen} title="Crop mix" onClose={() => setCompOpen(false)} wide>
+      <Drawer open={compOpen} title={t("planDetail.cropMix")} onClose={() => setCompOpen(false)} wide>
         <ErrorBanner message={compError} />
-        <FormField label="Secondary crops" hint="Shares are percentages of the field; the primary takes the remainder.">
+        <FormField label={t("planDetail.secondaryCrops")} hint={t("planDetail.secondaryHint")}>
           <ComponentsEditor
             value={draft}
             onChange={setDraft}
@@ -284,15 +288,15 @@ export default function CropPlanDetailPage() {
           />
         </FormField>
         <Button colorScheme="brand" onClick={() => saveComponents.mutate()} isDisabled={saveComponents.isPending}>
-          {saveComponents.isPending ? "Saving…" : "Save mix"}
+          {saveComponents.isPending ? t("actions.saving", { ns: "common" }) : t("planDetail.saveMix")}
         </Button>
       </Drawer>
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Delete this crop plan?"
-        body="Schedules and input records attached to the plan are removed too."
-        confirmLabel="Delete plan"
+        title={t("planDetail.deleteTitle")}
+        body={t("planDetail.deleteBody")}
+        confirmLabel={t("planDetail.deletePlan")}
         danger
         onClose={() => setConfirmDelete(false)}
         onConfirm={() => remove.mutate()}
