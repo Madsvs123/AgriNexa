@@ -65,6 +65,7 @@ Every business record belongs to an **Organization**. Users join organizations t
 
 ### Security guarantees (enforced and test-covered)
 - Cross-tenant isolation: an org member can never list or reference another org's data.
+- Farm-access scoping is enforced on **every** read path, including global search. `apps/common/scoping.accessible_farm_ids` is the single resolver; `OrganizationQuerySetMixin` and `SearchView` both go through it so they cannot diverge. (Search previously filtered on organization alone, leaking the names of farms, fields, and equipment to members without a grant.)
 - Invitation tokens are **never returned by the API** (email-only); accepting an invite never issues tokens for an existing account (the user must sign in first), never demotes an owner, and only grants farms belonging to the inviting org.
 - `is_owner`, `is_system` (roles), and `is_active` (orgs) are read-only through the API; system roles cannot be edited or deleted.
 - Built-in (global) sensor types cannot be modified or deleted by tenants.
@@ -114,14 +115,56 @@ Public routes:
 | `/register` | RegisterPage | Create account + organization |
 | `/invites/:token` | InvitePage | Accept an emailed invitation |
 
-Protected routes (inside the app shell — sidebar, topbar with org switcher, season filter, dark/light toggle, notifications, Ctrl-K palette):
+### Shell & information architecture
+
+Navigation is two-level. A **nav rail** picks one of six sections; a **section panel** beside it lists only that section's pages, so at most eight destinations are visible at once instead of a flat 27-item sidebar.
+
+| Section | Destinations |
+|---|---|
+| Home | Dashboard (Notifications and Search are routable but not listed) |
+| Land | Farm map, Farms, Fields |
+| Grow | Crop plans, Catalog, Varieties, Seasons, Rotations, Budget |
+| Operate | Irrigation, Sensors, Weather, Scouting, Treatments, Equipment, Inventory, Tasks |
+| Insights | Analytics, Reports, Documents |
+| Settings (rail foot) | Overview, Organization, Team, Roles, Invitations, Farm access, Profile |
+
+Shell surfaces:
+
+- **`NavRail`** — six section icons; Settings sits at the foot, away from the primary five.
+- **`SectionPanel`** — the active section's pages, an inline filter (shown when a section has more than five pages), and that section's scope controls. Collapsible; the state persists and does **not** reset on navigation.
+- **`ContextBar`** — breadcrumbs, the single scope control, the ⌘K search pill, notifications, and the account menu (which now also holds the light/dark toggle).
+- **`ContextPanel`** — right-hand inspector, docked and non-modal at `xl`, a drawer below. Used for the map's field inspector so the panel no longer covers the map.
+- **`CommandPalette`** — `Ctrl/⌘+K` or `/`. Four result groups: Recents, Go to (every destination, matched locally), Actions, and Records (debounced API search). Full keyboard traversal; `>` restricts to actions, `#` to records.
+- **`MobileTabBar`** — bottom tabs for the five primary sections below `lg`.
+
+#### The navigation manifest
+
+`src/navigation/manifest.ts` is the single source of truth. Routes, the rail, section panels, breadcrumbs, document titles, and the palette's "Go to" results are all derived from it; `App.tsx` supplies only the page component per route id. Previously the route table and the sidebar were maintained separately and had drifted — `/scouting/treatments`, `/notifications`, and `/search` were routable but unreachable from navigation.
+
+`npm run check:nav` asserts the manifest's invariants: every route resolves, literal segments beat parameters (`/farms/new` is not `/farms/:id`), breadcrumb chains are correct, no section exceeds eight visible links, and every route has exactly one page component.
+
+#### Page templates
+
+| Template | Used by |
+|---|---|
+| `ListPage` | Index pages — header, filter bar, body in one rhythm |
+| `DetailPage` | Record pages — identity strip, up to four KPIs, **URL-synced tabs** (`?tab=`), lazily-mounted panels |
+| `WorkspacePage` | Full-viewport canvas with docked tool and inspector panels (the map) |
+
+List filters live in the URL via `useUrlFilters`, so a filtered view is linkable and survives the back button. Detail tabs use `useUrlTab` for the same reason.
+
+#### Scope
+
+`scopeStore` holds the active **farm** and **season**; routes declare which dimensions they use (`scope: ["farm", "season"]`) and `useScope()` returns only those as query params. Farm selection used to be re-picked per page — the map had its own selector while lists had their own filters — so moving between Fields, Map, and Irrigation lost context. Switching organizations resets scope, since the previous tenant's ids do not exist in the new one.
+
+Protected routes (inside the app shell):
 
 | Route | Page |
 |---|---|
-| `/` → `/home` | DashboardPage (season operations overview) |
-| `/map` | MapPage (full-screen operations map with layer toggles) |
-| `/farms`, `/farms/new`, `/farms/:id`, `/farms/:id/edit` | Farm list / create / detail (tabs: overview, seasons, access, notes) / edit |
-| `/fields`, `/fields/new`, `/fields/:id`, `/fields/:id/edit` | Field list / create / detail (history, zones, sensors) / edit |
+| `/` → `/home` | DashboardPage — three bands: Right now (alerts), This season (KPIs), Trends (collapsed) |
+| `/map` | MapPage — canvas with a docked tools panel and a non-modal field inspector |
+| `/farms`, `/farms/new`, `/farms/:id`, `/farms/:id/edit` | Farm list / create / detail (tabs: overview, fields, equipment, sensors, seasons, notes, access) / edit |
+| `/fields`, `/fields/new`, `/fields/:id`, `/fields/:id/edit` | Field list / create / detail (tabs: overview, plots, soil & elevation, agronomy, notes) / edit |
 | `/crops` | Crop catalog (+ add-crop drawer) |
 | `/crops/plans`, `/crops/plans/:id` | Seasonal crop plans list / detail with Gantt timeline |
 | `/crops/varieties`, `/crops/seasons`, `/crops/rotations`, `/crops/budget` | Varieties, growing seasons, rotations, seasonal budget |
@@ -147,9 +190,13 @@ Protected routes (inside the app shell — sidebar, topbar with org switcher, se
 | `*` | NotFoundPage |
 
 ### Theming & state
-- **Theme** (`src/theme.ts`): brand palette (forest green `brand.*`, wheat accent), Fraunces display / DM Sans body fonts, and semantic tokens (`bg.canvas`, `bg.surface`, `bg.subtle`, `fg.default`, `fg.muted`, `border.default`) that adapt to color mode. Light/dark is toggled from the topbar (persisted by Chakra; no flash on reload thanks to `ColorModeScript`).
-- **Zustand stores**: `authStore` (user, access token, organizations, current org id, session bootstrap state; refresh token + org id persisted to localStorage) and `uiStore` (sidebar, command palette, selected season — persisted).
-- **Shared components** (`components/ui/`): FormField/PageHeader/ErrorBanner/Skeletons, StatCard/StatusBadge/EmptyState/ChartCard, DataTable, Modal/Drawer/ConfirmDialog, FileDrop, SensorSparkline/SeverityMeter/LayerToggle, MapView (overlays + recenter/basemap/scale controls), BoundaryEditor (leaflet-geoman polygon drawing with live acreage and context outlines).
+- **Theme** (`src/theme.ts`): brand palette (forest green `brand.*`, wheat accent), Fraunces display / DM Sans body fonts, and semantic tokens (`bg.canvas`, `bg.surface`, `bg.subtle`, `fg.default`, `fg.muted`, `border.default`) that adapt to color mode. Light/dark is toggled from the account menu (persisted by Chakra; no flash on reload thanks to `ColorModeScript`).
+  - **Card variants** — `surface` (default: flat, hairline border), `panel` (floating, shadowed), `inset` (tinted, borderless). These replace the `borderWidth`/`borderColor`/`bg` triple that was repeated inline on roughly fifty cards.
+  - **`zIndices`** — one ladder for the shell (`mapOverlay` 5 … `palette` 1500). Map overlays sit *below* `sticky`: they previously used a raw `z-index: 1000` inside a `position: relative` parent, which creates no stacking context, so they painted over the sticky header while scrolling.
+  - **`density`** and **`layout`** — shared spacing rhythm and shell dimensions, applied by the templates instead of per-page margins.
+- **Zustand stores**: `authStore` (user, access token, organizations, current org id, session bootstrap state; refresh token + org id persisted to localStorage), `scopeStore` (active farm + season, persisted), and `uiStore` (nav drawer, section panel, command palette, recent destinations).
+- **Hooks**: `useScope` (route-aware farm/season params), `useUrlFilters` / `useUrlTab` (URL-backed list filters and detail tabs), `useDebounced`, `useSensorSocket`.
+- **Shared components** (`components/ui/`): FormField/PageHeader/ErrorBanner/Skeletons, StatCard/StatusBadge/EmptyState/ChartCard, DataTable, FilterBar/FilterSelect, Modal/Drawer/ConfirmDialog, FileDrop, SensorSparkline/SeverityMeter/LayerToggle, MapView (overlays + recenter/basemap/scale controls), BoundaryEditor (leaflet-geoman polygon drawing with live acreage and context outlines).
 
 ---
 
@@ -260,7 +307,7 @@ Spatial validation errors return HTTP 400 with a specific message (e.g. "The out
 | `documents/` | Multipart upload, field name `file`. |
 | `notifications/` | Read-only list + `POST {id}/read/`, `POST read-all/` (direct POST create returns 405). |
 | `audit-logs/` | Read-only. |
-| `GET search/?q=` | Cross-entity search → `{farms, fields, equipment, inventory, tasks}`. |
+| `GET search/?q=&type=&limit=` | Cross-entity search → `{farms, fields, equipment, inventory, tasks, crops, query, counts}`. Matches names **and identifiers** (farm/field `code`, equipment `serial`/make/model, inventory `sku`/`lot_number`), ranks exact then prefix then substring matches, and applies the same organization **and farm-access** boundary as the ViewSets. `type` is a comma-separated subset of groups; `limit` defaults to 8, capped at 25. |
 
 ### Analytics
 
@@ -323,6 +370,11 @@ Upload limit 10 MB; media served from `/media/` in debug.
 
 ## 10. Quality & Testing
 
-- **Backend**: `python manage.py test apps` — covers the auth/tenancy chain (register → login → org header → tenant data, token refresh, mixed-case login, invitation-token non-exposure, owner-escalation protection, bad-header resilience, cross-tenant isolation) plus spatial geometry units (ring validity, self-intersection, area/centroid accuracy, containment, overlap) and spatial API rules (derived acreage, invalid boundary 400s, plot containment/overlap, soil-layer containment, elevation estimate + cache). `manage.py check` and the migration graph are clean.
-- **Frontend**: `npm run typecheck` (strict TypeScript, zero errors); `npm run build` runs the type check before bundling.
-- Known technical debt: the JS bundle is ~1.4 MB minified (Chakra + Framer Motion + Recharts + Leaflet in one chunk) — route-level code-splitting is the recommended next step; `sensorsApi.live()` does not yet accept a farm filter (backend supports `?farm=`).
+- **Backend**: `python manage.py test apps` — covers the auth/tenancy chain (register → login → org header → tenant data, token refresh, mixed-case login, invitation-token non-exposure, owner-escalation protection, bad-header resilience, cross-tenant isolation), spatial geometry units (ring validity, self-intersection, area/centroid accuracy, containment, overlap), spatial API rules (derived acreage, invalid boundary 400s, plot containment/overlap, soil-layer containment, elevation estimate + cache), and global search (grouped results, identifier matching, prefix ranking, `type`/`limit` handling, and farm-access scoping for restricted members). `manage.py check` and the migration graph are clean.
+  - Needs no database server: `python manage.py test apps --settings=agrinexa.settings_test` runs the same suite on in-memory SQLite with an in-memory channel layer.
+- **Frontend**: `npm run typecheck` (strict TypeScript, zero errors); `npm run check:nav` asserts the navigation manifest's invariants and that it has not drifted from the route table; `npm run build` runs the type check before bundling.
+- Known technical debt:
+  - Phase-4 page migrations are partial. `Dashboard`, `Map`, `Farms`, `Farm detail`, `Fields`, `Field detail`, `Sensors`, `Equipment`, and `Inventory` use the new templates. The remaining index and detail pages still render `PageHeader` directly — they work unchanged, but their filters are not yet URL-backed and their detail tabs are not yet linkable.
+  - Detail pages that have not adopted `useRegisterPageTitle` show a generic breadcrumb leaf ("Sensor" rather than the sensor's name).
+  - `sensorsApi.live()` does not yet accept a farm filter (backend supports `?farm=`), so the sensor grid filters live readings client-side.
+  - The vendor chunk is still ~760 kB minified (Chakra + Framer Motion in one chunk); pages are now route-split, and `manualChunks` for the vendor libraries is the next step.

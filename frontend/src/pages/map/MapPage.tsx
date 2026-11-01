@@ -1,40 +1,73 @@
 import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Button, Flex, Select, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Select, Stack, Text } from "@chakra-ui/react";
 import { equipmentApi, farmsApi, irrigationApi, platformApi, sensorsApi } from "@/api/client";
 import { formatAcres } from "@/lib/utils";
-import { Drawer } from "@/components/ui/Modal";
 import { LayerToggle } from "@/components/ui/SensorSparkline";
 import { MapView } from "@/components/ui/MapView";
 import { StatusBadge } from "@/components/ui/StatCard";
+import { WorkspacePage } from "@/components/templates/WorkspacePage";
+import { ContextPanel } from "@/components/layout/ContextPanel";
+import { useScope } from "@/hooks/useScope";
 import { useSensorSocket } from "@/hooks/useSensorSocket";
 import type { Field } from "@/types";
 
-const panelProps = {
-  bg: "bg.surface",
-  borderWidth: "1px",
-  borderColor: "border.default",
-  borderRadius: "lg",
-  boxShadow: "md",
-  p: 3,
-} as const;
+function PanelSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Box px={3} py={3}>
+      <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
+        {title}
+      </Text>
+      {children}
+    </Box>
+  );
+}
 
+/**
+ * Farm map.
+ *
+ * Layers, legend, and summaries moved off the canvas into a docked tool panel —
+ * they previously stacked as up to five floating cards over the map, and used a
+ * raw z-index that painted them over the sticky header. The clicked-field
+ * inspector is a docked context panel on wide screens so the map stays visible.
+ */
 export default function MapPage() {
+  const { farmId, setFarmId } = useScope();
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
-  const [farmId, setFarmId] = useState<string>("");
+
+  // Fall back to the first farm until the user picks one, and write that back
+  // to global scope so other pages inherit the same context.
   const selectedFarm = farmId || farmsQ.data?.results[0]?.id || "";
   useSensorSocket(selectedFarm);
+
+  const farmParam = selectedFarm || undefined;
   const fieldsQ = useQuery({
     queryKey: ["fields", { farm: selectedFarm }],
-    queryFn: () => farmsApi.fields({ farm: selectedFarm || undefined }),
+    queryFn: () => farmsApi.fields({ farm: farmParam }),
   });
-  const sensorsQ = useQuery({ queryKey: ["sensors", { farm: selectedFarm }], queryFn: () => sensorsApi.list({ farm: selectedFarm || undefined }) });
-  const zonesQ = useQuery({ queryKey: ["irrigation-zones", { farm: selectedFarm }], queryFn: () => irrigationApi.zones({ farm: selectedFarm || undefined }) });
-  const equipQ = useQuery({ queryKey: ["equipment", { farm: selectedFarm }], queryFn: () => equipmentApi.list({ farm: selectedFarm || undefined }) });
+  const sensorsQ = useQuery({
+    queryKey: ["sensors", { farm: selectedFarm }],
+    queryFn: () => sensorsApi.list({ farm: farmParam }),
+  });
+  const zonesQ = useQuery({
+    queryKey: ["irrigation-zones", { farm: selectedFarm }],
+    queryFn: () => irrigationApi.zones({ farm: farmParam }),
+  });
+  const equipQ = useQuery({
+    queryKey: ["equipment", { farm: selectedFarm }],
+    queryFn: () => equipmentApi.list({ farm: farmParam }),
+  });
   const alertsQ = useQuery({ queryKey: ["notifications"], queryFn: () => platformApi.notifications() });
-  const plotsQ = useQuery({ queryKey: ["plots"], queryFn: () => farmsApi.plots() });
-  const soilQ = useQuery({ queryKey: ["soil-layers"], queryFn: () => farmsApi.soilLayers() });
+  const plotsQ = useQuery({
+    queryKey: ["plots", { farm: selectedFarm }],
+    queryFn: () => farmsApi.plots({ farm: farmParam }),
+  });
+  const soilQ = useQuery({
+    queryKey: ["soil-layers", { farm: selectedFarm }],
+    queryFn: () => farmsApi.soilLayers({ farm: farmParam }),
+  });
+
   const [layers, setLayers] = useState({
     fields: true,
     sensors: true,
@@ -53,128 +86,136 @@ export default function MapPage() {
     [sensorsQ.data],
   );
 
-  return (
-    <Box>
-      <Box
-        position="relative"
-        h={{ base: "calc(100vh - 120px)", md: "calc(100vh - 140px)" }}
-        minH="420px"
-        borderWidth="1px"
-        borderColor="border.default"
-        borderRadius="xl"
-        overflow="hidden"
-      >
-        <MapView
-          height="100%"
-          fields={layers.fields || layers.history ? fieldsQ.data?.results ?? [] : []}
-          sensors={layers.sensors ? sensorsQ.data?.results ?? [] : []}
-          equipment={layers.equipment ? equipQ.data?.results ?? [] : []}
-          zones={layers.irrigation ? zonesQ.data?.results ?? [] : []}
-          plots={layers.plots ? plotsQ.data?.results ?? [] : []}
-          soilLayers={layers.soil ? soilQ.data?.results ?? [] : []}
-          showFields={layers.fields}
-          showSensors={layers.sensors}
-          showEquipment={layers.equipment}
-          showZones={layers.irrigation}
-          showPlots={layers.plots}
-          showSoil={layers.soil}
-          onFieldClick={setPicked}
-          center={farm?.lat && farm?.lng ? [Number(farm.lat), Number(farm.lng)] : undefined}
-        />
-        <Stack
-          position="absolute"
-          top={3}
-          right={3}
-          zIndex={1000}
-          spacing={3}
-          w="260px"
-          maxH="calc(100% - 24px)"
-          overflowY="auto"
+  const tools = (
+    <Stack spacing={0} divider={<Divider />}>
+      <PanelSection title="Farm">
+        <Select
+          size="sm"
+          aria-label="Farm"
+          value={selectedFarm}
+          onChange={(e) => setFarmId(e.target.value || null)}
         >
-          <Box {...panelProps}>
-            <Text as="label" htmlFor="map-farm" fontWeight="semibold" fontSize="sm" display="block" mb={1}>
-              Farm
-            </Text>
-            <Select id="map-farm" value={selectedFarm} onChange={(e) => setFarmId(e.target.value)}>
-              {(farmsQ.data?.results ?? []).map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </Select>
-          </Box>
-          <LayerToggle
-            layers={[
-              { key: "fields", label: "Field boundaries", on: layers.fields },
-              { key: "sensors", label: "Sensors", on: layers.sensors },
-              { key: "irrigation", label: "Irrigation zones", on: layers.irrigation },
-              { key: "plots", label: "Plot subdivisions", on: layers.plots },
-              { key: "soil", label: "Soil layers", on: layers.soil },
-              { key: "equipment", label: "Equipment", on: layers.equipment },
-              { key: "alerts", label: "Alerts", on: layers.alerts },
-              { key: "history", label: "Historical activity", on: layers.history },
-            ]}
-            onChange={(key, on) => setLayers((l) => ({ ...l, [key]: on }))}
-          />
-          <Flex {...panelProps} gap={3} wrap="wrap" fontSize="sm">
-            <Flex align="center" gap={1.5}>
-              <Box boxSize="10px" borderRadius="sm" bg="#7CB518" /> Healthy
-            </Flex>
-            <Flex align="center" gap={1.5}>
-              <Box boxSize="10px" borderRadius="sm" bg="#D4A017" /> Warning
-            </Flex>
-            <Flex align="center" gap={1.5}>
-              <Box boxSize="10px" borderRadius="sm" bg="#B42318" /> Critical
-            </Flex>
-          </Flex>
-          {layers.irrigation ? (
-            <Box {...panelProps}>
-              <Text as="span" fontWeight="semibold">
-                Zones
-              </Text>
-              {(zonesQ.data?.results ?? []).slice(0, 6).map((z) => (
-                <Flex key={z.id} align="center" gap={2} mt={1.5}>
-                  <StatusBadge status={z.status} />
-                  <Text as="span">{z.name}</Text>
-                </Flex>
-              ))}
-            </Box>
-          ) : null}
-          {layers.alerts ? (
-            <Box {...panelProps}>
-              <Text as="span" fontWeight="semibold">
-                Alerts
-              </Text>
-              {alertSensors.slice(0, 4).map((s) => (
-                <Text key={s.id} color="fg.muted" mt={1.5}>
-                  {s.name} · {s.status}
-                </Text>
-              ))}
-              {(alertsQ.data?.results ?? []).slice(0, 3).map((n) => (
-                <Text key={n.id} color="fg.muted" mt={1.5}>
-                  {n.title}
-                </Text>
-              ))}
-            </Box>
-          ) : null}
-        </Stack>
-      </Box>
-      <Drawer open={!!picked} title={picked?.name ?? "Field"} onClose={() => setPicked(null)}>
-        {picked ? (
-          <>
-            <Text color="fg.muted">
-              {picked.crop_name ?? "Fallow"} · {formatAcres(picked.acres)}
-            </Text>
-            <Flex align="center" gap={2} my={3}>
-              <StatusBadge status={picked.health_status} />
-              <Text as="span">{picked.moisture != null ? `${picked.moisture}% moisture` : "No probe"}</Text>
-            </Flex>
-            <Button as={RouterLink} to={`/fields/${picked.id}`} colorScheme="brand">
-              Open field record
-            </Button>
-          </>
+          {(farmsQ.data?.results ?? []).map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </Select>
+        {farm ? (
+          <Text fontSize="sm" color="fg.muted" mt={2}>
+            {formatAcres(farm.total_acres)} · {fieldsQ.data?.count ?? 0} fields
+          </Text>
         ) : null}
-      </Drawer>
-    </Box>
+      </PanelSection>
+
+      <PanelSection title="Layers">
+        <LayerToggle
+          layers={[
+            { key: "fields", label: "Field boundaries", on: layers.fields },
+            { key: "sensors", label: "Sensors", on: layers.sensors },
+            { key: "irrigation", label: "Irrigation zones", on: layers.irrigation },
+            { key: "plots", label: "Plot subdivisions", on: layers.plots },
+            { key: "soil", label: "Soil layers", on: layers.soil },
+            { key: "equipment", label: "Equipment", on: layers.equipment },
+            { key: "alerts", label: "Alerts", on: layers.alerts },
+            { key: "history", label: "Historical activity", on: layers.history },
+          ]}
+          onChange={(key, on) => setLayers((l) => ({ ...l, [key]: on }))}
+        />
+      </PanelSection>
+
+      <PanelSection title="Legend">
+        <Stack spacing={1.5} fontSize="sm">
+          <Flex align="center" gap={2}>
+            <Box boxSize="10px" borderRadius="sm" bg="#7CB518" /> Healthy
+          </Flex>
+          <Flex align="center" gap={2}>
+            <Box boxSize="10px" borderRadius="sm" bg="#D4A017" /> Warning
+          </Flex>
+          <Flex align="center" gap={2}>
+            <Box boxSize="10px" borderRadius="sm" bg="#B42318" /> Critical
+          </Flex>
+        </Stack>
+      </PanelSection>
+
+      {layers.irrigation && (zonesQ.data?.results ?? []).length ? (
+        <PanelSection title="Zones">
+          <Stack spacing={1.5}>
+            {(zonesQ.data?.results ?? []).slice(0, 6).map((z) => (
+              <Flex key={z.id} align="center" gap={2} fontSize="sm">
+                <StatusBadge status={z.status} />
+                <Text as="span" noOfLines={1}>
+                  {z.name}
+                </Text>
+              </Flex>
+            ))}
+          </Stack>
+        </PanelSection>
+      ) : null}
+
+      {layers.alerts ? (
+        <PanelSection title="Alerts">
+          <Stack spacing={1.5} fontSize="sm" color="fg.muted">
+            {alertSensors.slice(0, 4).map((s) => (
+              <Text key={s.id} noOfLines={1}>
+                {s.name} · {s.status}
+              </Text>
+            ))}
+            {(alertsQ.data?.results ?? []).slice(0, 3).map((n) => (
+              <Text key={n.id} noOfLines={1}>
+                {n.title}
+              </Text>
+            ))}
+            {!alertSensors.length && !(alertsQ.data?.results ?? []).length ? (
+              <Text>Nothing flagged on this farm.</Text>
+            ) : null}
+          </Stack>
+        </PanelSection>
+      ) : null}
+    </Stack>
+  );
+
+  const inspector = (
+    <ContextPanel open={!!picked} title={picked?.name ?? "Field"} onClose={() => setPicked(null)}>
+      {picked ? (
+        <Stack spacing={3} align="flex-start">
+          <Text color="fg.muted">
+            {picked.crop_name ?? "Fallow"} · {formatAcres(picked.acres)}
+          </Text>
+          <Flex align="center" gap={2}>
+            <StatusBadge status={picked.health_status} />
+            <Text as="span">{picked.moisture != null ? `${picked.moisture}% moisture` : "No probe"}</Text>
+          </Flex>
+          <Text fontSize="sm" color="fg.muted">
+            {picked.soil_type || "Soil unknown"} · {picked.farm_name ?? farm?.name}
+          </Text>
+          <Button as={RouterLink} to={`/fields/${picked.id}`} colorScheme="brand" size="sm">
+            Open field record
+          </Button>
+        </Stack>
+      ) : null}
+    </ContextPanel>
+  );
+
+  return (
+    <WorkspacePage title="Farm map" tools={tools} inspector={inspector}>
+      <MapView
+        height="100%"
+        fields={layers.fields || layers.history ? fieldsQ.data?.results ?? [] : []}
+        sensors={layers.sensors ? sensorsQ.data?.results ?? [] : []}
+        equipment={layers.equipment ? equipQ.data?.results ?? [] : []}
+        zones={layers.irrigation ? zonesQ.data?.results ?? [] : []}
+        plots={layers.plots ? plotsQ.data?.results ?? [] : []}
+        soilLayers={layers.soil ? soilQ.data?.results ?? [] : []}
+        showFields={layers.fields}
+        showSensors={layers.sensors}
+        showEquipment={layers.equipment}
+        showZones={layers.irrigation}
+        showPlots={layers.plots}
+        showSoil={layers.soil}
+        onFieldClick={setPicked}
+        center={farm?.lat && farm?.lng ? [Number(farm.lat), Number(farm.lng)] : undefined}
+      />
+    </WorkspacePage>
   );
 }

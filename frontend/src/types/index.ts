@@ -676,6 +676,10 @@ export interface SearchResults {
   equipment: Equipment[];
   inventory: InventoryItem[];
   tasks: TaskItem[];
+  /** Returned by the API but previously dropped by the client. */
+  crops: Crop[];
+  query?: string;
+  counts?: Record<string, number>;
 }
 
 export interface ReportItem {

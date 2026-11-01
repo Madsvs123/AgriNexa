@@ -1,66 +1,83 @@
 import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Box,
-  Card,
-  CardBody,
-  Flex,
-  Select,
-  SimpleGrid,
-  Spacer,
-  Text,
-} from "@chakra-ui/react";
-import { farmsApi, getApiError, sensorsApi } from "@/api/client";
-import { formatDateTime, formatPct } from "@/lib/utils";
-import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
+import { Card, CardBody, Flex, SimpleGrid, Spacer, Text } from "@chakra-ui/react";
+import { getApiError, sensorsApi } from "@/api/client";
+import { formatDateTime, formatPct, statusTone } from "@/lib/utils";
 import { StatusBadge, EmptyState } from "@/components/ui/StatCard";
 import { SensorSparkline } from "@/components/ui/SensorSparkline";
+import { FilterBar, FilterSelect } from "@/components/ui/FilterBar";
+import { ListPage } from "@/components/templates/ListPage";
 import { useSensorSocket } from "@/hooks/useSensorSocket";
-import { useState } from "react";
+import { useScope } from "@/hooks/useScope";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 
+const STATUS_OPTIONS: Array<[string, string]> = [
+  ["healthy", "Healthy"],
+  ["warning", "Warning"],
+  ["critical", "Critical"],
+];
+
+const DEFAULTS = { status: "" };
+
+/**
+ * Sensor grid. The farm now comes from global scope rather than a page-local
+ * selector, so moving here from the map or a field keeps the same farm.
+ */
 export default function SensorsPage() {
-  const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
-  const [farmId, setFarmId] = useState("");
-  const selected = farmId || farmsQ.data?.results[0]?.id || null;
-  useSensorSocket(selected);
-  const liveQ = useQuery({ queryKey: ["sensor-live", selected], queryFn: () => sensorsApi.live() });
+  const { farmId } = useScope();
+  const { values, setValue, reset, activeCount } = useUrlFilters(DEFAULTS);
+  useSensorSocket(farmId);
+
+  const liveQ = useQuery({ queryKey: ["sensor-live", farmId], queryFn: () => sensorsApi.live() });
   const listQ = useQuery({
-    queryKey: ["sensors", { farm: selected }],
-    queryFn: () => sensorsApi.list({ farm: selected || undefined }),
+    queryKey: ["sensors", { farm: farmId }],
+    queryFn: () => sensorsApi.list({ farm: farmId || undefined }),
   });
-  const sensors = (liveQ.data?.length ? liveQ.data : listQ.data?.results) ?? [];
+
+  const all = (liveQ.data?.length ? liveQ.data : listQ.data?.results) ?? [];
+  const sensors = values.status
+    ? all.filter((s) => statusTone(s.status) === values.status)
+    : all;
 
   return (
-    <Box>
-      <PageHeader
-        title="Sensors"
-        subtitle="Live probes across moisture, weather, and tank monitors."
-        actions={
-          <Select aria-label="Farm" value={selected ?? ""} onChange={(e) => setFarmId(e.target.value)} maxW="xs" bg="bg.surface">
-            {(farmsQ.data?.results ?? []).map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </Select>
-        }
-      />
-      <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
+    <ListPage
+      title="Sensors"
+      subtitle="Live probes across moisture, weather, and tank monitors."
+      error={listQ.error ? getApiError(listQ.error) : null}
+      loading={listQ.isLoading && !all.length}
+      filters={
+        <FilterBar activeCount={activeCount} onReset={reset}>
+          <FilterSelect
+            value={values.status}
+            onChange={(v) => setValue("status", v)}
+            label="Sensor status"
+            allLabel="All statuses"
+            options={STATUS_OPTIONS}
+          />
+        </FilterBar>
+      }
+    >
       {sensors.length === 0 ? (
-        <Card variant="outline" borderColor="border.default" bg="bg.surface">
-          <EmptyState title="No sensors reporting" body="Pair a soil probe on North 80 to see sparklines and battery." />
+        <Card variant="surface">
+          <EmptyState
+            title={activeCount ? "No sensors match this filter" : "No sensors reporting"}
+            body={
+              activeCount
+                ? "Clear the status filter to see every probe on this farm."
+                : "Pair a soil probe on North 80 to see sparklines and battery."
+            }
+          />
         </Card>
       ) : (
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+        <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
           {sensors.map((s) => (
             <Card
               key={s.id}
               as={RouterLink}
               to={`/sensors/${s.id}`}
-              variant="outline"
-              borderColor="border.default"
-              bg="bg.surface"
+              variant="surface"
               _hover={{ borderColor: "brand.300", textDecoration: "none" }}
+              transition="border-color 0.15s"
             >
               <CardBody>
                 <Flex align="center" gap={2}>
@@ -68,7 +85,7 @@ export default function SensorsPage() {
                   <Spacer />
                   <StatusBadge status={s.status} />
                 </Flex>
-                <Text color="fg.muted">
+                <Text color="fg.muted" fontSize="sm">
                   {s.sensor_type_name} · {s.field_name ?? s.farm_name}
                 </Text>
                 <Text fontFamily="heading" fontSize="28px" my={2}>
@@ -78,7 +95,7 @@ export default function SensorsPage() {
                   </Text>
                 </Text>
                 <SensorSparkline values={s.sparkline ?? []} />
-                <Text color="fg.muted" mt={2}>
+                <Text color="fg.muted" fontSize="sm" mt={2}>
                   {formatDateTime(s.last_reading_at)} · Battery {formatPct(s.battery_pct)}
                 </Text>
               </CardBody>
@@ -86,6 +103,6 @@ export default function SensorsPage() {
           ))}
         </SimpleGrid>
       )}
-    </Box>
+    </ListPage>
   );
 }

@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -78,57 +78,143 @@ class AuditLogViewSet(TenantReadOnlyModelViewSet):
         return super().get_queryset().select_related("user", "organization")
 
 
+SEARCH_TYPES = ("farms", "fields", "equipment", "inventory", "tasks", "crops")
+SEARCH_DEFAULT_LIMIT = 8
+SEARCH_MAX_LIMIT = 25
+
+
+def _match_rank(field, term):
+    """Rank exact matches above prefix matches above everything else.
+
+    Plain `icontains` ordering made the palette unusable for short queries —
+    typing "n" surfaced whatever the database returned first. Callers order by
+    this annotation, then by name.
+    """
+    return Case(
+        When(**{f"{field}__iexact": term}, then=Value(0)),
+        When(**{f"{field}__istartswith": term}, then=Value(1)),
+        default=Value(2),
+        output_field=IntegerField(),
+    )
+
+
 class SearchView(APIView):
+    """Global search backing the command palette.
+
+    Unlike the ViewSets this is a plain APIView, so it applies the organization
+    *and* farm-access boundary itself via `accessible_farm_ids`.
+    """
+
     permission_classes = [IsAuthenticated, HasOrganization]
 
     def get(self, request):
         q = (request.query_params.get("q") or "").strip()
         org = request.organization
-        if not q:
-            return Response(
-                {"farms": [], "fields": [], "equipment": [], "inventory": [], "tasks": [], "crops": []}
-            )
 
+        requested = {
+            t.strip() for t in (request.query_params.get("type") or "").split(",") if t.strip()
+        }
+        types = tuple(t for t in SEARCH_TYPES if t in requested) or SEARCH_TYPES
+
+        try:
+            limit = int(request.query_params.get("limit") or SEARCH_DEFAULT_LIMIT)
+        except (TypeError, ValueError):
+            limit = SEARCH_DEFAULT_LIMIT
+        limit = max(1, min(limit, SEARCH_MAX_LIMIT))
+
+        payload = {t: [] for t in SEARCH_TYPES}
+        if not q:
+            return Response({**payload, "query": q, "counts": {t: 0 for t in SEARCH_TYPES}})
+
+        from apps.common.scoping import accessible_farm_ids
         from apps.crops.models import Crop
         from apps.equipment.models import Equipment
         from apps.farms.models import Farm, Field
         from apps.inventory.models import InventoryItem
 
-        def serialize_named(qs, extra=None):
-            items = []
+        farm_ids = accessible_farm_ids(request.user, org)
+        restricted = farm_ids is not None
+
+        def ranked(qs, field="name"):
+            return qs.annotate(_rank=_match_rank(field, q)).order_by("_rank", field)[:limit]
+
+        def serialize(qs, extra=None):
+            rows = []
             for obj in qs:
                 row = {"id": str(obj.id), "name": getattr(obj, "name", str(obj))}
                 if extra:
                     row.update(extra(obj))
-                items.append(row)
-            return items
+                rows.append(row)
+            return rows
 
-        farms = Farm.objects.filter(organization=org, name__icontains=q)[:8]
-        fields = Field.objects.filter(farm__organization=org, name__icontains=q).select_related("farm")[:8]
-        equipment = Equipment.objects.filter(farm__organization=org, name__icontains=q)[:8]
-        inventory = InventoryItem.objects.filter(organization=org, name__icontains=q)[:8]
-        tasks = Task.objects.filter(organization=org).filter(
-            Q(title__icontains=q) | Q(description__icontains=q)
-        )[:8]
-        crops = Crop.objects.filter(organization=org, name__icontains=q)[:8]
+        if "farms" in types:
+            farms = Farm.objects.filter(organization=org).filter(
+                Q(name__icontains=q) | Q(code__icontains=q)
+            )
+            if restricted:
+                farms = farms.filter(id__in=farm_ids)
+            payload["farms"] = serialize(ranked(farms), lambda o: {"code": o.code})
 
-        return Response(
-            {
-                "farms": serialize_named(farms, lambda o: {"code": o.code}),
-                "fields": serialize_named(fields, lambda o: {"farm": str(o.farm_id), "farm_name": o.farm.name}),
-                "equipment": serialize_named(
-                    equipment,
-                    lambda o: {
-                        "equipment_type": o.equipment_type,
-                        "status": o.status,
-                        "make": o.manufacturer,
-                        "model": o.model,
-                    },
-                ),
-                "inventory": serialize_named(inventory, lambda o: {"sku": o.sku, "category": o.category}),
-                "tasks": [
-                    {"id": str(t.id), "name": t.title, "status": t.status, "priority": t.priority} for t in tasks
-                ],
-                "crops": serialize_named(crops, lambda o: {"category": o.category}),
-            }
-        )
+        if "fields" in types:
+            fields = Field.objects.filter(farm__organization=org).filter(
+                Q(name__icontains=q) | Q(code__icontains=q)
+            )
+            if restricted:
+                fields = fields.filter(farm_id__in=farm_ids)
+            payload["fields"] = serialize(
+                ranked(fields.select_related("farm")),
+                lambda o: {"code": o.code, "farm": str(o.farm_id), "farm_name": o.farm.name},
+            )
+
+        if "equipment" in types:
+            equipment = Equipment.objects.filter(farm__organization=org).filter(
+                Q(name__icontains=q)
+                | Q(serial__icontains=q)
+                | Q(manufacturer__icontains=q)
+                | Q(model__icontains=q)
+            )
+            if restricted:
+                equipment = equipment.filter(farm_id__in=farm_ids)
+            payload["equipment"] = serialize(
+                ranked(equipment.select_related("farm")),
+                lambda o: {
+                    "equipment_type": o.equipment_type,
+                    "status": o.status,
+                    "make": o.manufacturer,
+                    "model": o.model,
+                    "serial": o.serial,
+                    "farm_name": o.farm.name,
+                },
+            )
+
+        if "inventory" in types:
+            inventory = InventoryItem.objects.filter(organization=org).filter(
+                Q(name__icontains=q) | Q(sku__icontains=q) | Q(lot_number__icontains=q)
+            )
+            if restricted:
+                # Org-wide stock (farm is NULL) stays visible to restricted users.
+                inventory = inventory.filter(Q(farm_id__in=farm_ids) | Q(farm__isnull=True))
+            payload["inventory"] = serialize(
+                ranked(inventory),
+                lambda o: {"sku": o.sku, "category": o.category, "unit": o.unit},
+            )
+
+        if "tasks" in types:
+            tasks = Task.objects.filter(organization=org).filter(
+                Q(title__icontains=q) | Q(description__icontains=q)
+            )
+            if restricted:
+                tasks = tasks.filter(Q(farm_id__in=farm_ids) | Q(farm__isnull=True))
+            payload["tasks"] = [
+                {"id": str(t.id), "name": t.title, "status": t.status, "priority": t.priority}
+                for t in ranked(tasks, "title")
+            ]
+
+        if "crops" in types:
+            # Crops are organization-scoped, with no farm relation to restrict.
+            crops = Crop.objects.filter(organization=org, name__icontains=q)
+            payload["crops"] = serialize(ranked(crops), lambda o: {"category": o.category})
+
+        payload["query"] = q
+        payload["counts"] = {t: len(payload[t]) for t in SEARCH_TYPES}
+        return Response(payload)

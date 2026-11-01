@@ -486,7 +486,16 @@ export const analyticsApi = {
 };
 
 export const platformApi = {
-  search: (q: string) => api.get<SearchResults>("/api/search/", { params: { q } }).then((r) => r.data),
+  search: (q: string, options?: { type?: string[]; limit?: number }) =>
+    api
+      .get<SearchResults>("/api/search/", {
+        params: {
+          q,
+          ...(options?.type?.length ? { type: options.type.join(",") } : {}),
+          ...(options?.limit ? { limit: options.limit } : {}),
+        },
+      })
+      .then((r) => r.data),
   tasks: (params?: Record<string, unknown>) => getPage<TaskItem>("/api/tasks/", params),
   getTask: (id: string) => api.get<TaskItem>(`/api/tasks/${id}/`).then((r) => r.data),
   createTask: (body: Partial<TaskItem>) => api.post<TaskItem>("/api/tasks/", body).then((r) => r.data),

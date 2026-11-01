@@ -42,26 +42,13 @@ class OrganizationQuerySetMixin:
         return qs.none()
 
     def filter_by_farm_access(self, qs, user, org):
-        from apps.tenancy.models import FarmAccess, Membership
+        from apps.common.scoping import accessible_farm_ids
 
-        membership = (
-            Membership.objects.filter(user=user, organization=org, is_active=True)
-            .select_related("role")
-            .first()
-        )
-        if membership and (
-            membership.is_owner
-            or (membership.role and "*" in (membership.role.permissions or []))
-        ):
+        farm_ids = accessible_farm_ids(user, org)
+        if farm_ids is None:
             return qs
-
-        farm_ids = list(
-            FarmAccess.objects.filter(
-                user=user, farm__organization=org, can_view=True
-            ).values_list("farm_id", flat=True)
-        )
         if not farm_ids:
-            return qs
+            return qs.none()
 
         model = qs.model
         field_names = {f.name for f in model._meta.fields}

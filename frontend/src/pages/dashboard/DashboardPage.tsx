@@ -1,6 +1,11 @@
 import { Link as RouterLink } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Box,
   Button,
   Card,
@@ -10,6 +15,7 @@ import {
   Link,
   Progress,
   SimpleGrid,
+  Spacer,
   Text,
 } from "@chakra-ui/react";
 import {
@@ -23,7 +29,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AlertTriangle, Droplets, Gauge, Tractor, Wheat, MapPinned } from "lucide-react";
+import {
+  AlertTriangle,
+  Droplets,
+  Gauge,
+  Package,
+  Radio,
+  Tractor,
+  Wheat,
+  MapPinned,
+} from "lucide-react";
 import {
   dashboardApi,
   inventoryApi,
@@ -32,11 +47,12 @@ import {
   weatherApi,
   getApiError,
 } from "@/api/client";
-import { useUiStore } from "@/stores/uiStore";
-import { formatAcres, formatNumber, formatPct, seasonParams, statusTone } from "@/lib/utils";
-import { PageHeader, ErrorBanner, SkeletonKpis } from "@/components/ui/FormField";
-import { StatCard, StatusBadge } from "@/components/ui/StatCard";
-import { ChartCard } from "@/components/ui/StatCard";
+import { useScope } from "@/hooks/useScope";
+import { formatAcres, formatNumber, formatPct, statusTone } from "@/lib/utils";
+import { ErrorBanner, SkeletonKpis } from "@/components/ui/FormField";
+import { StatCard, StatusBadge, ChartCard } from "@/components/ui/StatCard";
+import { useRegisterPageTitle } from "@/components/layout/PageTitleContext";
+import { density } from "@/theme";
 
 const TONE_ACCENT: Record<string, string> = {
   healthy: "green.400",
@@ -45,9 +61,54 @@ const TONE_ACCENT: Record<string, string> = {
   idle: "gray.400",
 };
 
+/** One row of the "Right now" band: a count, a label, and somewhere to go. */
+function AttentionTile({
+  icon,
+  label,
+  count,
+  to,
+  tone,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  count: number;
+  to: string;
+  tone: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <Card variant="surface" as={RouterLink} to={to} _hover={{ borderColor: "brand.300" }} transition="border-color 0.15s">
+      <CardBody py={3}>
+        <Flex align="center" gap={2}>
+          <Box color={count > 0 ? tone : "fg.muted"}>{icon}</Box>
+          <Text fontSize="sm" color="fg.muted">
+            {label}
+          </Text>
+          <Spacer />
+          <Text fontFamily="heading" fontSize="xl" fontWeight="semibold" color={count > 0 ? tone : "fg.muted"}>
+            {count}
+          </Text>
+        </Flex>
+        {children ? (
+          <Box mt={1.5} fontSize="sm" color="fg.muted" noOfLines={2}>
+            {children}
+          </Box>
+        ) : null}
+      </CardBody>
+    </Card>
+  );
+}
+
+/**
+ * Season overview, organised into three bands by urgency rather than a flat
+ * stack of fifteen equal-weight cards: what needs attention now, where the
+ * season stands, and trends (collapsed by default).
+ */
 export default function DashboardPage() {
-  const seasonId = useUiStore((s) => s.seasonId);
-  const params = seasonParams(seasonId);
+  useRegisterPageTitle("Dashboard");
+  const { seasonId, params } = useScope();
+
   const results = useQueries({
     queries: [
       { queryKey: ["dashboard", "summary", seasonId], queryFn: () => dashboardApi.summary(params) },
@@ -62,69 +123,98 @@ export default function DashboardPage() {
       { queryKey: ["tasks", { status: "todo" }], queryFn: () => platformApi.tasks({ status: "todo" }) },
     ],
   });
-  const [
-    summaryQ,
-    progressQ,
-    healthQ,
-    irrigQ,
-    expensesQ,
-    yieldsQ,
-    weatherQ,
-    invAlertQ,
-    liveQ,
-    tasksQ,
-  ] = results;
+  const [summaryQ, progressQ, healthQ, irrigQ, expensesQ, yieldsQ, weatherQ, invAlertQ, liveQ, tasksQ] = results;
   const err = results.find((r) => r.error)?.error;
   const summary = summaryQ.data;
 
+  const lowStock = invAlertQ.data ?? [];
+  const sensorAlerts = (liveQ.data ?? []).filter((s) => statusTone(s.status) !== "healthy");
+  const openTasks = tasksQ.data?.results ?? [];
+
   return (
     <Box>
-      <PageHeader
-        title="Season operations"
-        subtitle="Acres, moisture, water, and alerts across the organization."
-        actions={
+      <Flex as="header" align="flex-start" justify="space-between" gap={4} wrap="wrap" mb={density.card}>
+        <Box>
+          <Heading size="lg">Season operations</Heading>
+          <Text color="fg.muted" mt={1}>
+            Acres, moisture, water, and alerts across the organization.
+          </Text>
+        </Box>
+        <Flex gap={2}>
+          <Button as={RouterLink} to="/scouting/new" variant="outline" colorScheme="gray">
+            Log scout report
+          </Button>
           <Button as={RouterLink} to="/map" colorScheme="brand">
             Open farm map
           </Button>
-        }
-      />
+        </Flex>
+      </Flex>
+
       <ErrorBanner message={err ? getApiError(err) : null} />
+
+      {/* ── Band 1: needs attention ─────────────────────────────────────── */}
+      <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
+        Right now
+      </Text>
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={density.card} mb={density.section}>
+        <AttentionTile
+          icon={<AlertTriangle size={16} />}
+          label="Open alerts"
+          count={summary?.open_alerts ?? 0}
+          to="/notifications"
+          tone="red.500"
+        />
+        <AttentionTile
+          icon={<Radio size={16} />}
+          label="Sensor alerts"
+          count={sensorAlerts.length}
+          to="/sensors"
+          tone="orange.500"
+        >
+          {sensorAlerts.slice(0, 2).map((s) => s.name).join(", ") || "All live probes healthy."}
+        </AttentionTile>
+        <AttentionTile
+          icon={<Package size={16} />}
+          label="Low stock"
+          count={lowStock.length}
+          to="/inventory"
+          tone="yellow.600"
+        >
+          {lowStock.slice(0, 2).map((a) => a.item_name).join(", ") || "Above reorder points."}
+        </AttentionTile>
+        <AttentionTile
+          icon={<Gauge size={16} />}
+          label="Open tasks"
+          count={openTasks.length}
+          to="/tasks"
+          tone="blue.500"
+        >
+          {openTasks.slice(0, 2).map((t) => t.title).join(", ") || "Nothing queued."}
+        </AttentionTile>
+      </SimpleGrid>
+
+      {/* ── Band 2: season state ────────────────────────────────────────── */}
+      <Text fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" mb={2}>
+        This season
+      </Text>
       {summaryQ.isLoading ? (
-        <SkeletonKpis />
+        <SkeletonKpis count={5} />
       ) : (
-        <SimpleGrid columns={{ base: 2, md: 3, xl: 6 }} spacing={4} mb={6}>
+        <SimpleGrid columns={{ base: 2, md: 3, xl: 5 }} spacing={density.card} mb={density.card}>
           <StatCard label="Acres" value={formatAcres(summary?.total_acres)} icon={<MapPinned size={14} />} hint="Owned + operated" />
           <StatCard label="Active fields" value={formatNumber(summary?.active_fields)} icon={<Wheat size={14} />} />
-          <StatCard
-            label="Yield estimate"
-            value={`${formatNumber(summary?.yield_estimate, 0)} bu`}
-            hint="Season to date"
-          />
-          <StatCard
-            label="Open alerts"
-            value={formatNumber(summary?.open_alerts)}
-            icon={<AlertTriangle size={14} />}
-          />
-          <StatCard
-            label="Water used"
-            value={`${formatNumber(summary?.water_used, 0)} gal`}
-            icon={<Droplets size={14} />}
-          />
-          <StatCard
-            label="Equipment uptime"
-            value={formatPct(summary?.equipment_uptime)}
-            icon={<Tractor size={14} />}
-            hint="Rolling 7-day"
-          />
+          <StatCard label="Yield estimate" value={`${formatNumber(summary?.yield_estimate, 0)} bu`} hint="Season to date" />
+          <StatCard label="Water used" value={`${formatNumber(summary?.water_used, 0)} gal`} icon={<Droplets size={14} />} />
+          <StatCard label="Equipment uptime" value={formatPct(summary?.equipment_uptime)} icon={<Tractor size={14} />} hint="Rolling 7-day" />
         </SimpleGrid>
       )}
 
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
+      <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={density.card} mb={density.section}>
         <ChartCard title="Crop progress">
           {(progressQ.data ?? []).length === 0 ? (
             <Text color="fg.muted">No crop plans in this season. Add a plan for corn on North 80.</Text>
           ) : (
-            (progressQ.data ?? []).map((c) => (
+            (progressQ.data ?? []).slice(0, 5).map((c) => (
               <Box key={c.crop_name} mb={3}>
                 <Flex align="center" justify="space-between" gap={2}>
                   <Text as="span" fontWeight="semibold">
@@ -146,34 +236,43 @@ export default function DashboardPage() {
             ))
           )}
         </ChartCard>
-        <ChartCard title="Irrigation">
-          <Flex align="center" gap={2}>
-            <Gauge size={18} />
-            <Box>
-              <Text>
-                {irrigQ.data?.zones_running ?? 0} of {irrigQ.data?.zones_total ?? 0} zones running
-              </Text>
-              <Text color="fg.muted">
-                {formatNumber(irrigQ.data?.gallons_today)} gal today · {formatPct(irrigQ.data?.efficiency_pct)} efficiency
-              </Text>
-            </Box>
-          </Flex>
-          <Button as={RouterLink} to="/irrigation" variant="ghost" colorScheme="gray" size="sm" mt={3}>
-            Review zones
-          </Button>
+
+        <ChartCard
+          title="Irrigation"
+          action={
+            <Link as={RouterLink} to="/irrigation" color="brand.500" fontSize="sm">
+              Zones
+            </Link>
+          }
+        >
+          <Text fontFamily="heading" fontSize="3xl" lineHeight="1.1">
+            {irrigQ.data?.zones_running ?? 0}
+            <Text as="span" fontSize="md" color="fg.muted">
+              {" "}
+              / {irrigQ.data?.zones_total ?? 0} running
+            </Text>
+          </Text>
+          <Text color="fg.muted" mt={1}>
+            {formatNumber(irrigQ.data?.gallons_today)} gal today · {formatPct(irrigQ.data?.efficiency_pct)} efficiency
+          </Text>
         </ChartCard>
-        <ChartCard title="Weather now">
+
+        <ChartCard
+          title="Weather now"
+          action={
+            <Link as={RouterLink} to="/weather" color="brand.500" fontSize="sm">
+              Forecast
+            </Link>
+          }
+        >
           {weatherQ.data ? (
             <Box>
-              <Text fontFamily="heading" fontSize="4xl" lineHeight="1.1">
+              <Text fontFamily="heading" fontSize="3xl" lineHeight="1.1">
                 {Math.round(weatherQ.data.temperature_f)}°
               </Text>
-              <Text>
+              <Text color="fg.muted" mt={1}>
                 {weatherQ.data.conditions} · Wind {weatherQ.data.wind_mph} mph · RH {weatherQ.data.humidity}%
               </Text>
-              <Link as={RouterLink} to="/weather" color="brand.500">
-                Full forecast
-              </Link>
             </Box>
           ) : (
             <Text color="fg.muted">Select a farm with a weather station to see conditions.</Text>
@@ -181,141 +280,105 @@ export default function DashboardPage() {
         </ChartCard>
       </SimpleGrid>
 
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-        <ChartCard title="Field health">
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            {(healthQ.data ?? []).slice(0, 8).map((f) => (
-              <Box
-                key={f.id}
-                as={RouterLink}
-                to={`/fields/${f.id}`}
-                bg="bg.surface"
-                borderWidth="1px"
-                borderColor="border.default"
-                borderLeftWidth="4px"
-                borderLeftColor={TONE_ACCENT[statusTone(f.health_status)] ?? "gray.400"}
-                borderRadius="lg"
-                p={3}
-                _hover={{ bg: "bg.subtle" }}
-              >
-                <Text as="span" fontWeight="semibold">
-                  {f.name}
-                </Text>
-                <Text color="fg.muted">
-                  {f.farm_name} · {f.crop_name ?? "Fallow"}
-                </Text>
-                <Flex align="center" gap={2} mt={2}>
-                  <StatusBadge status={f.health_status} />
-                  <Text as="span" color="fg.muted">
-                    {f.moisture != null ? `${f.moisture}% moisture` : "No probe"}
-                  </Text>
-                </Flex>
-              </Box>
-            ))}
-          </SimpleGrid>
-          {!healthQ.data?.length ? <Text color="fg.muted">Field health cards appear once probes report in.</Text> : null}
-        </ChartCard>
-        <ChartCard title="Expenses">
-          <Box h="180px">
-            <ResponsiveContainer>
-              <AreaChart data={expensesQ.data ?? []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="date" hide />
-                <YAxis hide />
-                <Tooltip />
-                <Area dataKey="amount" stroke="#2F6F4E" fill="#7CB51833" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Box>
-        </ChartCard>
-      </SimpleGrid>
+      {/* ── Band 3: trends, collapsed by default ────────────────────────── */}
+      <Accordion allowMultiple defaultIndex={[]}>
+        <AccordionItem borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.surface" mb={density.card}>
+          <AccordionButton py={3} px={4} _hover={{ bg: "bg.subtle" }} borderRadius="xl">
+            <Heading size="sm" flex="1" textAlign="left">
+              Field health
+            </Heading>
+            <Text fontSize="sm" color="fg.muted" mr={2}>
+              {(healthQ.data ?? []).length} fields
+            </Text>
+            <AccordionIcon />
+          </AccordionButton>
+          <AccordionPanel px={4} pb={4}>
+            {!healthQ.data?.length ? (
+              <Text color="fg.muted">Field health cards appear once probes report in.</Text>
+            ) : (
+              <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={density.dense}>
+                {(healthQ.data ?? []).slice(0, 8).map((f) => (
+                  <Box
+                    key={f.id}
+                    as={RouterLink}
+                    to={`/fields/${f.id}`}
+                    bg="bg.surface"
+                    borderWidth="1px"
+                    borderColor="border.default"
+                    borderLeftWidth="4px"
+                    borderLeftColor={TONE_ACCENT[statusTone(f.health_status)] ?? "gray.400"}
+                    borderRadius="lg"
+                    p={3}
+                    _hover={{ bg: "bg.subtle" }}
+                  >
+                    <Text as="span" fontWeight="semibold">
+                      {f.name}
+                    </Text>
+                    <Text color="fg.muted" fontSize="sm">
+                      {f.farm_name} · {f.crop_name ?? "Fallow"}
+                    </Text>
+                    <Flex align="center" gap={2} mt={2}>
+                      <StatusBadge status={f.health_status} />
+                      <Text as="span" color="fg.muted" fontSize="sm">
+                        {f.moisture != null ? `${f.moisture}%` : "No probe"}
+                      </Text>
+                    </Flex>
+                  </Box>
+                ))}
+              </SimpleGrid>
+            )}
+          </AccordionPanel>
+        </AccordionItem>
 
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
-          <CardBody>
-            <Flex align="center" justify="space-between" mb={3}>
-              <Heading size="sm">Low stock</Heading>
-              <Link as={RouterLink} to="/inventory" color="brand.500">
-                Inventory
-              </Link>
-            </Flex>
-            {(invAlertQ.data ?? []).slice(0, 5).map((a) => (
-              <Flex key={a.id} align="center" gap={2} mb={2}>
-                <Box>
-                  <Text>{a.item_name}</Text>
-                  <Text color="fg.muted">
-                    {a.quantity} on hand / reorder {a.reorder_level}
-                  </Text>
+        <AccordionItem borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.surface">
+          <AccordionButton py={3} px={4} _hover={{ bg: "bg.subtle" }} borderRadius="xl">
+            <Heading size="sm" flex="1" textAlign="left">
+              Trends
+            </Heading>
+            <Text fontSize="sm" color="fg.muted" mr={2}>
+              Expenses · yield vs target
+            </Text>
+            <AccordionIcon />
+          </AccordionButton>
+          <AccordionPanel px={4} pb={4}>
+            <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={density.card}>
+              <Box>
+                <Text fontSize="sm" color="fg.muted" mb={2}>
+                  Expenses
+                </Text>
+                <Box h="200px">
+                  <ResponsiveContainer>
+                    <AreaChart data={expensesQ.data ?? []}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                      <XAxis dataKey="date" hide />
+                      <YAxis hide />
+                      <Tooltip />
+                      <Area dataKey="amount" stroke="#2F6F4E" fill="#7CB51833" />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </Box>
-              </Flex>
-            ))}
-            {!invAlertQ.data?.length ? <Text color="fg.muted">Seed, MAP, and diesel are above reorder points.</Text> : null}
-          </CardBody>
-        </Card>
-        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
-          <CardBody>
-            <Flex align="center" justify="space-between" mb={3}>
-              <Heading size="sm">Sensor alerts</Heading>
-              <Link as={RouterLink} to="/sensors" color="brand.500">
-                Sensors
-              </Link>
-            </Flex>
-            {(liveQ.data ?? [])
-              .filter((s) => statusTone(s.status) !== "healthy")
-              .slice(0, 6)
-              .map((s) => (
-                <Flex key={s.id} as={RouterLink} to={`/sensors/${s.id}`} align="center" gap={2} mb={2}>
-                  <StatusBadge status={s.status} />
-                  <Text as="span">
-                    {s.name} · {s.field_name ?? s.farm_name}
-                  </Text>
-                </Flex>
-              ))}
-            {(liveQ.data ?? []).every((s) => statusTone(s.status) === "healthy") ? (
-              <Text color="fg.muted">All live probes look healthy.</Text>
-            ) : null}
-          </CardBody>
-        </Card>
-        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
-          <CardBody>
-            <Flex align="center" justify="space-between" mb={3}>
-              <Heading size="sm">Recent tasks</Heading>
-              <Link as={RouterLink} to="/tasks" color="brand.500">
-                Board
-              </Link>
-            </Flex>
-            {(tasksQ.data?.results ?? []).slice(0, 6).map((t) => (
-              <Flex key={t.id} align="center" gap={2} mb={2}>
-                <StatusBadge status={t.status} />
-                <Text as="span">{t.title}</Text>
-              </Flex>
-            ))}
-            {!tasksQ.data?.results.length ? (
-              <Text color="fg.muted">No open tasks. Side-dress and scout walks will show here.</Text>
-            ) : null}
-          </CardBody>
-        </Card>
-      </SimpleGrid>
-
-      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mt={4}>
-        <CardBody>
-          <Heading size="sm" mb={3}>
-            Yield vs target
-          </Heading>
-          <Box h="200px">
-            <ResponsiveContainer>
-              <BarChart data={yieldsQ.data ?? []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-                <XAxis dataKey="label" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="actual" fill="#2F6F4E" />
-                <Bar dataKey="target" fill="#D4A017" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
-        </CardBody>
-      </Card>
+              </Box>
+              <Box>
+                <Text fontSize="sm" color="fg.muted" mb={2}>
+                  Yield vs target
+                </Text>
+                <Box h="200px">
+                  <ResponsiveContainer>
+                    <BarChart data={yieldsQ.data ?? []}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                      <XAxis dataKey="label" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="actual" fill="#2F6F4E" />
+                      <Bar dataKey="target" fill="#D4A017" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              </Box>
+            </SimpleGrid>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </Box>
   );
 }

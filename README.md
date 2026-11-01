@@ -43,7 +43,9 @@ npm run dev                  # serves http://localhost:5173, proxies /api and /w
 
 The backend expects PostgreSQL (configure via `POSTGRES_*` env vars) and Redis (for Channels websockets and Celery). `python manage.py runserver` and the REST API work without Redis; live websockets and background jobs need it. Keep real secrets out of git — set `DJANGO_SECRET_KEY` and friends through the environment in production.
 
-Run the backend test suite with `python manage.py test apps`, and the frontend type check with `npm run typecheck`.
+Run the backend test suite with `python manage.py test apps`. To run it without a PostgreSQL or Redis server, add `--settings=agrinexa.settings_test` (in-memory SQLite).
+
+On the frontend, `npm run typecheck` type-checks and `npm run check:nav` validates the navigation manifest against the route table.
 
 ## License
 

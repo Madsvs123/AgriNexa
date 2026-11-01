@@ -44,10 +44,53 @@ const semanticTokens = {
   },
 };
 
+/**
+ * Single z-index ladder for the shell.
+ *
+ * Map overlays previously used a raw `zIndex={1000}`, which painted them over
+ * the sticky header: the map container is `position:relative` with no z-index,
+ * so it creates no stacking context and its children compete directly with the
+ * header. Map overlays now sit *below* `sticky`. Leaflet's own panes occupy
+ * 400-700 inside its own container, so they do not collide with these.
+ */
+export const zIndices = {
+  base: 0,
+  mapOverlay: 5,
+  sticky: 100,
+  contextPanel: 500,
+  sectionPanel: 600,
+  rail: 700,
+  contextBar: 800,
+  overlay: 1200,
+  drawer: 1300,
+  modal: 1400,
+  palette: 1500,
+};
+
+/** Vertical rhythm. Templates apply these so pages stop hand-rolling margins. */
+export const density = {
+  /** Gap between major page sections. */
+  section: 6,
+  /** Gap between cards in a grid. */
+  card: 4,
+  /** Padding inside a card. */
+  cardPadding: 4,
+  /** Padding inside a compact/nested block. */
+  dense: 3,
+};
+
+export const layout = {
+  railWidth: "76px",
+  sectionPanelWidth: "244px",
+  contextPanelWidth: "360px",
+  contextBarHeight: "56px",
+};
+
 export const theme = extendTheme({
   config,
   colors,
   semanticTokens,
+  zIndices,
   fonts: {
     heading: `"Fraunces", Georgia, serif`,
     body: `"DM Sans", system-ui, sans-serif`,
@@ -56,6 +99,13 @@ export const theme = extendTheme({
     global: {
       "html, body, #root": { minHeight: "100%" },
       body: { bg: "bg.canvas", color: "fg.default" },
+      // Honour the OS "reduce motion" setting across Chakra transitions.
+      "@media (prefers-reduced-motion: reduce)": {
+        "*, *::before, *::after": {
+          animationDuration: "0.01ms !important",
+          transitionDuration: "0.01ms !important",
+        },
+      },
     },
   },
   components: {
@@ -64,6 +114,38 @@ export const theme = extendTheme({
       baseStyle: {
         container: { bg: "bg.surface", borderColor: "border.default" },
       },
+      variants: {
+        /** Default page card: flat, hairline border. */
+        surface: {
+          container: {
+            bg: "bg.surface",
+            borderWidth: "1px",
+            borderColor: "border.default",
+            borderRadius: "xl",
+            boxShadow: "none",
+          },
+        },
+        /** Floating panel over a canvas (map overlays, popovers). */
+        panel: {
+          container: {
+            bg: "bg.surface",
+            borderWidth: "1px",
+            borderColor: "border.default",
+            borderRadius: "lg",
+            boxShadow: "md",
+          },
+        },
+        /** Nested block inside a card — no border, tinted ground. */
+        inset: {
+          container: {
+            bg: "bg.subtle",
+            borderWidth: 0,
+            borderRadius: "lg",
+            boxShadow: "none",
+          },
+        },
+      },
+      defaultProps: { variant: "surface" },
     },
   },
 });
