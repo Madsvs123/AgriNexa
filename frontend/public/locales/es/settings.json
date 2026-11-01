@@ -1,0 +1,82 @@
+{
+  "overview": {
+    "title": "Ajustes",
+    "subtitle": "Organización, personas y acceso."
+  },
+  "team": {
+    "title": "Equipo",
+    "subtitle": "Miembros, roles y cuadrillas de trabajo.",
+    "emptyTitle": "No hay miembros",
+    "emptyBody": "Invita a un agrónomo u operario a unirse a esta organización.",
+    "member": "Miembro",
+    "email": "Correo",
+    "role": "Rol",
+    "unassigned": "Sin asignar",
+    "joined": "Se unió",
+    "inviteMember": "Invitar miembro",
+    "crewPlaceholder": "p. ej. Cuadrilla de riego nocturno",
+    "defaultRole": "Predeterminado",
+    "removeTitle": "¿Quitar al miembro?",
+    "removeBody": "Perderá el acceso a las fincas y sensores de esta organización."
+  },
+  "profile": {
+    "title": "Perfil del productor",
+    "subtitle": "Cómo te ve el resto del equipo.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "certifications": "Certificaciones",
+    "certificationsHint": "CCA, aplicador de plaguicidas, orgánico, etc.",
+    "specialties": "Especialidades",
+    "specialtiesHint": "Riego, agronomía, ganadería, granos.",
+    "yearsExperience": "Años de experiencia",
+    "licenseNumber": "Número de licencia",
+    "bio": "Biografía",
+    "language": "Idioma de la interfaz",
+    "languageHint": "También define el idioma de los correos y las alertas.",
+    "languageAuto": "Según mi dispositivo y ubicación",
+    "saved": "Guardado."
+  },
+  "organization": {
+    "title": "Organización",
+    "subtitle": "Razón social, unidades y calendario de campaña por defecto.",
+    "displayName": "Nombre visible",
+    "legalName": "Razón social",
+    "taxId": "Identificación fiscal",
+    "timezone": "Zona horaria",
+    "currency": "Moneda",
+    "unitSystem": "Sistema de unidades",
+    "imperial": "Imperial (acres, galones)",
+    "metric": "Métrico (hectáreas, litros)",
+    "seasonStartMonth": "Mes de inicio de campaña"
+  },
+  "invitations": {
+    "title": "Invitaciones",
+    "subtitle": "Lugares pendientes en esta organización.",
+    "emptyTitle": "No hay invitaciones",
+    "emptyBody": "Invita desde Equipo cuando necesites otro operario.",
+    "email": "Correo",
+    "role": "Rol",
+    "status": "Estado",
+    "sent": "Enviada",
+    "expires": "Vence"
+  },
+  "access": {
+    "title": "Acceso a fincas",
+    "subtitle": "Matriz de ver / editar / administrar por finca y miembro.",
+    "member": "Miembro",
+    "view": "Ver",
+    "edit": "Editar",
+    "manage": "Administrar",
+    "canView": "Puede ver",
+    "canEdit": "Puede editar",
+    "canManage": "Puede administrar"
+  },
+  "roles": {
+    "title": "Roles",
+    "subtitle": "Conjuntos de permisos para operarios, agrónomos y administradores.",
+    "name": "Nombre",
+    "description": "Descripción"
+  }
+}

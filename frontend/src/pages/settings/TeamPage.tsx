@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Box, Button, Card, CardBody, Flex, Heading, Input, Select, Tag } from "@chakra-ui/react";
 import { getApiError, tenancyApi } from "@/api/client";
 import { displayName, formatDate } from "@/lib/utils";
@@ -9,6 +10,7 @@ import { ConfirmDialog, Drawer } from "@/components/ui/Modal";
 
 export default function TeamPage() {
   const qc = useQueryClient();
+  const { t } = useTranslation("settings");
   const membersQ = useQuery({ queryKey: ["members"], queryFn: () => tenancyApi.members() });
   const rolesQ = useQuery({ queryKey: ["roles"], queryFn: () => tenancyApi.roles() });
   const teamsQ = useQuery({ queryKey: ["teams"], queryFn: () => tenancyApi.teams() });
@@ -45,8 +47,8 @@ export default function TeamPage() {
   return (
     <Box>
       <PageHeader
-        title="Team"
-        subtitle="Members, roles, and working crews."
+        title={t("team.title")}
+        subtitle={t("team.subtitle")}
         actions={
           <Button colorScheme="brand" onClick={() => setInviteOpen(true)}>
             Invite member
@@ -58,18 +60,18 @@ export default function TeamPage() {
         <DataTable
           rows={membersQ.data?.results ?? []}
           rowKey={(m) => m.id}
-          emptyTitle="No members"
-          emptyBody="Invite an agronomist or operator to join this organization."
+          emptyTitle={t("team.emptyTitle")}
+          emptyBody={t("team.emptyBody")}
           columns={[
             {
               key: "name",
-              header: "Member",
+              header: t("team.member"),
               render: (m) => displayName(m.user.first_name, m.user.last_name, m.user.email),
             },
-            { key: "email", header: "Email", render: (m) => m.user.email },
+            { key: "email", header: t("team.email"), render: (m) => m.user.email },
             {
               key: "role",
-              header: "Role",
+              header: t("team.role"),
               render: (m) => (
                 <Select
                   size="sm"
@@ -77,7 +79,7 @@ export default function TeamPage() {
                   onChange={(e) => patchRole.mutate({ id: m.id, role: e.target.value })}
                   aria-label={`Role for ${m.user.email}`}
                 >
-                  <option value="">Unassigned</option>
+                  <option value="">{t("team.unassigned")}</option>
                   {(rolesQ.data?.results ?? []).map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.name}
@@ -86,7 +88,7 @@ export default function TeamPage() {
                 </Select>
               ),
             },
-            { key: "joined_at", header: "Joined", render: (m) => formatDate(m.joined_at) },
+            { key: "joined_at", header: t("team.joined"), render: (m) => formatDate(m.joined_at) },
             {
               key: "actions",
               header: "",
@@ -118,7 +120,7 @@ export default function TeamPage() {
               createTeam.mutate();
             }}
           >
-            <Input placeholder="Night irrigation crew" value={teamName} onChange={(e) => setTeamName(e.target.value)} />
+            <Input placeholder={t("team.crewPlaceholder")} value={teamName} onChange={(e) => setTeamName(e.target.value)} />
             <Button type="submit" colorScheme="brand" flexShrink={0} isDisabled={!teamName}>
               Add team
             </Button>
@@ -132,13 +134,13 @@ export default function TeamPage() {
           </Flex>
         </CardBody>
       </Card>
-      <Drawer open={inviteOpen} title="Invite member" onClose={() => setInviteOpen(false)}>
-        <FormField label="Email" htmlFor="iemail">
+      <Drawer open={inviteOpen} title={t("team.inviteMember")} onClose={() => setInviteOpen(false)}>
+        <FormField label={t("team.email")} htmlFor="iemail">
           <Input id="iemail" type="email" value={invite.email} onChange={(e) => setInvite({ ...invite, email: e.target.value })} />
         </FormField>
-        <FormField label="Role" htmlFor="irole">
+        <FormField label={t("team.role")} htmlFor="irole">
           <Select id="irole" value={invite.role} onChange={(e) => setInvite({ ...invite, role: e.target.value })}>
-            <option value="">Default</option>
+            <option value="">{t("team.defaultRole")}</option>
             {(rolesQ.data?.results ?? []).map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -152,10 +154,10 @@ export default function TeamPage() {
       </Drawer>
       <ConfirmDialog
         open={!!removeId}
-        title="Remove member?"
-        body="They will lose access to this organization's farms and sensors."
+        title={t("team.removeTitle")}
+        body={t("team.removeBody")}
         danger
-        confirmLabel="Remove"
+        confirmLabel={t("actions.remove", { ns: "common" })}
         onClose={() => setRemoveId(null)}
         onConfirm={() => removeId && remove.mutate(removeId)}
       />

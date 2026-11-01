@@ -1,4 +1,5 @@
 import { Link as RouterLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Box, Card, CardBody, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import { PageHeader } from "@/components/ui/FormField";
 
@@ -12,9 +13,10 @@ const LINKS = [
 ];
 
 export default function SettingsPage() {
+  const { t } = useTranslation("settings");
   return (
     <Box>
-      <PageHeader title="Settings" subtitle="Organization, people, and access." />
+      <PageHeader title={t("overview.title")} subtitle={t("overview.subtitle")} />
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
         {LINKS.map((l) => (
           <Card

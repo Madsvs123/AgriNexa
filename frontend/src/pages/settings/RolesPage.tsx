@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -21,6 +22,7 @@ import { ROLE_PERMISSIONS } from "@/types";
 
 export default function RolesPage() {
   const qc = useQueryClient();
+  const { t } = useTranslation("settings");
   const rolesQ = useQuery({ queryKey: ["roles"], queryFn: () => tenancyApi.roles() });
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -46,8 +48,8 @@ export default function RolesPage() {
   return (
     <Box>
       <PageHeader
-        title="Roles"
-        subtitle="Permission sets for operators, agronomists, and admins."
+        title={t("roles.title")}
+        subtitle={t("roles.subtitle")}
         actions={
           <Button
             colorScheme="brand"
@@ -101,10 +103,10 @@ export default function RolesPage() {
         ))}
       </Stack>
       <Drawer open={open} title={editing ? "Edit role" : "New role"} onClose={() => setOpen(false)} wide>
-        <FormField label="Name" htmlFor="rname">
+        <FormField label={t("roles.name")} htmlFor="rname">
           <Input id="rname" value={name} onChange={(e) => setName(e.target.value)} />
         </FormField>
-        <FormField label="Description" htmlFor="rdesc">
+        <FormField label={t("roles.description")} htmlFor="rdesc">
           <Input id="rdesc" value={description} onChange={(e) => setDescription(e.target.value)} />
         </FormField>
         <Box as="fieldset">

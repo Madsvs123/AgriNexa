@@ -1,0 +1,82 @@
+{
+  "overview": {
+    "title": "Settings",
+    "subtitle": "Organization, people, and access."
+  },
+  "team": {
+    "title": "Team",
+    "subtitle": "Members, roles, and working crews.",
+    "emptyTitle": "No members",
+    "emptyBody": "Invite an agronomist or operator to join this organization.",
+    "member": "Member",
+    "email": "Email",
+    "role": "Role",
+    "unassigned": "Unassigned",
+    "joined": "Joined",
+    "inviteMember": "Invite member",
+    "crewPlaceholder": "e.g. Night irrigation crew",
+    "defaultRole": "Default",
+    "removeTitle": "Remove member?",
+    "removeBody": "They will lose access to this organization's farms and sensors."
+  },
+  "profile": {
+    "title": "Farmer profile",
+    "subtitle": "How you show up to the rest of the crew.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "certifications": "Certifications",
+    "certificationsHint": "CCA, pesticide applicator, organic, etc.",
+    "specialties": "Specialties",
+    "specialtiesHint": "Irrigation, agronomy, livestock, grain.",
+    "yearsExperience": "Years experience",
+    "licenseNumber": "License number",
+    "bio": "Bio",
+    "language": "Interface language",
+    "languageHint": "Also sets the language of emails and alerts.",
+    "languageAuto": "Match my device and location",
+    "saved": "Saved."
+  },
+  "organization": {
+    "title": "Organization",
+    "subtitle": "Legal name, units, and default season calendar.",
+    "displayName": "Display name",
+    "legalName": "Legal name",
+    "taxId": "Tax ID",
+    "timezone": "Timezone",
+    "currency": "Currency",
+    "unitSystem": "Unit system",
+    "imperial": "Imperial (acres, gallons)",
+    "metric": "Metric (hectares, liters)",
+    "seasonStartMonth": "Season start month"
+  },
+  "invitations": {
+    "title": "Invitations",
+    "subtitle": "Pending seats for this organization.",
+    "emptyTitle": "No invitations",
+    "emptyBody": "Invite from Team when you need another operator.",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "sent": "Sent",
+    "expires": "Expires"
+  },
+  "access": {
+    "title": "Farm access",
+    "subtitle": "View / edit / manage matrix per farm and member.",
+    "member": "Member",
+    "view": "View",
+    "edit": "Edit",
+    "manage": "Manage",
+    "canView": "Can view",
+    "canEdit": "Can edit",
+    "canManage": "Can manage"
+  },
+  "roles": {
+    "title": "Roles",
+    "subtitle": "Permission sets for operators, agronomists, and admins.",
+    "name": "Name",
+    "description": "Description"
+  }
+}

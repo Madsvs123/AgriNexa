@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -19,6 +20,7 @@ import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 
 export default function AccessPage() {
   const qc = useQueryClient();
+  const { t } = useTranslation("settings");
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
   const membersQ = useQuery({ queryKey: ["members"], queryFn: () => tenancyApi.members() });
   const farmId = farmsQ.data?.results[0]?.id;
@@ -44,7 +46,7 @@ export default function AccessPage() {
 
   return (
     <Box>
-      <PageHeader title="Farm access" subtitle="View / edit / manage matrix per farm and member." />
+      <PageHeader title={t("access.title")} subtitle={t("access.subtitle")} />
       <ErrorBanner message={accessQ.error ? getApiError(accessQ.error) : null} />
       {(accessQ.data ?? []).map(({ farm, access }) => (
         <Card key={farm.id} as="section" variant="outline" borderColor="border.default" bg="bg.surface" mb={4}>
@@ -56,10 +58,10 @@ export default function AccessPage() {
               <Table variant="simple" size="sm">
                 <Thead>
                   <Tr>
-                    <Th>Member</Th>
-                    <Th>View</Th>
-                    <Th>Edit</Th>
-                    <Th>Manage</Th>
+                    <Th>{t("access.member")}</Th>
+                    <Th>{t("access.view")}</Th>
+                    <Th>{t("access.edit")}</Th>
+                    <Th>{t("access.manage")}</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
@@ -82,13 +84,13 @@ export default function AccessPage() {
                       <Tr key={m.id}>
                         <Td>{displayName(m.user.first_name, m.user.last_name, m.user.email)}</Td>
                         <Td>
-                          <Checkbox isChecked={row.can_view} onChange={(e) => save({ can_view: e.target.checked })} aria-label="Can view" />
+                          <Checkbox isChecked={row.can_view} onChange={(e) => save({ can_view: e.target.checked })} aria-label={t("access.canView")} />
                         </Td>
                         <Td>
-                          <Checkbox isChecked={row.can_edit} onChange={(e) => save({ can_edit: e.target.checked })} aria-label="Can edit" />
+                          <Checkbox isChecked={row.can_edit} onChange={(e) => save({ can_edit: e.target.checked })} aria-label={t("access.canEdit")} />
                         </Td>
                         <Td>
-                          <Checkbox isChecked={row.can_manage} onChange={(e) => save({ can_manage: e.target.checked })} aria-label="Can manage" />
+                          <Checkbox isChecked={row.can_manage} onChange={(e) => save({ can_manage: e.target.checked })} aria-label={t("access.canManage")} />
                         </Td>
                       </Tr>
                     );

@@ -4,8 +4,10 @@ import { Box, Button, Input, Select, SimpleGrid } from "@chakra-ui/react";
 import { getApiError, tenancyApi } from "@/api/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
+import { useTranslation } from "react-i18next";
 
 export default function OrganizationPage() {
+  const { t } = useTranslation("settings");
   const orgId = useAuthStore((s) => s.currentOrgId);
   const setOrganizations = useAuthStore((s) => s.setOrganizations);
   const orgQ = useQuery({
@@ -64,7 +66,7 @@ export default function OrganizationPage() {
 
   return (
     <Box>
-      <PageHeader title="Organization" subtitle="Legal name, units, and default season calendar." />
+      <PageHeader title={t("organization.title")} subtitle={t("organization.subtitle")} />
       <ErrorBanner message={error} />
       <Box
         as="form"
@@ -76,35 +78,35 @@ export default function OrganizationPage() {
         maxW="720px"
         onSubmit={onSubmit}
       >
-        <FormField label="Display name" htmlFor="oname">
+        <FormField label={t("organization.displayName")} htmlFor="oname">
           <Input id="oname" value={name} onChange={(e) => setName(e.target.value)} />
         </FormField>
-        <FormField label="Legal name" htmlFor="olegal">
+        <FormField label={t("organization.legalName")} htmlFor="olegal">
           <Input id="olegal" value={settings.legal_name} onChange={(e) => setSettings({ ...settings, legal_name: e.target.value })} />
         </FormField>
-        <FormField label="Tax ID" htmlFor="otax">
+        <FormField label={t("organization.taxId")} htmlFor="otax">
           <Input id="otax" value={settings.tax_id} onChange={(e) => setSettings({ ...settings, tax_id: e.target.value })} />
         </FormField>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-          <FormField label="Timezone" htmlFor="otz">
+          <FormField label={t("organization.timezone")} htmlFor="otz">
             <Input id="otz" value={settings.timezone} onChange={(e) => setSettings({ ...settings, timezone: e.target.value })} />
           </FormField>
-          <FormField label="Currency" htmlFor="ocur">
+          <FormField label={t("organization.currency")} htmlFor="ocur">
             <Input id="ocur" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} />
           </FormField>
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-          <FormField label="Unit system" htmlFor="ounit">
+          <FormField label={t("organization.unitSystem")} htmlFor="ounit">
             <Select
               id="ounit"
               value={settings.unit_system}
               onChange={(e) => setSettings({ ...settings, unit_system: e.target.value as "imperial" | "metric" })}
             >
-              <option value="imperial">Imperial (acres, gallons)</option>
-              <option value="metric">Metric (hectares, liters)</option>
+              <option value="imperial">{t("organization.imperial")}</option>
+              <option value="metric">{t("organization.metric")}</option>
             </Select>
           </FormField>
-          <FormField label="Season start month" htmlFor="oseason">
+          <FormField label={t("organization.seasonStartMonth")} htmlFor="oseason">
             <Input
               id="oseason"
               type="number"
