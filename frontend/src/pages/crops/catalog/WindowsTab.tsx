@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Box, Button, Flex, Input, Select, SimpleGrid, Text, Textarea } from "@chakra-ui/react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { DataTable } from "@/components/ui/DataTable";
@@ -16,6 +17,8 @@ const md = (m: number | null | undefined, d: number | null | undefined): MD => (
 });
 
 function MonthDayPicker({ label, value, onChange, required, hint }: { label: string; value: MD; onChange: (v: MD) => void; required?: boolean; hint?: string }) {
+  const { t } = useTranslation("grow");
+
   return (
     <FormField label={label} hint={hint}>
       <Flex gap={2}>
@@ -24,9 +27,9 @@ function MonthDayPicker({ label, value, onChange, required, hint }: { label: str
           value={value.month}
           onChange={(e) => onChange({ ...value, month: e.target.value })}
           isRequired={required}
-          aria-label={`${label} month`}
+          aria-label={`${label} · ${t("catalog.fields.month")}`}
         >
-          <option value="">{required ? "Month" : "— none —"}</option>
+          <option value="">{required ? t("catalog.fields.month") : t("catalog.fields.none")}</option>
           {monthNames().map((m: string, i: number) => (
             <option key={m} value={i + 1}>
               {m}
@@ -42,8 +45,8 @@ function MonthDayPicker({ label, value, onChange, required, hint }: { label: str
           value={value.day}
           onChange={(e) => onChange({ ...value, day: e.target.value })}
           isRequired={required}
-          aria-label={`${label} day`}
-          placeholder="Day"
+          aria-label={`${label} · ${t("catalog.fields.day")}`}
+          placeholder={t("catalog.fields.day")}
         />
       </Flex>
     </FormField>
@@ -52,6 +55,7 @@ function MonthDayPicker({ label, value, onChange, required, hint }: { label: str
 
 export function WindowsTab() {
   const qc = useQueryClient();
+  const { t } = useTranslation("grow");
   const cropsQ = useQuery({ queryKey: ["crops"], queryFn: () => cropsApi.crops() });
   const varsQ = useQuery({ queryKey: ["varieties"], queryFn: () => cropsApi.varieties() });
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
@@ -146,10 +150,10 @@ export function WindowsTab() {
     <Box>
       <Flex justify="space-between" align="center" mb={3} gap={3} wrap="wrap">
         <Text color="fg.muted" fontSize="sm">
-          Optimal and late sowing dates plus a harvest-by deadline. Variety- or farm-specific rows override the crop-wide one.
+          {t("catalog.windowsIntro")}
         </Text>
         <Button colorScheme="brand" size="sm" onClick={openNew} isDisabled={!crops.length}>
-          Add window
+          {t("catalog.addWindow")}
         </Button>
       </Flex>
       <ErrorBanner message={winQ.error ? getApiError(winQ.error) : null} />
@@ -157,29 +161,29 @@ export function WindowsTab() {
         rows={winQ.data?.results ?? []}
         rowKey={(w) => w.id}
         onRowClick={openEdit}
-        emptyTitle="No planting windows"
-        emptyBody="Without windows the planner falls back to generic dates by crop category."
+        emptyTitle={t("catalog.windowsEmptyTitle")}
+        emptyBody={t("catalog.windowsEmptyBody")}
         columns={[
           {
             key: "crop",
-            header: "Applies to",
+            header: t("catalog.columns.appliesTo"),
             render: (w) => (
               <CropChip
                 name={w.crop_name ?? "Crop"}
                 color={cropOf(w.crop)?.color_hex}
-                detail={[w.variety_name, w.farm_name].filter(Boolean).join(" · ") || "all varieties, all farms"}
+                detail={[w.variety_name, w.farm_name].filter(Boolean).join(" · ") || t("catalog.allVarietiesAllFarms")}
               />
             ),
           },
-          { key: "window", header: "Optimal", render: (w) => `${formatBareMonthDay(w.start_month, w.start_day)} – ${formatBareMonthDay(w.end_month, w.end_day)}` },
-          { key: "late", header: "Late until", render: (w) => formatBareMonthDay(w.late_end_month, w.late_end_day) },
-          { key: "harvest", header: "Harvest by", render: (w) => formatBareMonthDay(w.harvest_by_month, w.harvest_by_day) },
-          { key: "soil", header: "Min soil °C", render: (w) => (w.min_soil_temp_c == null ? "—" : `${w.min_soil_temp_c}°`) },
-          { key: "source", header: "Source", render: (w) => w.source || "—" },
+          { key: "window", header: t("catalog.columns.optimal"), render: (w) => `${formatBareMonthDay(w.start_month, w.start_day)} – ${formatBareMonthDay(w.end_month, w.end_day)}` },
+          { key: "late", header: t("catalog.columns.lateUntil"), render: (w) => formatBareMonthDay(w.late_end_month, w.late_end_day) },
+          { key: "harvest", header: t("catalog.columns.harvestBy"), render: (w) => formatBareMonthDay(w.harvest_by_month, w.harvest_by_day) },
+          { key: "soil", header: t("catalog.columns.minSoilTemp"), render: (w) => (w.min_soil_temp_c == null ? "—" : `${w.min_soil_temp_c}°`) },
+          { key: "source", header: t("catalog.columns.source"), render: (w) => w.source || "—" },
         ]}
       />
 
-      <Drawer open={open} title={editing ? "Edit planting window" : "Add planting window"} onClose={() => setOpen(false)}>
+      <Drawer open={open} title={editing ? t("catalog.editWindow") : t("catalog.addWindow")} onClose={() => setOpen(false)}>
         <ErrorBanner message={error} />
         <form
           onSubmit={(e) => {
@@ -187,7 +191,7 @@ export function WindowsTab() {
             save.mutate();
           }}
         >
-          <FormField label="Crop" htmlFor="w-crop">
+          <FormField label={t("labels.crop", { ns: "common" })} htmlFor="w-crop">
             <Select
               id="w-crop"
               value={crop}
@@ -205,9 +209,9 @@ export function WindowsTab() {
             </Select>
           </FormField>
           <SimpleGrid columns={2} spacingX={4}>
-            <FormField label="Variety" htmlFor="w-var" hint="Optional override">
+            <FormField label={t("labels.variety", { ns: "common" })} htmlFor="w-var" hint={t("catalog.fields.varietyHint")}>
               <Select id="w-var" value={variety} onChange={(e) => setVariety(e.target.value)} isDisabled={!cropVarieties.length}>
-                <option value="">All varieties</option>
+                <option value="">{t("catalog.fields.allVarieties")}</option>
                 {cropVarieties.map((v) => (
                   <option key={v.id} value={v.id}>
                     {v.name}
@@ -215,9 +219,9 @@ export function WindowsTab() {
                 ))}
               </Select>
             </FormField>
-            <FormField label="Farm" htmlFor="w-farm" hint="Optional override">
+            <FormField label={t("labels.farm", { ns: "common" })} htmlFor="w-farm" hint={t("catalog.fields.farmHint")}>
               <Select id="w-farm" value={farm} onChange={(e) => setFarm(e.target.value)}>
-                <option value="">All farms</option>
+                <option value="">{t("catalog.fields.allFarms")}</option>
                 {(farmsQ.data?.results ?? []).map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
@@ -226,28 +230,28 @@ export function WindowsTab() {
               </Select>
             </FormField>
           </SimpleGrid>
-          <MonthDayPicker label="Optimal start" value={start} onChange={setStart} required />
-          <MonthDayPicker label="Optimal end" value={end} onChange={setEnd} required />
-          <MonthDayPicker label="Late planting until" value={late} onChange={setLate} hint="Yield penalty after optimal end" />
-          <MonthDayPicker label="Harvest by" value={harvestBy} onChange={setHarvestBy} hint="First killing frost or contract date" />
+          <MonthDayPicker label={t("catalog.fields.optimalStart")} value={start} onChange={setStart} required />
+          <MonthDayPicker label={t("catalog.fields.optimalEnd")} value={end} onChange={setEnd} required />
+          <MonthDayPicker label={t("catalog.fields.lateUntil")} value={late} onChange={setLate} hint={t("catalog.fields.lateHint")} />
+          <MonthDayPicker label={t("catalog.fields.harvestBy")} value={harvestBy} onChange={setHarvestBy} hint={t("catalog.fields.harvestByHint")} />
           <SimpleGrid columns={2} spacingX={4}>
-            <FormField label="Min soil temp °C" htmlFor="w-soil">
+            <FormField label={t("catalog.fields.minSoilTemp")} htmlFor="w-soil">
               <Input id="w-soil" type="number" step="0.5" value={soilTemp} onChange={(e) => setSoilTemp(e.target.value)} />
             </FormField>
-            <FormField label="Source" htmlFor="w-src">
-              <Input id="w-src" value={source} onChange={(e) => setSource(e.target.value)} placeholder="Extension bulletin" />
+            <FormField label={t("catalog.columns.source")} htmlFor="w-src">
+              <Input id="w-src" value={source} onChange={(e) => setSource(e.target.value)} placeholder={t("catalog.fields.sourcePlaceholder")} />
             </FormField>
           </SimpleGrid>
-          <FormField label="Notes" htmlFor="w-notes">
+          <FormField label={t("labels.notes", { ns: "common" })} htmlFor="w-notes">
             <Textarea id="w-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </FormField>
           <Flex gap={2}>
             <Button type="submit" colorScheme="brand" isDisabled={save.isPending || !crop || !start.month || !end.month}>
-              {save.isPending ? "Saving…" : editing ? "Save changes" : "Add window"}
+              {save.isPending ? t("actions.saving", { ns: "common" }) : editing ? t("actions.saveChanges", { ns: "common" }) : t("catalog.addWindow")}
             </Button>
             {editing ? (
               <Button variant="ghost" colorScheme="red" onClick={() => setConfirmDelete(editing)}>
-                Delete
+                {t("actions.delete", { ns: "common" })}
               </Button>
             ) : null}
           </Flex>
@@ -255,9 +259,9 @@ export function WindowsTab() {
       </Drawer>
       <ConfirmDialog
         open={!!confirmDelete}
-        title="Delete planting window?"
-        body="Assessments fall back to the next most specific window, or the category default."
-        confirmLabel="Delete"
+        title={t("catalog.deleteWindowTitle")}
+        body={t("catalog.deleteWindowBody")}
+        confirmLabel={t("actions.delete", { ns: "common" })}
         danger
         onClose={() => setConfirmDelete(null)}
         onConfirm={() => confirmDelete && remove.mutate(confirmDelete.id)}
