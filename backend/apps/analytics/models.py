@@ -1,23 +1,24 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import OrganizationScopedModel, TimeStampedModel, UUIDModel
 
 
 class Report(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     class ReportType(models.TextChoices):
-        CROP_PROGRESS = "crop_progress", "Crop Progress"
-        YIELD = "yield", "Yield"
-        IRRIGATION = "irrigation", "Irrigation"
-        INVENTORY = "inventory", "Inventory"
-        EQUIPMENT = "equipment", "Equipment"
-        WEATHER = "weather", "Weather"
-        FINANCIAL = "financial", "Financial"
+        CROP_PROGRESS = "crop_progress", _("Crop Progress")
+        YIELD = "yield", _("Yield")
+        IRRIGATION = "irrigation", _("Irrigation")
+        INVENTORY = "inventory", _("Inventory")
+        EQUIPMENT = "equipment", _("Equipment")
+        WEATHER = "weather", _("Weather")
+        FINANCIAL = "financial", _("Financial")
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        READY = "ready", "Ready"
-        FAILED = "failed", "Failed"
+        PENDING = "pending", _("Pending")
+        READY = "ready", _("Ready")
+        FAILED = "failed", _("Failed")
 
     report_type = models.CharField(max_length=32, choices=ReportType.choices)
     params = models.JSONField(default=dict, blank=True)

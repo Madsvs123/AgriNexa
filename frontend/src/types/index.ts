@@ -302,11 +302,24 @@ export interface ResolvedWindow {
   defined?: boolean;
 }
 export type PlantingFit = "optimal" | "late" | "early" | "outside" | "unknown";
+/**
+ * A translatable planning message.
+ *
+ * `code` and `params` are the contract; `message` is the English rendering the
+ * API also returns, used as a fallback when a code has no translation yet.
+ */
+export interface PlanningMessage {
+  code: string;
+  params: Record<string, string | number>;
+  message: string;
+  /** Set when a strategy attributes the message to one field. */
+  field?: string;
+}
 export interface RotationCheck {
   score: number;
   lineage: { name: string; year: number | null; source: string }[];
-  warnings: string[];
-  notes: string[];
+  warnings: PlanningMessage[];
+  notes: PlanningMessage[];
 }
 export interface PlantingAssessment {
   fit: PlantingFit;
@@ -316,9 +329,9 @@ export interface PlantingAssessment {
   harvest_ok: boolean | null;
   soil_match: boolean | null;
   previous_crop: string | null;
-  conflicts: { plan_id: UUID; crop_name: string; harvest_date: string; message: string }[];
+  conflicts: (PlanningMessage & { plan_id: UUID; crop_name: string; harvest_date: string })[];
   rotation: RotationCheck;
-  warnings: string[];
+  warnings: PlanningMessage[];
 }
 export interface VarietyRecommendation {
   variety_id: UUID;
@@ -420,7 +433,7 @@ export interface RotationValidation {
   ok: boolean;
   cycle_years?: number;
   diversity?: number;
-  issues: { level: "error" | "warning" | "info"; year_offset?: number; message: string }[];
+  issues: (PlanningMessage & { level: "error" | "warning" | "info"; year_offset?: number })[];
 }
 export interface RotationPreviewRow {
   field_id: UUID;
@@ -491,7 +504,7 @@ export interface StrategyFieldResult extends StrategyTotals {
   components: { crop_name: string; share_pct: number; role: string }[];
   fit?: PlantingFit;
   rotation_score?: number;
-  warnings?: string[];
+  warnings?: PlanningMessage[];
 }
 export interface StrategyEvaluation {
   strategy_id: UUID;
@@ -512,7 +525,7 @@ export interface StrategyEvaluation {
   unplanted_fields: { id: UUID; name: string; acres: number }[];
   unplanted_acres: number;
   fields: StrategyFieldResult[];
-  warnings: string[];
+  warnings: PlanningMessage[];
 }
 export interface StrategyComponent {
   crop: UUID;

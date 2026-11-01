@@ -1,17 +1,18 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel, UUIDModel
 
 
 class ScoutReport(UUIDModel, TimeStampedModel):
     class Health(models.TextChoices):
-        EXCELLENT = "excellent", "Excellent"
-        GOOD = "good", "Good"
-        FAIR = "fair", "Fair"
-        POOR = "poor", "Poor"
-        CRITICAL = "critical", "Critical"
+        EXCELLENT = "excellent", _("Excellent")
+        GOOD = "good", _("Good")
+        FAIR = "fair", _("Fair")
+        POOR = "poor", _("Poor")
+        CRITICAL = "critical", _("Critical")
 
     field = models.ForeignKey("farms.Field", on_delete=models.CASCADE, related_name="scout_reports")
     scout = models.ForeignKey(
@@ -74,9 +75,9 @@ class ScoutPhoto(UUIDModel, TimeStampedModel):
 
 class TreatmentPlan(UUIDModel, TimeStampedModel):
     class Status(models.TextChoices):
-        PLANNED = "planned", "Planned"
-        APPLIED = "applied", "Applied"
-        CANCELLED = "cancelled", "Cancelled"
+        PLANNED = "planned", _("Planned")
+        APPLIED = "applied", _("Applied")
+        CANCELLED = "cancelled", _("Cancelled")
 
     field = models.ForeignKey("farms.Field", on_delete=models.CASCADE, related_name="treatments")
     report = models.ForeignKey(

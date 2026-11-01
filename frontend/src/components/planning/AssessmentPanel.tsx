@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Badge, Box, Flex, SimpleGrid, Skeleton, Stack, Text }
 import type { PlantingAssessment } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { fitLabel, fitScheme } from "@/lib/planning";
+import { usePlanningMessage } from "./PlanningMessage";
 
 function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -26,6 +27,8 @@ export function AssessmentPanel({
   loading?: boolean;
   compact?: boolean;
 }) {
+  const render = usePlanningMessage();
+
   if (loading && !data) {
     return (
       <Stack spacing={2}>
@@ -99,23 +102,24 @@ export function AssessmentPanel({
       ) : null}
 
       {data.rotation.notes.map((n) => (
-        <Alert key={n} status="success" variant="left-accent" borderRadius="md" py={2} fontSize="sm">
+        <Alert key={n.code} status="success" variant="left-accent" borderRadius="md" py={2} fontSize="sm">
           <AlertIcon boxSize={4} />
-          {n}
+          {render(n)}
         </Alert>
       ))}
       {data.conflicts.map((c) => (
         <Alert key={c.plan_id} status="error" variant="left-accent" borderRadius="md" py={2} fontSize="sm">
           <AlertIcon boxSize={4} />
-          {c.message}
+          {render(c)}
         </Alert>
       ))}
       {data.warnings
-        .filter((wn) => !data.conflicts.some((c) => c.message === wn))
+        // The conflict list already surfaces these with more context.
+        .filter((wn) => !data.conflicts.some((c) => c.code === wn.code))
         .map((wn) => (
-          <Alert key={wn} status="warning" variant="left-accent" borderRadius="md" py={2} fontSize="sm">
+          <Alert key={wn.code} status="warning" variant="left-accent" borderRadius="md" py={2} fontSize="sm">
             <AlertIcon boxSize={4} />
-            {wn}
+            {render(wn)}
           </Alert>
         ))}
       {!data.warnings.length && !data.conflicts.length ? (

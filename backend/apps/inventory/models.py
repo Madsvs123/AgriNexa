@@ -1,17 +1,18 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import OrganizationScopedModel, TimeStampedModel, UUIDModel
 
 
 class InventoryItem(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     class Category(models.TextChoices):
-        SEEDS = "seeds", "Seeds"
-        FERTILIZERS = "fertilizers", "Fertilizers"
-        CHEMICALS = "chemicals", "Chemicals"
-        FUEL = "fuel", "Fuel"
-        SPARE_PARTS = "spare_parts", "Spare Parts"
-        HARVESTED = "harvested", "Harvested"
+        SEEDS = "seeds", _("Seeds")
+        FERTILIZERS = "fertilizers", _("Fertilizers")
+        CHEMICALS = "chemicals", _("Chemicals")
+        FUEL = "fuel", _("Fuel")
+        SPARE_PARTS = "spare_parts", _("Spare Parts")
+        HARVESTED = "harvested", _("Harvested")
 
     farm = models.ForeignKey(
         "farms.Farm", on_delete=models.CASCADE, null=True, blank=True, related_name="inventory_items"
@@ -40,10 +41,10 @@ class InventoryItem(UUIDModel, TimeStampedModel, OrganizationScopedModel):
 
 class StockMovement(UUIDModel):
     class MovementType(models.TextChoices):
-        IN = "in", "In"
-        OUT = "out", "Out"
-        ADJUST = "adjust", "Adjust"
-        HARVEST = "harvest", "Harvest"
+        IN = "in", _("In")
+        OUT = "out", _("Out")
+        ADJUST = "adjust", _("Adjust")
+        HARVEST = "harvest", _("Harvest")
 
     item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, related_name="movements")
     quantity_delta = models.DecimalField(max_digits=14, decimal_places=3)

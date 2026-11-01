@@ -1,0 +1,35 @@
+{
+  "warnings": {
+    "planting": {
+      "before_window_one": "Siembra {{count}} día antes de que abra la ventana ({{window_start}}); riesgo de suelo frío y helada.",
+      "before_window_other": "Siembra {{count}} días antes de que abra la ventana ({{window_start}}); riesgo de suelo frío y helada.",
+      "past_optimal": "Fuera de la ventana óptima ({{window_end}}); se espera una penalización de rendimiento.",
+      "outside_window": "Fuera de la ventana aceptable (cierra el {{closes}}).",
+      "harvest_too_late": "La cosecha prevista ({{harvest}}) es posterior a la fecha límite {{harvest_by}}; elige una variedad más precoz o siembra antes.",
+      "harvest_after_season": "La cosecha ({{harvest}}) cae después del cierre de la campaña ({{season_end}}).",
+      "previous_crop_in_ground": "{{crop}} sigue en el lote hasta el {{harvest_date}}."
+    },
+    "variety": {
+      "soil_mismatch": "{{variety}} no está recomendada para suelo {{soil}} (apta para: {{suits}})."
+    },
+    "crop": {
+      "high_water_dryland": "Cultivo de alta demanda hídrica en un lote de secano; considera una variedad tolerante a sequía o riego."
+    },
+    "rotation": {
+      "continuous_cropping": "{{crop}} sigue a {{crop}}; el monocultivo continuo aumenta la presión de plagas y enfermedades.",
+      "same_family": "{{crop}} sigue a {{previous}} (misma familia {{family}}); comparten patógenos.",
+      "legume_credit": "Aporte de leguminosa: {{previous}} antes de {{crop}} reduce la demanda de nitrógeno.",
+      "same_root_depth": "Cultivos consecutivos con la misma profundidad radicular; alterna profundo y superficial para aprovechar el perfil.",
+      "too_frequent_one": "{{crop}} apareció una vez en las últimas {{seasons}} campañas.",
+      "too_frequent_other": "{{crop}} apareció {{count}} veces en las últimas {{seasons}} campañas.",
+      "no_main_steps": "La rotación no tiene pasos de cultivo principal.",
+      "repeats_back_to_back": "{{crop}} se repite en años consecutivos.",
+      "consecutive_family": "{{crop}} → {{next}} son ambos de la familia {{family}}.",
+      "no_legume": "No hay cultivo fijador de nitrógeno en el ciclo; se esperan mayores aportes de N."
+    },
+    "withField": "{{field}}: {{message}}"
+  },
+  "rotation": {
+    "yearPrefix": "Año {{year}}:"
+  }
+}

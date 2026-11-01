@@ -1,0 +1,499 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AgriNexa\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+
+msgid "1 (poor) – 5 (excellent)"
+msgstr "1 (ضعيف) – 5 (ممتاز)"
+
+msgid "Accepted"
+msgstr "مقبولة"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Adjust"
+msgstr "تعديل"
+
+msgid "Adopted"
+msgstr "معتمدة"
+
+msgid "Agribusiness"
+msgstr "أعمال زراعية"
+
+msgid "Applied"
+msgstr "مطبق"
+
+msgid "Archived"
+msgstr "مؤرشف"
+
+msgid "Auto"
+msgstr "تلقائي"
+
+msgid "Bad"
+msgstr "سيئ"
+
+msgid "Blocked"
+msgstr "محجوب"
+
+msgid "Broken"
+msgstr "معطل"
+
+msgid "Calendar year of step 0."
+msgstr "السنة الميلادية للخطوة 0."
+
+msgid "Canal"
+msgstr "قناة"
+
+msgid "Cancelled"
+msgstr "ملغى"
+
+msgid "Candidate"
+msgstr "مرشحة"
+
+msgid "Chalk"
+msgstr "طباشيرية"
+
+msgid "Chemical"
+msgstr "كيماوي"
+
+msgid "Chemicals"
+msgstr "مواد كيماوية"
+
+msgid "Clay"
+msgstr "طينية"
+
+msgid "Clay loam"
+msgstr "طميية طينية"
+
+msgid "Comparisons show deltas against the baseline."
+msgstr "تعرض المقارنات الفروق مقابل الخط الأساسي."
+
+msgid "Consultant"
+msgstr "استشاري"
+
+msgid "Cooperative"
+msgstr "جمعية تعاونية"
+
+msgid "Cover"
+msgstr "تغطية"
+
+msgid "Cover crop"
+msgstr "محصول تغطية"
+
+msgid "Critical"
+msgstr "حرج"
+
+msgid "Crop Progress"
+msgstr "تقدم المحصول"
+
+msgid "Custom"
+msgstr "مخصص"
+
+msgid "Daily"
+msgstr "يومي"
+
+msgid "Dates"
+msgstr "التواريخ"
+
+msgid "Deep"
+msgstr "عميق"
+
+msgid "Device"
+msgstr "جهاز"
+
+msgid "Dismissed"
+msgstr "مستبعدة"
+
+msgid "Done"
+msgstr "منجزة"
+
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Drip"
+msgstr "تنقيط"
+
+msgid "Drone"
+msgstr "طائرة مسيّرة"
+
+msgid "Drought"
+msgstr "جفاف"
+
+msgid "Dry"
+msgstr "جاف"
+
+msgid "Equipment"
+msgstr "معدات"
+
+msgid "Equipment (hours)"
+msgstr "المعدات (ساعات)"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Excellent"
+msgstr "ممتاز"
+
+msgid "Expired"
+msgstr "منتهية الصلاحية"
+
+msgid "Failed"
+msgstr "فاشلة"
+
+msgid "Fair"
+msgstr "مقبول"
+
+msgid "Fallow"
+msgstr "بور"
+
+msgid "Farm"
+msgstr "مزرعة"
+
+msgid "Fertilizer"
+msgstr "سماد"
+
+msgid "Fertilizer, chemical, fuel, and other non-seed inputs."
+msgstr "الأسمدة والكيماويات والوقود وغيرها من المدخلات عدا البذور."
+
+msgid "Fertilizers"
+msgstr "أسمدة"
+
+msgid "Fiber"
+msgstr "ألياف"
+
+msgid "Financial"
+msgstr "مالي"
+
+msgid "Flood"
+msgstr "غمر"
+
+msgid "Forage"
+msgstr "أعلاف"
+
+msgid "Frost"
+msgstr "صقيع"
+
+msgid "Fruit"
+msgstr "فاكهة"
+
+msgid "Fuel"
+msgstr "وقود"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Good"
+msgstr "جيد"
+
+msgid "Grain"
+msgstr "حبوب"
+
+msgid "Growing"
+msgstr "في طور النمو"
+
+msgid "Hard limits fail evaluation; soft ones warn."
+msgstr "الحدود الصارمة تُفشل التقييم، أما المرنة فتنبّه فقط."
+
+msgid "Harvest"
+msgstr "حصاد"
+
+msgid "Harvested"
+msgstr "محصود"
+
+msgid "Harvester"
+msgstr "حصّادة"
+
+msgid "Heat"
+msgstr "حرارة"
+
+msgid "High"
+msgstr "مرتفع"
+
+msgid "Humidity"
+msgstr "رطوبة"
+
+msgid "Idle"
+msgstr "خامل"
+
+msgid "In"
+msgstr "وارد"
+
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+msgid "Input budget"
+msgstr "ميزانية المدخلات"
+
+msgid "Instruction"
+msgstr "تعليمات"
+
+msgid "Intercrop"
+msgstr "تحميل"
+
+msgid "Inventory"
+msgstr "مخزون"
+
+msgid "Irrigation"
+msgstr "ري"
+
+msgid "Irrigation System"
+msgstr "نظام ري"
+
+msgid "Irrigation water (acre-inches)"
+msgstr "مياه الري (أكر·بوصة)"
+
+msgid "Issue"
+msgstr "مشكلة"
+
+msgid "Labor"
+msgstr "عمالة"
+
+msgid "Labor (hours)"
+msgstr "العمالة (ساعات)"
+
+msgid "Legume"
+msgstr "بقوليات"
+
+msgid "List of resisted diseases."
+msgstr "قائمة الأمراض المقاوَمة."
+
+msgid "Loam"
+msgstr "طميية"
+
+msgid "Low"
+msgstr "منخفض"
+
+msgid "Main crop"
+msgstr "المحصول الرئيسي"
+
+msgid "Maintenance"
+msgstr "صيانة"
+
+msgid "Manual"
+msgstr "يدوي"
+
+msgid "Medium"
+msgstr "متوسط"
+
+msgid "Monoculture"
+msgstr "زراعة أحادية"
+
+msgid "Municipal"
+msgstr "بلدية"
+
+msgid "Nitrogen (lb)"
+msgstr "النيتروجين (رطل)"
+
+msgid "None"
+msgstr "لا شيء"
+
+msgid "Normal"
+msgstr "عادي"
+
+msgid "Nutrient"
+msgstr "مغذيات"
+
+msgid "Observation"
+msgstr "ملاحظة"
+
+msgid "Offline"
+msgstr "غير متصل"
+
+msgid "Oilseed"
+msgstr "بذور زيتية"
+
+msgid "Online"
+msgstr "متصل"
+
+msgid "Open"
+msgstr "مفتوحة"
+
+msgid "OpenWeather"
+msgstr "OpenWeather"
+
+msgid "Operational"
+msgstr "صالحة للعمل"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Out"
+msgstr "صادر"
+
+msgid "Override"
+msgstr "تجاوز يدوي"
+
+msgid "Peat"
+msgstr "خثية"
+
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+msgid "Personal"
+msgstr "شخصي"
+
+msgid "Pivot"
+msgstr "محوري"
+
+msgid "Planned"
+msgstr "مخطط"
+
+msgid "Planted"
+msgstr "مزروع"
+
+msgid "Planted acres"
+msgstr "المساحة المزروعة"
+
+msgid "Planter"
+msgstr "بذّارة"
+
+msgid "Poor"
+msgstr "ضعيف"
+
+msgid "Prep"
+msgstr "تحضير"
+
+msgid "Primary"
+msgstr "أساسي"
+
+msgid "Rainfall"
+msgstr "هطول المطر"
+
+msgid "Ready"
+msgstr "جاهزة"
+
+msgid "Recycled"
+msgstr "معاد تدويرها"
+
+msgid "Relay"
+msgstr "زراعة تعاقبية"
+
+msgid "Research"
+msgstr "بحث علمي"
+
+msgid "Resolved"
+msgstr "تم حلها"
+
+msgid "Retired"
+msgstr "خارج الخدمة"
+
+msgid "Revoked"
+msgstr "ملغاة"
+
+msgid "Sand"
+msgstr "رملية"
+
+msgid "Sandy loam"
+msgstr "طميية رملية"
+
+msgid "Seed"
+msgstr "بذور"
+
+msgid "Seed budget"
+msgstr "ميزانية البذور"
+
+msgid "Seeds"
+msgstr "بذور"
+
+msgid "Shallow"
+msgstr "سطحي"
+
+msgid "Silt"
+msgstr "غرينية"
+
+msgid "Silt loam"
+msgstr "طميية غرينية"
+
+msgid "Soil Moisture"
+msgstr "رطوبة التربة"
+
+msgid "Soil type keys this variety suits."
+msgstr "أنواع التربة التي يناسبها هذا الصنف."
+
+msgid "Spare Parts"
+msgstr "قطع غيار"
+
+msgid "Sprayer"
+msgstr "رشّاشة"
+
+msgid "Sprinkler"
+msgstr "رش"
+
+msgid "Storm"
+msgstr "عاصفة"
+
+msgid "Strip"
+msgstr "شرائح"
+
+msgid "Suspect"
+msgstr "مشتبه به"
+
+msgid "Temperature"
+msgstr "درجة الحرارة"
+
+msgid "To Do"
+msgstr "للتنفيذ"
+
+msgid "Total budget"
+msgstr "الميزانية الإجمالية"
+
+msgid "Tractor"
+msgstr "جرار"
+
+msgid "Truck"
+msgstr "شاحنة"
+
+msgid "Urgent"
+msgstr "عاجل"
+
+msgid "Vegetable"
+msgstr "خضروات"
+
+msgid "Water"
+msgstr "مياه"
+
+msgid "Weather"
+msgstr "الطقس"
+
+msgid "Weather Station"
+msgstr "محطة أرصاد"
+
+msgid "Weekly"
+msgstr "أسبوعي"
+
+msgid "Well"
+msgstr "بئر"
+
+msgid "Wet"
+msgstr "رطب"
+
+msgid "Wind"
+msgstr "رياح"
+
+msgid "Within-year order for double crops/covers."
+msgstr "الترتيب خلال السنة للمحاصيل المزدوجة أو محاصيل التغطية."
+
+msgid "Yield"
+msgstr "الإنتاجية"
+
+msgid "e.g. 2:1 rows, alternate strips"
+msgstr "مثال: صفوف 2:1، شرائح متناوبة"
+
+msgid "e.g. RM 110, MG 3.6"
+msgstr "مثال: RM 110، MG 3.6"
+
+msgid "e.g. Spring, Winter, Year 2"
+msgstr "مثال: ربيع، شتاء، السنة 2"
+
+msgid "pH"
+msgstr "الرقم الهيدروجيني"

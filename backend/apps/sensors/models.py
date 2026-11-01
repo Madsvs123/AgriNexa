@@ -1,20 +1,21 @@
 import secrets
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import OrganizationScopedModel, TimeStampedModel, UUIDModel
 
 
 class SensorType(UUIDModel, TimeStampedModel):
     class Category(models.TextChoices):
-        SOIL_MOISTURE = "soil_moisture", "Soil Moisture"
-        TEMPERATURE = "temperature", "Temperature"
-        HUMIDITY = "humidity", "Humidity"
-        RAINFALL = "rainfall", "Rainfall"
-        PH = "ph", "pH"
-        NUTRIENT = "nutrient", "Nutrient"
-        WEATHER_STATION = "weather_station", "Weather Station"
-        CUSTOM = "custom", "Custom"
+        SOIL_MOISTURE = "soil_moisture", _("Soil Moisture")
+        TEMPERATURE = "temperature", _("Temperature")
+        HUMIDITY = "humidity", _("Humidity")
+        RAINFALL = "rainfall", _("Rainfall")
+        PH = "ph", _("pH")
+        NUTRIENT = "nutrient", _("Nutrient")
+        WEATHER_STATION = "weather_station", _("Weather Station")
+        CUSTOM = "custom", _("Custom")
 
     organization = models.ForeignKey(
         "tenancy.Organization",
@@ -39,10 +40,10 @@ class SensorType(UUIDModel, TimeStampedModel):
 
 class Sensor(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     class Status(models.TextChoices):
-        ONLINE = "online", "Online"
-        OFFLINE = "offline", "Offline"
-        MAINTENANCE = "maintenance", "Maintenance"
-        ERROR = "error", "Error"
+        ONLINE = "online", _("Online")
+        OFFLINE = "offline", _("Offline")
+        MAINTENANCE = "maintenance", _("Maintenance")
+        ERROR = "error", _("Error")
 
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="sensors")
     field = models.ForeignKey(
@@ -74,9 +75,9 @@ class Sensor(UUIDModel, TimeStampedModel, OrganizationScopedModel):
 
 class SensorReading(UUIDModel):
     class Quality(models.TextChoices):
-        GOOD = "good", "Good"
-        SUSPECT = "suspect", "Suspect"
-        BAD = "bad", "Bad"
+        GOOD = "good", _("Good")
+        SUSPECT = "suspect", _("Suspect")
+        BAD = "bad", _("Bad")
 
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name="readings")
     value = models.DecimalField(max_digits=14, decimal_places=4)

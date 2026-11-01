@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import OrganizationScopedModel, TimeStampedModel, UUIDModel
 
@@ -13,25 +14,25 @@ WATER_INCHES_BY_NEED = {"low": Decimal("12"), "medium": Decimal("20"), "high": D
 
 class Crop(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     class Category(models.TextChoices):
-        GRAIN = "grain", "Grain"
-        OILSEED = "oilseed", "Oilseed"
-        LEGUME = "legume", "Legume"
-        VEGETABLE = "vegetable", "Vegetable"
-        FRUIT = "fruit", "Fruit"
-        FORAGE = "forage", "Forage"
-        FIBER = "fiber", "Fiber"
-        COVER = "cover", "Cover crop"
-        OTHER = "other", "Other"
+        GRAIN = "grain", _("Grain")
+        OILSEED = "oilseed", _("Oilseed")
+        LEGUME = "legume", _("Legume")
+        VEGETABLE = "vegetable", _("Vegetable")
+        FRUIT = "fruit", _("Fruit")
+        FORAGE = "forage", _("Forage")
+        FIBER = "fiber", _("Fiber")
+        COVER = "cover", _("Cover crop")
+        OTHER = "other", _("Other")
 
     class WaterNeed(models.TextChoices):
-        LOW = "low", "Low"
-        MEDIUM = "medium", "Medium"
-        HIGH = "high", "High"
+        LOW = "low", _("Low")
+        MEDIUM = "medium", _("Medium")
+        HIGH = "high", _("High")
 
     class RootDepth(models.TextChoices):
-        SHALLOW = "shallow", "Shallow"
-        MEDIUM = "medium", "Medium"
-        DEEP = "deep", "Deep"
+        SHALLOW = "shallow", _("Shallow")
+        MEDIUM = "medium", _("Medium")
+        DEEP = "deep", _("Deep")
 
     name = models.CharField(max_length=128)
     category = models.CharField(max_length=16, choices=Category.choices, default=Category.GRAIN)
@@ -56,7 +57,7 @@ class Crop(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     expected_price_per_unit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     seed_cost_per_acre = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     input_cost_per_acre = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0, help_text="Fertilizer, chemical, fuel, and other non-seed inputs."
+        max_digits=10, decimal_places=2, default=0, help_text=_("Fertilizer, chemical, fuel, and other non-seed inputs.")
     )
 
     # Crops that grow well together in an intercrop or relay system.
@@ -80,16 +81,16 @@ class CropVariety(UUIDModel, TimeStampedModel):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name="varieties")
     name = models.CharField(max_length=128)
     days_to_maturity = models.PositiveIntegerField(default=120)
-    maturity_group = models.CharField(max_length=16, blank=True, help_text="e.g. RM 110, MG 3.6")
+    maturity_group = models.CharField(max_length=16, blank=True, help_text=_("e.g. RM 110, MG 3.6"))
     seed_rate_per_acre = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     expected_yield_per_acre = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     yield_unit = models.CharField(max_length=32, default="bu")
     traits = models.JSONField(default=list, blank=True)
 
     # ── Selection criteria ───────────────────────────────────────────────
-    drought_tolerance = models.PositiveSmallIntegerField(default=3, help_text="1 (poor) – 5 (excellent)")
-    disease_resistance = models.JSONField(default=list, blank=True, help_text="List of resisted diseases.")
-    suitable_soils = models.JSONField(default=list, blank=True, help_text="Soil type keys this variety suits.")
+    drought_tolerance = models.PositiveSmallIntegerField(default=3, help_text=_("1 (poor) – 5 (excellent)"))
+    disease_resistance = models.JSONField(default=list, blank=True, help_text=_("List of resisted diseases."))
+    suitable_soils = models.JSONField(default=list, blank=True, help_text=_("Soil type keys this variety suits."))
     min_soil_temp_c = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
     gdd_to_maturity = models.PositiveIntegerField(null=True, blank=True)
     seed_cost_per_acre = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -214,11 +215,11 @@ class PlantingWindow(UUIDModel, TimeStampedModel, OrganizationScopedModel):
 
 
 class PlantingSystem(models.TextChoices):
-    MONOCULTURE = "monoculture", "Monoculture"
-    INTERCROP = "intercrop", "Intercrop"
-    RELAY = "relay", "Relay"
-    STRIP = "strip", "Strip"
-    COVER = "cover", "Cover crop"
+    MONOCULTURE = "monoculture", _("Monoculture")
+    INTERCROP = "intercrop", _("Intercrop")
+    RELAY = "relay", _("Relay")
+    STRIP = "strip", _("Strip")
+    COVER = "cover", _("Cover crop")
 
 
 class RotationPlan(UUIDModel, TimeStampedModel):
@@ -227,7 +228,7 @@ class RotationPlan(UUIDModel, TimeStampedModel):
     # Legacy free-form sequence, kept readable; structured steps supersede it.
     sequence = models.JSONField(default=list, blank=True)
     fields = models.ManyToManyField("farms.Field", blank=True, related_name="rotation_plans")
-    start_year = models.PositiveIntegerField(null=True, blank=True, help_text="Calendar year of step 0.")
+    start_year = models.PositiveIntegerField(null=True, blank=True, help_text=_("Calendar year of step 0."))
     is_active = models.BooleanField(default=True)
     notes = models.TextField(blank=True)
 
@@ -279,21 +280,21 @@ class RotationFieldPhase(UUIDModel):
 
 class RotationStep(UUIDModel, TimeStampedModel):
     class Role(models.TextChoices):
-        MAIN = "main", "Main crop"
-        COVER = "cover", "Cover crop"
-        INTERCROP = "intercrop", "Intercrop"
-        FALLOW = "fallow", "Fallow"
+        MAIN = "main", _("Main crop")
+        COVER = "cover", _("Cover crop")
+        INTERCROP = "intercrop", _("Intercrop")
+        FALLOW = "fallow", _("Fallow")
 
     rotation = models.ForeignKey(RotationPlan, on_delete=models.CASCADE, related_name="steps")
     year_offset = models.PositiveSmallIntegerField(default=0)
-    order = models.PositiveSmallIntegerField(default=0, help_text="Within-year order for double crops/covers.")
+    order = models.PositiveSmallIntegerField(default=0, help_text=_("Within-year order for double crops/covers."))
     crop = models.ForeignKey(Crop, on_delete=models.PROTECT, null=True, blank=True, related_name="rotation_steps")
     variety = models.ForeignKey(
         CropVariety, on_delete=models.SET_NULL, null=True, blank=True, related_name="rotation_steps"
     )
     role = models.CharField(max_length=16, choices=Role.choices, default=Role.MAIN)
     companion_crops = models.ManyToManyField(Crop, blank=True, related_name="companion_in_steps")
-    season_label = models.CharField(max_length=64, blank=True, help_text="e.g. Spring, Winter, Year 2")
+    season_label = models.CharField(max_length=64, blank=True, help_text=_("e.g. Spring, Winter, Year 2"))
     notes = models.TextField(blank=True)
 
     class Meta:
@@ -315,22 +316,22 @@ class FarmingStrategy(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     """A candidate plan for a farm-season, evaluated and compared before adoption."""
 
     class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        CANDIDATE = "candidate", "Candidate"
-        ADOPTED = "adopted", "Adopted"
-        ARCHIVED = "archived", "Archived"
+        DRAFT = "draft", _("Draft")
+        CANDIDATE = "candidate", _("Candidate")
+        ADOPTED = "adopted", _("Adopted")
+        ARCHIVED = "archived", _("Archived")
 
     class Rainfall(models.TextChoices):
-        DRY = "dry", "Dry"
-        NORMAL = "normal", "Normal"
-        WET = "wet", "Wet"
+        DRY = "dry", _("Dry")
+        NORMAL = "normal", _("Normal")
+        WET = "wet", _("Wet")
 
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="strategies")
     season = models.ForeignKey(GrowingSeason, on_delete=models.CASCADE, related_name="strategies")
     name = models.CharField(max_length=128)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
-    is_baseline = models.BooleanField(default=False, help_text="Comparisons show deltas against the baseline.")
+    is_baseline = models.BooleanField(default=False, help_text=_("Comparisons show deltas against the baseline."))
     rotation = models.ForeignKey(
         RotationPlan, on_delete=models.SET_NULL, null=True, blank=True, related_name="strategies"
     )
@@ -388,11 +389,11 @@ class StrategyAllocation(UUIDModel, TimeStampedModel):
 
 class CropPlan(UUIDModel, TimeStampedModel):
     class Status(models.TextChoices):
-        PLANNED = "planned", "Planned"
-        PLANTED = "planted", "Planted"
-        GROWING = "growing", "Growing"
-        HARVESTED = "harvested", "Harvested"
-        CANCELLED = "cancelled", "Cancelled"
+        PLANNED = "planned", _("Planned")
+        PLANTED = "planted", _("Planted")
+        GROWING = "growing", _("Growing")
+        HARVESTED = "harvested", _("Harvested")
+        CANCELLED = "cancelled", _("Cancelled")
 
     field = models.ForeignKey("farms.Field", on_delete=models.CASCADE, related_name="crop_plans")
     season = models.ForeignKey(GrowingSeason, on_delete=models.CASCADE, related_name="crop_plans")
@@ -436,10 +437,10 @@ class CropPlanComponent(UUIDModel, TimeStampedModel):
     """One crop in a mixed-cropping plan (intercrop, relay, strip, or cover)."""
 
     class Role(models.TextChoices):
-        PRIMARY = "primary", "Primary"
-        INTERCROP = "intercrop", "Intercrop"
-        RELAY = "relay", "Relay"
-        COVER = "cover", "Cover"
+        PRIMARY = "primary", _("Primary")
+        INTERCROP = "intercrop", _("Intercrop")
+        RELAY = "relay", _("Relay")
+        COVER = "cover", _("Cover")
 
     crop_plan = models.ForeignKey(CropPlan, on_delete=models.CASCADE, related_name="components")
     crop = models.ForeignKey(Crop, on_delete=models.PROTECT, related_name="plan_components")
@@ -448,7 +449,7 @@ class CropPlanComponent(UUIDModel, TimeStampedModel):
     )
     role = models.CharField(max_length=16, choices=Role.choices, default=Role.INTERCROP)
     share_pct = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("50"))
-    row_arrangement = models.CharField(max_length=64, blank=True, help_text="e.g. 2:1 rows, alternate strips")
+    row_arrangement = models.CharField(max_length=64, blank=True, help_text=_("e.g. 2:1 rows, alternate strips"))
     planting_date = models.DateField(null=True, blank=True)
     order = models.PositiveSmallIntegerField(default=0)
 
@@ -469,14 +470,14 @@ class ResourceConstraint(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     """A capacity limit a season's plans must fit inside."""
 
     class Resource(models.TextChoices):
-        WATER = "water_acre_inches", "Irrigation water (acre-inches)"
-        LABOR = "labor_hours", "Labor (hours)"
-        NITROGEN = "nitrogen_lb", "Nitrogen (lb)"
-        SEED_BUDGET = "seed_budget", "Seed budget"
-        INPUT_BUDGET = "input_budget", "Input budget"
-        TOTAL_BUDGET = "total_budget", "Total budget"
-        ACRES = "acres", "Planted acres"
-        EQUIPMENT = "equipment_hours", "Equipment (hours)"
+        WATER = "water_acre_inches", _("Irrigation water (acre-inches)")
+        LABOR = "labor_hours", _("Labor (hours)")
+        NITROGEN = "nitrogen_lb", _("Nitrogen (lb)")
+        SEED_BUDGET = "seed_budget", _("Seed budget")
+        INPUT_BUDGET = "input_budget", _("Input budget")
+        TOTAL_BUDGET = "total_budget", _("Total budget")
+        ACRES = "acres", _("Planted acres")
+        EQUIPMENT = "equipment_hours", _("Equipment (hours)")
 
     farm = models.ForeignKey(
         "farms.Farm", on_delete=models.CASCADE, null=True, blank=True, related_name="resource_constraints"
@@ -487,7 +488,7 @@ class ResourceConstraint(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     resource = models.CharField(max_length=24, choices=Resource.choices)
     limit_value = models.DecimalField(max_digits=14, decimal_places=2)
     unit = models.CharField(max_length=24, blank=True)
-    is_hard = models.BooleanField(default=True, help_text="Hard limits fail evaluation; soft ones warn.")
+    is_hard = models.BooleanField(default=True, help_text=_("Hard limits fail evaluation; soft ones warn."))
     notes = models.TextField(blank=True)
 
     class Meta:
@@ -548,13 +549,13 @@ class PesticideApplication(UUIDModel, TimeStampedModel):
 
 class SeasonalBudget(UUIDModel, TimeStampedModel):
     class Category(models.TextChoices):
-        SEED = "seed", "Seed"
-        FERTILIZER = "fertilizer", "Fertilizer"
-        CHEMICAL = "chemical", "Chemical"
-        LABOR = "labor", "Labor"
-        FUEL = "fuel", "Fuel"
-        WATER = "water", "Water"
-        OTHER = "other", "Other"
+        SEED = "seed", _("Seed")
+        FERTILIZER = "fertilizer", _("Fertilizer")
+        CHEMICAL = "chemical", _("Chemical")
+        LABOR = "labor", _("Labor")
+        FUEL = "fuel", _("Fuel")
+        WATER = "water", _("Water")
+        OTHER = "other", _("Other")
 
     season = models.ForeignKey(GrowingSeason, on_delete=models.CASCADE, related_name="budgets")
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="budgets")

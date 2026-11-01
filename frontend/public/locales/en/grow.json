@@ -1,0 +1,35 @@
+{
+  "warnings": {
+    "planting": {
+      "before_window_one": "Planting {{count}} day before the window opens ({{window_start}}); cold soil and frost risk.",
+      "before_window_other": "Planting {{count}} days before the window opens ({{window_start}}); cold soil and frost risk.",
+      "past_optimal": "Past the optimal window ({{window_end}}); expect a yield penalty.",
+      "outside_window": "Outside the acceptable window (closes {{closes}}).",
+      "harvest_too_late": "Projected harvest {{harvest}} is after the harvest-by date {{harvest_by}}; choose an earlier variety or plant sooner.",
+      "harvest_after_season": "Harvest {{harvest}} falls after the season ends {{season_end}}.",
+      "previous_crop_in_ground": "{{crop}} is still in the ground until {{harvest_date}}."
+    },
+    "variety": {
+      "soil_mismatch": "{{variety}} is not rated for {{soil}} (suits: {{suits}})."
+    },
+    "crop": {
+      "high_water_dryland": "High-water crop on a dryland field; consider a drought-tolerant variety or irrigation."
+    },
+    "rotation": {
+      "continuous_cropping": "{{crop}} follows {{crop}}; continuous cropping builds pest and disease pressure.",
+      "same_family": "{{crop}} follows {{previous}} (same family {{family}}); shared pathogens.",
+      "legume_credit": "Legume credit: {{previous}} before {{crop}} offsets nitrogen demand.",
+      "same_root_depth": "Consecutive crops share rooting depth; alternate deep and shallow to use the profile.",
+      "too_frequent_one": "{{crop}} appeared once in the last {{seasons}} seasons.",
+      "too_frequent_other": "{{crop}} appeared {{count}} times in the last {{seasons}} seasons.",
+      "no_main_steps": "Rotation has no main-crop steps.",
+      "repeats_back_to_back": "{{crop}} repeats back-to-back.",
+      "consecutive_family": "{{crop}} → {{next}} are both {{family}}.",
+      "no_legume": "No nitrogen-fixing crop in the cycle; expect higher N inputs."
+    },
+    "withField": "{{field}}: {{message}}"
+  },
+  "rotation": {
+    "yearPrefix": "Year {{year}}:"
+  }
+}

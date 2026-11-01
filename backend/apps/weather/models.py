@@ -1,13 +1,14 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel, UUIDModel
 
 
 class WeatherStation(UUIDModel, TimeStampedModel):
     class Source(models.TextChoices):
-        DEVICE = "device", "Device"
-        OPENWEATHER = "openweather", "OpenWeather"
-        MANUAL = "manual", "Manual"
+        DEVICE = "device", _("Device")
+        OPENWEATHER = "openweather", _("OpenWeather")
+        MANUAL = "manual", _("Manual")
 
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="weather_stations")
     name = models.CharField(max_length=128)
@@ -63,17 +64,17 @@ class WeatherForecast(UUIDModel, TimeStampedModel):
 
 class WeatherAlert(UUIDModel, TimeStampedModel):
     class AlertType(models.TextChoices):
-        FROST = "frost", "Frost"
-        HEAT = "heat", "Heat"
-        STORM = "storm", "Storm"
-        WIND = "wind", "Wind"
-        DROUGHT = "drought", "Drought"
+        FROST = "frost", _("Frost")
+        HEAT = "heat", _("Heat")
+        STORM = "storm", _("Storm")
+        WIND = "wind", _("Wind")
+        DROUGHT = "drought", _("Drought")
 
     class Severity(models.TextChoices):
-        LOW = "low", "Low"
-        MEDIUM = "medium", "Medium"
-        HIGH = "high", "High"
-        CRITICAL = "critical", "Critical"
+        LOW = "low", _("Low")
+        MEDIUM = "medium", _("Medium")
+        HIGH = "high", _("High")
+        CRITICAL = "critical", _("Critical")
 
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="weather_alerts")
     alert_type = models.CharField(max_length=16, choices=AlertType.choices)

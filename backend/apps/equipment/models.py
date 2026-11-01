@@ -1,25 +1,26 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel, UUIDModel
 
 
 class Equipment(UUIDModel, TimeStampedModel):
     class EquipmentType(models.TextChoices):
-        TRACTOR = "tractor", "Tractor"
-        HARVESTER = "harvester", "Harvester"
-        IRRIGATION_SYSTEM = "irrigation_system", "Irrigation System"
-        SPRAYER = "sprayer", "Sprayer"
-        PLANTER = "planter", "Planter"
-        DRONE = "drone", "Drone"
-        TRUCK = "truck", "Truck"
-        OTHER = "other", "Other"
+        TRACTOR = "tractor", _("Tractor")
+        HARVESTER = "harvester", _("Harvester")
+        IRRIGATION_SYSTEM = "irrigation_system", _("Irrigation System")
+        SPRAYER = "sprayer", _("Sprayer")
+        PLANTER = "planter", _("Planter")
+        DRONE = "drone", _("Drone")
+        TRUCK = "truck", _("Truck")
+        OTHER = "other", _("Other")
 
     class Status(models.TextChoices):
-        OPERATIONAL = "operational", "Operational"
-        MAINTENANCE = "maintenance", "Maintenance"
-        BROKEN = "broken", "Broken"
-        RETIRED = "retired", "Retired"
+        OPERATIONAL = "operational", _("Operational")
+        MAINTENANCE = "maintenance", _("Maintenance")
+        BROKEN = "broken", _("Broken")
+        RETIRED = "retired", _("Retired")
 
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="equipment")
     name = models.CharField(max_length=128)
@@ -80,15 +81,15 @@ class FuelLog(UUIDModel, TimeStampedModel):
 
 class Breakdown(UUIDModel, TimeStampedModel):
     class Severity(models.TextChoices):
-        LOW = "low", "Low"
-        MEDIUM = "medium", "Medium"
-        HIGH = "high", "High"
-        CRITICAL = "critical", "Critical"
+        LOW = "low", _("Low")
+        MEDIUM = "medium", _("Medium")
+        HIGH = "high", _("High")
+        CRITICAL = "critical", _("Critical")
 
     class Status(models.TextChoices):
-        OPEN = "open", "Open"
-        IN_PROGRESS = "in_progress", "In Progress"
-        RESOLVED = "resolved", "Resolved"
+        OPEN = "open", _("Open")
+        IN_PROGRESS = "in_progress", _("In Progress")
+        RESOLVED = "resolved", _("Resolved")
 
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="breakdowns")
     title = models.CharField(max_length=255)

@@ -98,19 +98,31 @@ for (const ns of namespaces) {
       // a literal {{value}} to the user.
       const expected = new Set([...(source.get(key) ?? "").matchAll(/{{(\w+)}}/g)].map((m) => m[1]));
       const actual = new Set([...value.matchAll(/{{(\w+)}}/g)].map((m) => m[1]));
-      // A plural variant may legitimately omit the count — Arabic and Spanish
-      // singulars read as "one acre", not "1 acre" — so only the non-plural
-      // forms are held to exact placeholder parity. An *unknown* placeholder
-      // is always a bug, since it renders literally.
-      const isPluralVariant = pluralBase(key) !== null;
-      if (source.has(key) && !isPluralVariant) {
+      // Plural handling.
+      //
+      // Arabic defines six CLDR categories where English defines two, so a
+      // key like `..._few` has no English counterpart to compare against.
+      // Resolve the contract from the base key's English forms instead: any
+      // placeholder English uses in *any* variant is legitimate here.
+      const base = pluralBase(key);
+      const isPluralVariant = base !== null;
+      const placeholdersIn = (text) =>
+        new Set([...(text ?? "").matchAll(/{{(\w+)}}/g)].map((m) => m[1]));
+      let allowed = expected;
+      if (isPluralVariant) {
+        allowed = new Set(["count"]);
+        for (const [sourceKey, sourceValue] of source) {
+          if (pluralBase(sourceKey) === base) {
+            for (const p of placeholdersIn(sourceValue)) allowed.add(p);
+          }
+        }
+      } else {
+        // A non-plural key must carry every placeholder English uses, or the
+        // translated sentence silently loses a value.
         for (const p of expected) {
           if (!actual.has(p)) fail(`${lang}/${ns}: "${key}" drops placeholder {{${p}}}`);
         }
       }
-      const allowed = isPluralVariant
-        ? new Set([...expected, "count"])
-        : expected;
       for (const p of actual) {
         if (!allowed.has(p)) fail(`${lang}/${ns}: "${key}" adds unknown placeholder {{${p}}}`);
       }

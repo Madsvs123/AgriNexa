@@ -1,21 +1,22 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import OrganizationScopedModel, TimeStampedModel, UUIDModel
 
 
 class Task(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     class Status(models.TextChoices):
-        TODO = "todo", "To Do"
-        IN_PROGRESS = "in_progress", "In Progress"
-        BLOCKED = "blocked", "Blocked"
-        DONE = "done", "Done"
+        TODO = "todo", _("To Do")
+        IN_PROGRESS = "in_progress", _("In Progress")
+        BLOCKED = "blocked", _("Blocked")
+        DONE = "done", _("Done")
 
     class Priority(models.TextChoices):
-        LOW = "low", "Low"
-        MEDIUM = "medium", "Medium"
-        HIGH = "high", "High"
-        URGENT = "urgent", "Urgent"
+        LOW = "low", _("Low")
+        MEDIUM = "medium", _("Medium")
+        HIGH = "high", _("High")
+        URGENT = "urgent", _("Urgent")
 
     farm = models.ForeignKey(
         "farms.Farm", on_delete=models.CASCADE, null=True, blank=True, related_name="tasks"

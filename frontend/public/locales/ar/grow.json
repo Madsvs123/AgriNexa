@@ -1,0 +1,43 @@
+{
+  "warnings": {
+    "planting": {
+      "before_window_zero": "الزراعة قبل فتح الموعد المناسب ({{window_start}})؛ خطر برودة التربة والصقيع.",
+      "before_window_one": "الزراعة قبل يوم واحد من فتح الموعد المناسب ({{window_start}})؛ خطر برودة التربة والصقيع.",
+      "before_window_two": "الزراعة قبل يومين من فتح الموعد المناسب ({{window_start}})؛ خطر برودة التربة والصقيع.",
+      "before_window_few": "الزراعة قبل {{count}} أيام من فتح الموعد المناسب ({{window_start}})؛ خطر برودة التربة والصقيع.",
+      "before_window_many": "الزراعة قبل {{count}} يومًا من فتح الموعد المناسب ({{window_start}})؛ خطر برودة التربة والصقيع.",
+      "before_window_other": "الزراعة قبل {{count}} يوم من فتح الموعد المناسب ({{window_start}})؛ خطر برودة التربة والصقيع.",
+      "past_optimal": "بعد انتهاء الموعد الأمثل ({{window_end}})؛ يُتوقع انخفاض في الإنتاجية.",
+      "outside_window": "خارج الموعد المقبول (ينتهي في {{closes}}).",
+      "harvest_too_late": "الحصاد المتوقع {{harvest}} بعد الموعد النهائي {{harvest_by}}؛ اختر صنفًا أبكر نضجًا أو ازرع مبكرًا.",
+      "harvest_after_season": "الحصاد {{harvest}} يقع بعد انتهاء الموسم في {{season_end}}.",
+      "previous_crop_in_ground": "{{crop}} ما زال في الأرض حتى {{harvest_date}}."
+    },
+    "variety": {
+      "soil_mismatch": "{{variety}} غير موصى به لتربة {{soil}} (يناسب: {{suits}})."
+    },
+    "crop": {
+      "high_water_dryland": "محصول عالي الاحتياج المائي في حقل بعلي؛ فكّر في صنف مقاوم للجفاف أو في الري."
+    },
+    "rotation": {
+      "continuous_cropping": "{{crop}} يعقب {{crop}}؛ الزراعة المتصلة تزيد ضغط الآفات والأمراض.",
+      "same_family": "{{crop}} يعقب {{previous}} (العائلة نفسها {{family}})؛ يشتركان في مسببات المرض.",
+      "legume_credit": "رصيد البقوليات: {{previous}} قبل {{crop}} يخفض الاحتياج من النيتروجين.",
+      "same_root_depth": "محاصيل متتالية بعمق جذري متماثل؛ ناوب بين العميق والسطحي للاستفادة من قطاع التربة.",
+      "too_frequent_zero": "لم يظهر {{crop}} خلال آخر {{seasons}} مواسم.",
+      "too_frequent_one": "ظهر {{crop}} مرة واحدة خلال آخر {{seasons}} مواسم.",
+      "too_frequent_two": "ظهر {{crop}} مرتين خلال آخر {{seasons}} مواسم.",
+      "too_frequent_few": "ظهر {{crop}} {{count}} مرات خلال آخر {{seasons}} مواسم.",
+      "too_frequent_many": "ظهر {{crop}} {{count}} مرة خلال آخر {{seasons}} مواسم.",
+      "too_frequent_other": "ظهر {{crop}} {{count}} مرة خلال آخر {{seasons}} مواسم.",
+      "no_main_steps": "لا تحتوي الدورة على خطوات محصول رئيسي.",
+      "repeats_back_to_back": "{{crop}} يتكرر في سنتين متتاليتين.",
+      "consecutive_family": "{{crop}} ← {{next}} كلاهما من عائلة {{family}}.",
+      "no_legume": "لا يوجد محصول مثبت للنيتروجين في الدورة؛ يُتوقع ارتفاع مدخلات النيتروجين."
+    },
+    "withField": "{{field}}: {{message}}"
+  },
+  "rotation": {
+    "yearPrefix": "السنة {{year}}:"
+  }
+}

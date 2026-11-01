@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 from apps.common.models import TimeStampedModel, UUIDModel
@@ -9,11 +10,11 @@ from apps.common.models import TimeStampedModel, UUIDModel
 
 class Organization(UUIDModel, TimeStampedModel):
     class OrgType(models.TextChoices):
-        FARM = "farm", "Farm"
-        AGRIBUSINESS = "agribusiness", "Agribusiness"
-        CONSULTANT = "consultant", "Consultant"
-        COOPERATIVE = "cooperative", "Cooperative"
-        RESEARCH = "research", "Research"
+        FARM = "farm", _("Farm")
+        AGRIBUSINESS = "agribusiness", _("Agribusiness")
+        CONSULTANT = "consultant", _("Consultant")
+        COOPERATIVE = "cooperative", _("Cooperative")
+        RESEARCH = "research", _("Research")
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=255)
@@ -113,10 +114,10 @@ class TeamMembership(UUIDModel, TimeStampedModel):
 
 class Invitation(UUIDModel, TimeStampedModel):
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        ACCEPTED = "accepted", "Accepted"
-        EXPIRED = "expired", "Expired"
-        REVOKED = "revoked", "Revoked"
+        PENDING = "pending", _("Pending")
+        ACCEPTED = "accepted", _("Accepted")
+        EXPIRED = "expired", _("Expired")
+        REVOKED = "revoked", _("Revoked")
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="invitations")
     email = models.EmailField()

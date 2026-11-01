@@ -1,0 +1,499 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AgriNexa\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+
+msgid "1 (poor) – 5 (excellent)"
+msgstr "1 (deficiente) – 5 (excelente)"
+
+msgid "Accepted"
+msgstr "Aceptada"
+
+msgid "Active"
+msgstr "Activo"
+
+msgid "Adjust"
+msgstr "Ajustar"
+
+msgid "Adopted"
+msgstr "Adoptada"
+
+msgid "Agribusiness"
+msgstr "Agroindustria"
+
+msgid "Applied"
+msgstr "Aplicado"
+
+msgid "Archived"
+msgstr "Archivado"
+
+msgid "Auto"
+msgstr "Automático"
+
+msgid "Bad"
+msgstr "Malo"
+
+msgid "Blocked"
+msgstr "Bloqueado"
+
+msgid "Broken"
+msgstr "Averiado"
+
+msgid "Calendar year of step 0."
+msgstr "Año calendario del paso 0."
+
+msgid "Canal"
+msgstr "Canal"
+
+msgid "Cancelled"
+msgstr "Cancelado"
+
+msgid "Candidate"
+msgstr "Candidata"
+
+msgid "Chalk"
+msgstr "Calcárea"
+
+msgid "Chemical"
+msgstr "Químico"
+
+msgid "Chemicals"
+msgstr "Químicos"
+
+msgid "Clay"
+msgstr "Arcilloso"
+
+msgid "Clay loam"
+msgstr "Franco arcilloso"
+
+msgid "Comparisons show deltas against the baseline."
+msgstr "Las comparaciones muestran las diferencias respecto de la línea base."
+
+msgid "Consultant"
+msgstr "Asesor"
+
+msgid "Cooperative"
+msgstr "Cooperativa"
+
+msgid "Cover"
+msgstr "Cobertura"
+
+msgid "Cover crop"
+msgstr "Cultivo de cobertura"
+
+msgid "Critical"
+msgstr "Crítico"
+
+msgid "Crop Progress"
+msgstr "Avance del cultivo"
+
+msgid "Custom"
+msgstr "Personalizado"
+
+msgid "Daily"
+msgstr "Diario"
+
+msgid "Dates"
+msgstr "Fechas"
+
+msgid "Deep"
+msgstr "Profundo"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Dismissed"
+msgstr "Descartada"
+
+msgid "Done"
+msgstr "Completada"
+
+msgid "Draft"
+msgstr "Borrador"
+
+msgid "Drip"
+msgstr "Goteo"
+
+msgid "Drone"
+msgstr "Dron"
+
+msgid "Drought"
+msgstr "Sequía"
+
+msgid "Dry"
+msgstr "Seco"
+
+msgid "Equipment"
+msgstr "Maquinaria"
+
+msgid "Equipment (hours)"
+msgstr "Maquinaria (horas)"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Excellent"
+msgstr "Excelente"
+
+msgid "Expired"
+msgstr "Vencida"
+
+msgid "Failed"
+msgstr "Fallida"
+
+msgid "Fair"
+msgstr "Regular"
+
+msgid "Fallow"
+msgstr "Barbecho"
+
+msgid "Farm"
+msgstr "Finca"
+
+msgid "Fertilizer"
+msgstr "Fertilizante"
+
+msgid "Fertilizer, chemical, fuel, and other non-seed inputs."
+msgstr "Fertilizante, químicos, combustible y otros insumos distintos de la semilla."
+
+msgid "Fertilizers"
+msgstr "Fertilizantes"
+
+msgid "Fiber"
+msgstr "Fibra"
+
+msgid "Financial"
+msgstr "Financiero"
+
+msgid "Flood"
+msgstr "Inundación"
+
+msgid "Forage"
+msgstr "Forraje"
+
+msgid "Frost"
+msgstr "Helada"
+
+msgid "Fruit"
+msgstr "Fruta"
+
+msgid "Fuel"
+msgstr "Combustible"
+
+msgid "General"
+msgstr "General"
+
+msgid "Good"
+msgstr "Bueno"
+
+msgid "Grain"
+msgstr "Grano"
+
+msgid "Growing"
+msgstr "En desarrollo"
+
+msgid "Hard limits fail evaluation; soft ones warn."
+msgstr "Los límites estrictos invalidan la evaluación; los flexibles solo advierten."
+
+msgid "Harvest"
+msgstr "Cosecha"
+
+msgid "Harvested"
+msgstr "Cosechado"
+
+msgid "Harvester"
+msgstr "Cosechadora"
+
+msgid "Heat"
+msgstr "Calor"
+
+msgid "High"
+msgstr "Alto"
+
+msgid "Humidity"
+msgstr "Humedad"
+
+msgid "Idle"
+msgstr "Inactivo"
+
+msgid "In"
+msgstr "Entrada"
+
+msgid "In Progress"
+msgstr "En curso"
+
+msgid "Input budget"
+msgstr "Presupuesto de insumos"
+
+msgid "Instruction"
+msgstr "Instrucción"
+
+msgid "Intercrop"
+msgstr "Cultivo intercalado"
+
+msgid "Inventory"
+msgstr "Inventario"
+
+msgid "Irrigation"
+msgstr "Riego"
+
+msgid "Irrigation System"
+msgstr "Sistema de riego"
+
+msgid "Irrigation water (acre-inches)"
+msgstr "Agua de riego (acre-pulgadas)"
+
+msgid "Issue"
+msgstr "Incidencia"
+
+msgid "Labor"
+msgstr "Mano de obra"
+
+msgid "Labor (hours)"
+msgstr "Mano de obra (horas)"
+
+msgid "Legume"
+msgstr "Leguminosa"
+
+msgid "List of resisted diseases."
+msgstr "Lista de enfermedades a las que resiste."
+
+msgid "Loam"
+msgstr "Franco"
+
+msgid "Low"
+msgstr "Bajo"
+
+msgid "Main crop"
+msgstr "Cultivo principal"
+
+msgid "Maintenance"
+msgstr "Mantenimiento"
+
+msgid "Manual"
+msgstr "Manual"
+
+msgid "Medium"
+msgstr "Medio"
+
+msgid "Monoculture"
+msgstr "Monocultivo"
+
+msgid "Municipal"
+msgstr "Municipal"
+
+msgid "Nitrogen (lb)"
+msgstr "Nitrógeno (lb)"
+
+msgid "None"
+msgstr "Ninguno"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "Nutrient"
+msgstr "Nutriente"
+
+msgid "Observation"
+msgstr "Observación"
+
+msgid "Offline"
+msgstr "Desconectado"
+
+msgid "Oilseed"
+msgstr "Oleaginosa"
+
+msgid "Online"
+msgstr "Conectado"
+
+msgid "Open"
+msgstr "Abierta"
+
+msgid "OpenWeather"
+msgstr "OpenWeather"
+
+msgid "Operational"
+msgstr "Operativa"
+
+msgid "Other"
+msgstr "Otro"
+
+msgid "Out"
+msgstr "Salida"
+
+msgid "Override"
+msgstr "Anulación manual"
+
+msgid "Peat"
+msgstr "Turboso"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Permissions"
+msgstr "Permisos"
+
+msgid "Personal"
+msgstr "Personal"
+
+msgid "Pivot"
+msgstr "Pivote"
+
+msgid "Planned"
+msgstr "Planificado"
+
+msgid "Planted"
+msgstr "Sembrado"
+
+msgid "Planted acres"
+msgstr "Acres sembrados"
+
+msgid "Planter"
+msgstr "Sembradora"
+
+msgid "Poor"
+msgstr "Deficiente"
+
+msgid "Prep"
+msgstr "Preparación"
+
+msgid "Primary"
+msgstr "Principal"
+
+msgid "Rainfall"
+msgstr "Precipitación"
+
+msgid "Ready"
+msgstr "Lista"
+
+msgid "Recycled"
+msgstr "Reciclada"
+
+msgid "Relay"
+msgstr "Cultivo en relevo"
+
+msgid "Research"
+msgstr "Investigación"
+
+msgid "Resolved"
+msgstr "Resuelta"
+
+msgid "Retired"
+msgstr "Dada de baja"
+
+msgid "Revoked"
+msgstr "Revocada"
+
+msgid "Sand"
+msgstr "Arenoso"
+
+msgid "Sandy loam"
+msgstr "Franco arenoso"
+
+msgid "Seed"
+msgstr "Semilla"
+
+msgid "Seed budget"
+msgstr "Presupuesto de semilla"
+
+msgid "Seeds"
+msgstr "Semillas"
+
+msgid "Shallow"
+msgstr "Superficial"
+
+msgid "Silt"
+msgstr "Limoso"
+
+msgid "Silt loam"
+msgstr "Franco limoso"
+
+msgid "Soil Moisture"
+msgstr "Humedad del suelo"
+
+msgid "Soil type keys this variety suits."
+msgstr "Tipos de suelo para los que esta variedad es apta."
+
+msgid "Spare Parts"
+msgstr "Repuestos"
+
+msgid "Sprayer"
+msgstr "Pulverizadora"
+
+msgid "Sprinkler"
+msgstr "Aspersión"
+
+msgid "Storm"
+msgstr "Tormenta"
+
+msgid "Strip"
+msgstr "Franjas"
+
+msgid "Suspect"
+msgstr "Sospechoso"
+
+msgid "Temperature"
+msgstr "Temperatura"
+
+msgid "To Do"
+msgstr "Por hacer"
+
+msgid "Total budget"
+msgstr "Presupuesto total"
+
+msgid "Tractor"
+msgstr "Tractor"
+
+msgid "Truck"
+msgstr "Camión"
+
+msgid "Urgent"
+msgstr "Urgente"
+
+msgid "Vegetable"
+msgstr "Hortaliza"
+
+msgid "Water"
+msgstr "Agua"
+
+msgid "Weather"
+msgstr "Clima"
+
+msgid "Weather Station"
+msgstr "Estación meteorológica"
+
+msgid "Weekly"
+msgstr "Semanal"
+
+msgid "Well"
+msgstr "Pozo"
+
+msgid "Wet"
+msgstr "Húmedo"
+
+msgid "Wind"
+msgstr "Viento"
+
+msgid "Within-year order for double crops/covers."
+msgstr "Orden dentro del año para cultivos dobles o de cobertura."
+
+msgid "Yield"
+msgstr "Rendimiento"
+
+msgid "e.g. 2:1 rows, alternate strips"
+msgstr "p. ej. surcos 2:1, franjas alternas"
+
+msgid "e.g. RM 110, MG 3.6"
+msgstr "p. ej. RM 110, GM 3.6"
+
+msgid "e.g. Spring, Winter, Year 2"
+msgstr "p. ej. Primavera, Invierno, Año 2"
+
+msgid "pH"
+msgstr "pH"

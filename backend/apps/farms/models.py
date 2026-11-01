@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import OrganizationScopedModel, TimeStampedModel, UUIDModel
 
@@ -22,9 +23,9 @@ class Region(UUIDModel, TimeStampedModel, OrganizationScopedModel):
 
 class Farm(UUIDModel, TimeStampedModel, OrganizationScopedModel):
     class Status(models.TextChoices):
-        ACTIVE = "active", "Active"
-        IDLE = "idle", "Idle"
-        ARCHIVED = "archived", "Archived"
+        ACTIVE = "active", _("Active")
+        IDLE = "idle", _("Idle")
+        ARCHIVED = "archived", _("Archived")
 
     region = models.ForeignKey(
         Region, on_delete=models.SET_NULL, null=True, blank=True, related_name="farms"
@@ -52,17 +53,17 @@ class Farm(UUIDModel, TimeStampedModel, OrganizationScopedModel):
 
 class Field(UUIDModel, TimeStampedModel):
     class IrrigationType(models.TextChoices):
-        NONE = "none", "None"
-        DRIP = "drip", "Drip"
-        SPRINKLER = "sprinkler", "Sprinkler"
-        FLOOD = "flood", "Flood"
-        PIVOT = "pivot", "Pivot"
+        NONE = "none", _("None")
+        DRIP = "drip", _("Drip")
+        SPRINKLER = "sprinkler", _("Sprinkler")
+        FLOOD = "flood", _("Flood")
+        PIVOT = "pivot", _("Pivot")
 
     class Status(models.TextChoices):
-        FALLOW = "fallow", "Fallow"
-        PLANTED = "planted", "Planted"
-        HARVESTED = "harvested", "Harvested"
-        PREP = "prep", "Prep"
+        FALLOW = "fallow", _("Fallow")
+        PLANTED = "planted", _("Planted")
+        HARVESTED = "harvested", _("Harvested")
+        PREP = "prep", _("Prep")
 
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name="fields")
     name = models.CharField(max_length=255)
@@ -113,15 +114,15 @@ class Plot(UUIDModel, TimeStampedModel):
 
 class SoilLayer(UUIDModel, TimeStampedModel):
     class SoilType(models.TextChoices):
-        CLAY = "clay", "Clay"
-        CLAY_LOAM = "clay_loam", "Clay loam"
-        LOAM = "loam", "Loam"
-        SILT_LOAM = "silt_loam", "Silt loam"
-        SILT = "silt", "Silt"
-        SANDY_LOAM = "sandy_loam", "Sandy loam"
-        SAND = "sand", "Sand"
-        PEAT = "peat", "Peat"
-        CHALK = "chalk", "Chalk"
+        CLAY = "clay", _("Clay")
+        CLAY_LOAM = "clay_loam", _("Clay loam")
+        LOAM = "loam", _("Loam")
+        SILT_LOAM = "silt_loam", _("Silt loam")
+        SILT = "silt", _("Silt")
+        SANDY_LOAM = "sandy_loam", _("Sandy loam")
+        SAND = "sand", _("Sand")
+        PEAT = "peat", _("Peat")
+        CHALK = "chalk", _("Chalk")
 
     field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="soil_layers")
     name = models.CharField(max_length=128)
@@ -142,10 +143,10 @@ class SoilLayer(UUIDModel, TimeStampedModel):
 
 class FieldNote(UUIDModel, TimeStampedModel):
     class NoteType(models.TextChoices):
-        OBSERVATION = "observation", "Observation"
-        ISSUE = "issue", "Issue"
-        INSTRUCTION = "instruction", "Instruction"
-        GENERAL = "general", "General"
+        OBSERVATION = "observation", _("Observation")
+        ISSUE = "issue", _("Issue")
+        INSTRUCTION = "instruction", _("Instruction")
+        GENERAL = "general", _("General")
 
     field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="notes")
     author = models.ForeignKey(

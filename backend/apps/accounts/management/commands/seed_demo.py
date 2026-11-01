@@ -79,7 +79,7 @@ def user_at(email, first, last, phone=""):
         defaults={
             "experience_years": 12 if "farmer" in email else 6,
             "specialties": ["corn", "soybean", "irrigation"],
-            "preferred_language": "en",
+            "preferred_language": "",
             "bio": "Demo AgriNexa operator.",
             "certifications": ["CCA", "Pesticide applicator"],
         },

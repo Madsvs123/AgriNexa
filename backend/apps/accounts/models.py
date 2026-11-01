@@ -67,7 +67,11 @@ class FarmerProfile(UUIDModel, TimeStampedModel):
     certifications = models.JSONField(default=list, blank=True)
     experience_years = models.PositiveIntegerField(default=0)
     specialties = models.JSONField(default=list, blank=True)
-    preferred_language = models.CharField(max_length=16, default="en")
+    # Blank means "not chosen yet" — detection then falls back to the
+    # request's country and Accept-Language. Storing "en" by default would be
+    # indistinguishable from an explicit choice of English and would pin every
+    # new account to it.
+    preferred_language = models.CharField(max_length=16, blank=True, default="")
     license_number = models.CharField(max_length=64, blank=True)
     bio = models.TextField(blank=True)
     emergency_contact = models.CharField(max_length=128, blank=True)

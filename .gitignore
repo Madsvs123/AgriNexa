@@ -34,3 +34,6 @@ Thumbs.db
 /*.md
 !/README.md
 !/AgriNexa.md
+
+# Compiled gettext catalogues (built from .po by `manage.py compilepo`)
+*.mo

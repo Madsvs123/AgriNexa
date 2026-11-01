@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
@@ -29,6 +30,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import { ConfirmDialog, Drawer } from "@/components/ui/Modal";
 import { ErrorBanner, FormField } from "@/components/ui/FormField";
 import { CropChip } from "@/components/planning/CropChip";
+import { usePlanningMessage } from "@/components/planning/PlanningMessage";
 import { useScope } from "@/hooks/useScope";
 import { formatDate } from "@/lib/utils";
 import type { RotationStep } from "@/types";
@@ -45,6 +47,8 @@ export default function RotationDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { seasonId } = useScope();
+  const renderMessage = usePlanningMessage();
+  const { t: tGrow } = useTranslation("grow");
   const rotQ = useQuery({ queryKey: ["rotation", id], queryFn: () => cropsApi.getRotation(id), enabled: !!id });
   const validQ = useQuery({ queryKey: ["rotation-validate", id], queryFn: () => cropsApi.validateRotation(id), enabled: !!id });
   const cropsQ = useQuery({ queryKey: ["crops"], queryFn: () => cropsApi.crops() });
@@ -198,8 +202,8 @@ export default function RotationDetailPage() {
                       {(validation?.issues ?? []).map((i, idx) => (
                         <Alert key={idx} status={i.level === "error" ? "error" : i.level === "warning" ? "warning" : "info"} variant="left-accent" borderRadius="md" py={2} fontSize="sm">
                           <AlertIcon boxSize={4} />
-                          {i.year_offset != null ? `Year ${i.year_offset + 1}: ` : ""}
-                          {i.message}
+                          {i.year_offset != null ? `${tGrow("rotation.yearPrefix", { year: i.year_offset + 1 })} ` : ""}
+                          {renderMessage(i)}
                         </Alert>
                       ))}
                       <SimpleGrid columns={{ base: 1, md: 2, xl: Math.min(years.length, 4) }} spacing={3}>

@@ -76,7 +76,8 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
         would silently fall back to English on every request.
         """
         if not value:
-            return "en"
+            # Explicitly clearing the field returns the user to detection.
+            return ""
         normalized = normalize_language(value)
         if not normalized:
             raise serializers.ValidationError(

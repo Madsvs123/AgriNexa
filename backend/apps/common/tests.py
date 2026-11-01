@@ -1,4 +1,5 @@
 from django.test import RequestFactory, SimpleTestCase
+from django.utils import translation
 from rest_framework.test import APITestCase
 
 from apps.common import i18n
@@ -102,8 +103,23 @@ class ProfileLanguageTests(APITestCase):
             HTTP_X_ORGANIZATION_ID=body["organizations"][0]["id"],
         )
 
-    def test_defaults_to_english(self):
-        self.assertEqual(self.client.get("/api/auth/profile/").json()["preferred_language"], "en")
+    def test_defaults_to_unset_so_detection_applies(self):
+        """A new account has no stored preference, so the request's country and
+        Accept-Language still decide — English is the fallback, not a sticky
+        stored value."""
+        self.assertEqual(self.client.get("/api/auth/profile/").json()["preferred_language"], "")
+        res = self.client.get("/api/auth/profile/", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(res["Content-Language"], "es")
+
+    def test_clearing_preference_restores_detection(self):
+        self.client.patch("/api/auth/profile/", {"preferred_language": "ar"}, format="json")
+        self.assertEqual(
+            self.client.get("/api/auth/profile/", HTTP_ACCEPT_LANGUAGE="es")["Content-Language"], "ar"
+        )
+        self.client.patch("/api/auth/profile/", {"preferred_language": ""}, format="json")
+        self.assertEqual(
+            self.client.get("/api/auth/profile/", HTTP_ACCEPT_LANGUAGE="es")["Content-Language"], "es"
+        )
 
     def test_accepts_supported_language_and_normalizes_region(self):
         for sent, stored in [("ar", "ar"), ("es-MX", "es"), ("EN", "en")]:
@@ -135,3 +151,75 @@ class ProfileLanguageTests(APITestCase):
         self.client.credentials()
         body = self.client.get("/api/i18n/detect/", HTTP_CF_IPCOUNTRY="SA").json()
         self.assertEqual((body["language"], body["source"]), ("ar", "country"))
+
+
+class TranslationCatalogueTests(SimpleTestCase):
+    """The .mo files are produced by our own pure-Python compiler (no gettext
+    binary in the build image), so prove Django can actually read them."""
+
+    def test_choice_labels_translate(self):
+        from django.utils.translation import gettext as _
+
+        cases = {
+            "es": [("Clay loam", "Franco arcilloso"), ("Cover crop", "Cultivo de cobertura"),
+                   ("Soil Moisture", "Humedad del suelo"), ("Monoculture", "Monocultivo")],
+            "ar": [("Clay loam", "طميية طينية"), ("Cover crop", "محصول تغطية"),
+                   ("Soil Moisture", "رطوبة التربة"), ("Intercrop", "تحميل")],
+        }
+        for lang, probes in cases.items():
+            with translation.override(lang):
+                for source, expected in probes:
+                    self.assertEqual(_(source), expected, f"{lang}: {source}")
+
+    def test_english_is_passthrough(self):
+        from django.utils.translation import gettext as _
+
+        with translation.override("en"):
+            self.assertEqual(_("Clay loam"), "Clay loam")
+
+    def test_untranslated_string_falls_back_to_english(self):
+        from django.utils.translation import gettext as _
+
+        with translation.override("ar"):
+            self.assertEqual(_("A string nobody has translated"), "A string nobody has translated")
+
+
+class LocalizedApiTests(APITestCase):
+    """Choice labels reach the UI through DRF's *_display fields, so they must
+    follow the request language."""
+
+    REG = {
+        "email": "l10n@agrinexa.test",
+        "password": "Harvest!2026-strong",
+        "first_name": "L",
+        "last_name": "Ten",
+        "organization_name": "L10n Farms",
+    }
+
+    def setUp(self):
+        self.client.post("/api/auth/register/", self.REG, format="json")
+        body = self.client.post(
+            "/api/auth/login/", {"email": self.REG["email"], "password": self.REG["password"]}, format="json"
+        ).json()
+        self.token = body["access"]
+        self.org = body["organizations"][0]["id"]
+
+    def _auth(self, **extra):
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {self.token}", HTTP_X_ORGANIZATION_ID=self.org, **extra
+        )
+
+    def test_soil_layer_display_follows_accept_language(self):
+        from apps.crops.models import Crop  # noqa: F401
+        from apps.farms.models import Farm, Field, SoilLayer
+
+        farm = Farm.objects.create(organization_id=self.org, name="F")
+        field = Field.objects.create(farm=farm, name="N80", acres=10)
+        SoilLayer.objects.create(field=field, name="Ridge", soil_type="clay_loam")
+
+        for lang, expected in (("en", "Clay loam"), ("es", "Franco arcilloso"), ("ar", "طميية طينية")):
+            self._auth(HTTP_ACCEPT_LANGUAGE=lang)
+            res = self.client.get("/api/soil-layers/")
+            self.assertEqual(res.status_code, 200, res.content)
+            self.assertEqual(res["Content-Language"], lang)
+            self.assertEqual(res.json()["results"][0]["soil_type_display"], expected, lang)

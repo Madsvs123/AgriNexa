@@ -33,6 +33,7 @@ import { ComponentsEditor } from "@/components/planning/ComponentsEditor";
 import { ConstraintBars } from "@/components/planning/ConstraintBars";
 import { CropChip } from "@/components/planning/CropChip";
 import { MetricGrid } from "@/components/planning/MetricGrid";
+import { usePlanningMessage } from "@/components/planning/PlanningMessage";
 import { useDebounced } from "@/hooks/useDebounced";
 import { PLANTING_SYSTEMS, RAINFALL_OPTIONS, fitLabel, fitScheme, fmtMoney, riskScheme } from "@/lib/planning";
 import { formatDate, formatNumber } from "@/lib/utils";
@@ -211,6 +212,7 @@ export default function StrategyDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
+  const renderMessage = usePlanningMessage();
   const stratQ = useQuery({ queryKey: ["strategy", id], queryFn: () => cropsApi.getStrategy(id), enabled: !!id });
   const s = stratQ.data;
   const fieldsQ = useQuery({ queryKey: ["fields", { farm: s?.farm }], queryFn: () => farmsApi.fields({ farm: s?.farm }), enabled: !!s?.farm });
@@ -360,7 +362,9 @@ export default function StrategyDetailPage() {
                     <Heading size="xs" mb={2}>Warnings ({ev.warnings.length})</Heading>
                     <Stack spacing={1.5}>
                       {ev.warnings.slice(0, 8).map((w, i) => (
-                        <Text key={i} fontSize="xs" color="fg.muted">• {w}</Text>
+                        <Text key={`${w.code}-${i}`} fontSize="xs" color="fg.muted">
+                          • {renderMessage(w)}
+                        </Text>
                       ))}
                     </Stack>
                   </CardBody>

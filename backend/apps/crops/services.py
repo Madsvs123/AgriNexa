@@ -51,6 +51,18 @@ def _q(value: Decimal) -> float:
     return float(_d(value).quantize(TWO_PLACES, rounding=ROUND_HALF_UP))
 
 
+
+def warning(code: str, message: str, **params) -> dict:
+    """A machine-translatable planning warning.
+
+    Returns the code and its parameters alongside an English `message`. The SPA
+    renders from `code`, which lets each language choose its own word order,
+    date format, and plural rules — none of which survive an interpolated
+    English sentence. Non-UI consumers and logs keep reading `message`.
+    """
+    return {"code": code, "params": params, "message": message}
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Planting windows
 # ─────────────────────────────────────────────────────────────────────────────
@@ -154,31 +166,58 @@ def assess_planting(
         if window["start"] and window["end"]:
             if planting_date < window["start"]:
                 fit = "early"
+                days_early = (window["start"] - planting_date).days
                 warnings.append(
-                    f"Planting {(window['start'] - planting_date).days} days before the window opens "
-                    f"({window['start']:%b %d}); cold soil and frost risk."
+                    warning(
+                        "planting.before_window",
+                        f"Planting {days_early} days before the window opens "
+                        f"({window['start']:%b %d}); cold soil and frost risk.",
+                        days=days_early,
+                        window_start=window["start"].isoformat(),
+                    )
                 )
             elif planting_date <= window["end"]:
                 fit = "optimal"
             elif window["late_end"] and planting_date <= window["late_end"]:
                 fit = "late"
                 warnings.append(
-                    f"Past the optimal window ({window['end']:%b %d}); expect a yield penalty."
+                    warning(
+                        "planting.past_optimal",
+                        f"Past the optimal window ({window['end']:%b %d}); expect a yield penalty.",
+                        window_end=window["end"].isoformat(),
+                    )
                 )
             else:
                 fit = "outside"
+                closes = window["late_end"] or window["end"]
                 warnings.append(
-                    f"Outside the acceptable window (closes {(window['late_end'] or window['end']):%b %d})."
+                    warning(
+                        "planting.outside_window",
+                        f"Outside the acceptable window (closes {closes:%b %d}).",
+                        closes=closes.isoformat(),
+                    )
                 )
         if window["harvest_by"]:
             harvest_ok = harvest_date <= window["harvest_by"]
             if not harvest_ok:
                 warnings.append(
-                    f"Projected harvest {harvest_date:%b %d} is after the harvest-by date "
-                    f"{window['harvest_by']:%b %d}; choose an earlier variety or plant sooner."
+                    warning(
+                        "planting.harvest_too_late",
+                        f"Projected harvest {harvest_date:%b %d} is after the harvest-by date "
+                        f"{window['harvest_by']:%b %d}; choose an earlier variety or plant sooner.",
+                        harvest=harvest_date.isoformat(),
+                        harvest_by=window["harvest_by"].isoformat(),
+                    )
                 )
         if season.end_date and harvest_date > season.end_date:
-            warnings.append(f"Harvest {harvest_date:%b %d} falls after the season ends {season.end_date:%b %d}.")
+            warnings.append(
+                warning(
+                    "planting.harvest_after_season",
+                    f"Harvest {harvest_date:%b %d} falls after the season ends {season.end_date:%b %d}.",
+                    harvest=harvest_date.isoformat(),
+                    season_end=season.end_date.isoformat(),
+                )
+            )
 
     # Soil suitability
     soil_match = None
@@ -186,8 +225,14 @@ def assess_planting(
         soil_match = (field.soil_type or "") in variety.suitable_soils
         if not soil_match:
             warnings.append(
-                f"{variety.name} is not rated for {field.soil_type or 'this soil'} "
-                f"(suits: {', '.join(variety.suitable_soils)})."
+                warning(
+                    "variety.soil_mismatch",
+                    f"{variety.name} is not rated for {field.soil_type or 'this soil'} "
+                    f"(suits: {', '.join(variety.suitable_soils)}).",
+                    variety=variety.name,
+                    soil=field.soil_type or "",
+                    suits=", ".join(variety.suitable_soils),
+                )
             )
 
     # Irrigation vs water need
@@ -195,7 +240,13 @@ def assess_planting(
     if crop.water_need == Crop.WaterNeed.HIGH and irrigation == "none":
         tol = variety.drought_tolerance if variety else 3
         if tol < 4:
-            warnings.append("High-water crop on a dryland field; consider a drought-tolerant variety or irrigation.")
+            warnings.append(
+                warning(
+                    "crop.high_water_dryland",
+                    "High-water crop on a dryland field; consider a drought-tolerant variety or irrigation.",
+                    crop=crop.name,
+                )
+            )
 
     # Previous occupant conflict + rotation
     prev = previous_occupant(field, season, exclude_plan_id=exclude_plan_id)
@@ -206,6 +257,11 @@ def assess_planting(
                 "plan_id": str(prev.id),
                 "crop_name": prev.crop.name,
                 "harvest_date": prev.expected_harvest_date.isoformat(),
+                "code": "planting.previous_crop_in_ground",
+                "params": {
+                    "crop": prev.crop.name,
+                    "harvest_date": prev.expected_harvest_date.isoformat(),
+                },
                 "message": f"{prev.crop.name} is still in the ground until {prev.expected_harvest_date:%b %d}.",
             }
         )
@@ -280,21 +336,55 @@ def rotation_check(field: Field, crop: Crop, season: GrowingSeason) -> dict:
     prev_crop: Crop | None = prev["crop"]
     if prev["name"].lower() == crop.name.lower():
         score -= 40
-        warnings.append(f"{crop.name} follows {crop.name}; continuous cropping builds pest and disease pressure.")
+        warnings.append(
+            warning(
+                "rotation.continuous_cropping",
+                f"{crop.name} follows {crop.name}; continuous cropping builds pest and disease pressure.",
+                crop=crop.name,
+            )
+        )
     elif prev_crop and crop.family and prev_crop.family and prev_crop.family == crop.family:
         score -= 25
-        warnings.append(f"{crop.name} follows {prev['name']} (same family {crop.family}); shared pathogens.")
+        warnings.append(
+            warning(
+                "rotation.same_family",
+                f"{crop.name} follows {prev['name']} (same family {crop.family}); shared pathogens.",
+                crop=crop.name,
+                previous=prev["name"],
+                family=crop.family,
+            )
+        )
     if prev_crop and prev_crop.nitrogen_fixing and crop.category in HEAVY_FEEDER_CATEGORIES:
         score = min(100, score + 10)
-        notes.append(f"Legume credit: {prev['name']} before {crop.name} offsets nitrogen demand.")
+        notes.append(
+            warning(
+                "rotation.legume_credit",
+                f"Legume credit: {prev['name']} before {crop.name} offsets nitrogen demand.",
+                crop=crop.name,
+                previous=prev["name"],
+            )
+        )
     if prev_crop and prev_crop.root_depth == crop.root_depth and prev_crop.root_depth != "medium":
         score -= 5
-        notes.append("Consecutive crops share rooting depth; alternate deep and shallow to use the profile.")
+        notes.append(
+            warning(
+                "rotation.same_root_depth",
+                "Consecutive crops share rooting depth; alternate deep and shallow to use the profile.",
+            )
+        )
     # Frequency in the last four seasons
     same = sum(1 for x in lineage if x["name"].lower() == crop.name.lower())
     if same >= 2:
         score -= 15
-        warnings.append(f"{crop.name} appeared {same} times in the last {len(lineage)} seasons.")
+        warnings.append(
+            warning(
+                "rotation.too_frequent",
+                f"{crop.name} appeared {same} times in the last {len(lineage)} seasons.",
+                crop=crop.name,
+                count=same,
+                seasons=len(lineage),
+            )
+        )
     return {
         "score": max(0, score),
         "lineage": [{"name": x["name"], "year": x["year"], "source": x["source"]} for x in lineage],
@@ -309,23 +399,50 @@ def rotation_validate(rotation: RotationPlan) -> dict:
     mains = [s for s in steps if s.role == RotationStep.Role.MAIN and s.crop]
     issues: list[dict] = []
     if not mains:
-        return {"ok": False, "issues": [{"level": "error", "message": "Rotation has no main-crop steps."}]}
+        return {
+            "ok": False,
+            "issues": [
+                {"level": "error", **warning("rotation.no_main_steps", "Rotation has no main-crop steps.")}
+            ],
+        }
     for i, step in enumerate(mains):
         nxt = mains[(i + 1) % len(mains)]
         if len(mains) > 1 and step.crop_id == nxt.crop_id:
             issues.append(
-                {"level": "warning", "year_offset": nxt.year_offset, "message": f"{step.crop.name} repeats back-to-back."}
+                {
+                    "level": "warning",
+                    "year_offset": nxt.year_offset,
+                    **warning(
+                        "rotation.repeats_back_to_back",
+                        f"{step.crop.name} repeats back-to-back.",
+                        crop=step.crop.name,
+                    ),
+                }
             )
         elif step.crop.family and step.crop.family == nxt.crop.family and step.crop_id != nxt.crop_id:
             issues.append(
                 {
                     "level": "warning",
                     "year_offset": nxt.year_offset,
-                    "message": f"{step.crop.name} → {nxt.crop.name} are both {step.crop.family}.",
+                    **warning(
+                        "rotation.consecutive_family",
+                        f"{step.crop.name} → {nxt.crop.name} are both {step.crop.family}.",
+                        crop=step.crop.name,
+                        next=nxt.crop.name,
+                        family=step.crop.family,
+                    ),
                 }
             )
     if not any(s.crop.nitrogen_fixing for s in mains):
-        issues.append({"level": "info", "message": "No nitrogen-fixing crop in the cycle; expect higher N inputs."})
+        issues.append(
+            {
+                "level": "info",
+                **warning(
+                    "rotation.no_legume",
+                    "No nitrogen-fixing crop in the cycle; expect higher N inputs.",
+                ),
+            }
+        )
     families = {s.crop.family or s.crop.name for s in mains}
     diversity = len(families) / len(mains)
     return {
@@ -731,7 +848,7 @@ def evaluate_strategy(strategy: FarmingStrategy, *, save: bool = True) -> dict:
             if assessment["fit"] in ("late", "outside", "early"):
                 late_or_outside += 1
             for w in assessment["warnings"]:
-                warnings.append(f"{a.field.name}: {w}")
+                warnings.append({**w, "field": a.field.name, "message": f"{a.field.name}: {w['message']}"})
         per_field.append(row)
 
     constraints = applicable_constraints(org_id, strategy.farm_id, strategy.season_id)

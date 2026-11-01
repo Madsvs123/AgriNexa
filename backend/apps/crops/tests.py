@@ -23,6 +23,12 @@ from apps.tenancy.models import FarmAccess, Membership, Organization, Role
 User = get_user_model()
 
 
+def codes(entries):
+    """Warning/note codes, ignoring the English prose that carries them."""
+    return [e["code"] for e in entries]
+
+
+
 class PlanningFixtureMixin:
     """An org with two fields, three crops with economics, and a season."""
 
@@ -102,7 +108,16 @@ class PlantingWindowTests(PlanningFixtureMixin, APITestCase):
     def test_harvest_deadline_flags_slow_variety(self):
         a = services.assess_planting(self.f1, self.corn, self.corn_full, date(2026, 7, 1), self.season)
         self.assertFalse(a["harvest_ok"])
-        self.assertTrue(any("harvest-by" in w for w in a["warnings"]))
+        self.assertIn("planting.harvest_too_late", codes(a["warnings"]))
+
+    def test_warnings_carry_a_code_and_parameters(self):
+        """Clients translate from `code` + `params`; `message` is the English
+        fallback for API consumers and logs."""
+        a = services.assess_planting(self.f1, self.corn, None, date(2026, 4, 1), self.season)
+        early = next(w for w in a["warnings"] if w["code"] == "planting.before_window")
+        self.assertEqual(early["params"]["days"], 19)
+        self.assertEqual(early["params"]["window_start"], "2026-04-20")
+        self.assertIn("19 days", early["message"])
 
     def test_category_default_when_no_window_defined(self):
         a = services.assess_planting(self.f1, self.soy, None, date(2026, 5, 10), self.season)
@@ -162,7 +177,7 @@ class RotationTests(PlanningFixtureMixin, APITestCase):
         CropHistory.objects.create(field=self.f1, crop_name="Corn", planted_at=date(2025, 5, 1))
         same = services.rotation_check(self.f1, self.corn, self.season)
         self.assertLess(same["score"], 70)
-        self.assertTrue(any("continuous" in w for w in same["warnings"]))
+        self.assertIn("rotation.continuous_cropping", codes(same["warnings"]))
         wheat = Crop.objects.create(organization=self.org, name="Wheat", category="grain", family="Poaceae")
         family = services.rotation_check(self.f1, wheat, self.season)
         self.assertLess(family["score"], 100)
@@ -172,7 +187,7 @@ class RotationTests(PlanningFixtureMixin, APITestCase):
         CropHistory.objects.create(field=self.f1, crop_name="Soybean", planted_at=date(2025, 5, 1))
         r = services.rotation_check(self.f1, self.corn, self.season)
         self.assertEqual(r["score"], 100)
-        self.assertTrue(any("Legume credit" in n for n in r["notes"]))
+        self.assertIn("rotation.legume_credit", codes(r["notes"]))
 
     def _rotation(self):
         rot = RotationPlan.objects.create(farm=self.farm, name="CSW", start_year=2025)
@@ -198,7 +213,7 @@ class RotationTests(PlanningFixtureMixin, APITestCase):
         RotationStep.objects.create(rotation=rot, year_offset=0, crop=self.corn)
         RotationStep.objects.create(rotation=rot, year_offset=1, crop=self.corn)
         v = services.rotation_validate(rot)
-        self.assertTrue(any("back-to-back" in i["message"] for i in v["issues"]))
+        self.assertIn("rotation.repeats_back_to_back", codes(v["issues"]))
 
     def test_preview_and_create_strategy(self):
         rot = self._rotation()

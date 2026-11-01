@@ -1,15 +1,16 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel, UUIDModel
 
 
 class IrrigationZone(UUIDModel, TimeStampedModel):
     class Method(models.TextChoices):
-        DRIP = "drip", "Drip"
-        SPRINKLER = "sprinkler", "Sprinkler"
-        FLOOD = "flood", "Flood"
-        PIVOT = "pivot", "Pivot"
+        DRIP = "drip", _("Drip")
+        SPRINKLER = "sprinkler", _("Sprinkler")
+        FLOOD = "flood", _("Flood")
+        PIVOT = "pivot", _("Pivot")
 
     farm = models.ForeignKey("farms.Farm", on_delete=models.CASCADE, related_name="irrigation_zones")
     field = models.ForeignKey(
@@ -33,9 +34,9 @@ class IrrigationZone(UUIDModel, TimeStampedModel):
 
 class IrrigationSchedule(UUIDModel, TimeStampedModel):
     class Recurrence(models.TextChoices):
-        NONE = "none", "None"
-        DAILY = "daily", "Daily"
-        WEEKLY = "weekly", "Weekly"
+        NONE = "none", _("None")
+        DAILY = "daily", _("Daily")
+        WEEKLY = "weekly", _("Weekly")
 
     zone = models.ForeignKey(IrrigationZone, on_delete=models.CASCADE, related_name="schedules")
     name = models.CharField(max_length=128)
@@ -55,10 +56,10 @@ class IrrigationSchedule(UUIDModel, TimeStampedModel):
 
 class WaterUsage(UUIDModel, TimeStampedModel):
     class Source(models.TextChoices):
-        WELL = "well", "Well"
-        CANAL = "canal", "Canal"
-        MUNICIPAL = "municipal", "Municipal"
-        RECYCLED = "recycled", "Recycled"
+        WELL = "well", _("Well")
+        CANAL = "canal", _("Canal")
+        MUNICIPAL = "municipal", _("Municipal")
+        RECYCLED = "recycled", _("Recycled")
 
     zone = models.ForeignKey(IrrigationZone, on_delete=models.CASCADE, related_name="water_usage")
     usage_date = models.DateField()
@@ -76,9 +77,9 @@ class WaterUsage(UUIDModel, TimeStampedModel):
 
 class IrrigationRecommendation(UUIDModel, TimeStampedModel):
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        APPLIED = "applied", "Applied"
-        DISMISSED = "dismissed", "Dismissed"
+        PENDING = "pending", _("Pending")
+        APPLIED = "applied", _("Applied")
+        DISMISSED = "dismissed", _("Dismissed")
 
     zone = models.ForeignKey(IrrigationZone, on_delete=models.CASCADE, related_name="recommendations")
     reason = models.TextField()
@@ -95,9 +96,9 @@ class IrrigationRecommendation(UUIDModel, TimeStampedModel):
 
 class IrrigationEvent(UUIDModel, TimeStampedModel):
     class Mode(models.TextChoices):
-        AUTO = "auto", "Auto"
-        MANUAL = "manual", "Manual"
-        OVERRIDE = "override", "Override"
+        AUTO = "auto", _("Auto")
+        MANUAL = "manual", _("Manual")
+        OVERRIDE = "override", _("Override")
 
     zone = models.ForeignKey(IrrigationZone, on_delete=models.CASCADE, related_name="events")
     started_at = models.DateTimeField()
