@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button, Card, CardBody, Flex, Spacer, Stack, Tag, Text } from "@chakra-ui/react";
 import { getApiError, platformApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
@@ -17,41 +18,54 @@ export default function NotificationsPage() {
   });
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Notifications"
         subtitle="Sensor, frost, inventory, and task alerts."
         actions={
-          <button type="button" className="btn btn-ghost" onClick={() => readAll.mutate()}>
+          <Button variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>
             Mark all read
-          </button>
+          </Button>
         }
       />
       <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
       {(listQ.data?.results ?? []).length === 0 ? (
-        <div className="card">
+        <Box bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
           <EmptyState title="Inbox is quiet" body="When a probe goes critical or MAP hits reorder, it will land here." />
-        </div>
+        </Box>
       ) : (
-        <div className="stack">
+        <Stack spacing={4}>
           {(listQ.data?.results ?? []).map((n) => (
-            <article key={n.id} className="card card-pad" style={{ opacity: n.is_read ? 0.7 : 1 }}>
-              <div className="row">
-                <strong>{n.title}</strong>
-                <span className="spacer" />
-                <span className="chip">{n.category}</span>
-              </div>
-              <p>{n.body}</p>
-              <div className="muted">{formatDateTime(n.created_at)}</div>
-              {!n.is_read ? (
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => read.mutate(n.id)}>
-                  Mark read
-                </button>
-              ) : null}
-            </article>
+            <Card
+              key={n.id}
+              as="article"
+              variant="outline"
+              borderColor="border.default"
+              bg="bg.surface"
+              opacity={n.is_read ? 0.7 : 1}
+            >
+              <CardBody>
+                <Flex align="center" gap={2}>
+                  <Text fontWeight="semibold">{n.title}</Text>
+                  <Spacer />
+                  <Tag size="sm" colorScheme="gray" variant="subtle">
+                    {n.category}
+                  </Tag>
+                </Flex>
+                <Text mt={1}>{n.body}</Text>
+                <Text fontSize="sm" color="fg.muted" mt={1}>
+                  {formatDateTime(n.created_at)}
+                </Text>
+                {!n.is_read ? (
+                  <Button variant="ghost" colorScheme="gray" size="sm" mt={2} onClick={() => read.mutate(n.id)}>
+                    Mark read
+                  </Button>
+                ) : null}
+              </CardBody>
+            </Card>
           ))}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Box>
   );
 }

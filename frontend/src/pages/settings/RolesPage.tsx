@@ -1,5 +1,19 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  Flex,
+  Heading,
+  Input,
+  Spacer,
+  Stack,
+  Tag,
+  Text,
+} from "@chakra-ui/react";
 import { getApiError, tenancyApi } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { Drawer } from "@/components/ui/Modal";
@@ -30,14 +44,13 @@ export default function RolesPage() {
     setPerms((p) => (p.includes(key) ? p.filter((x) => x !== key) : [...p, key]));
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Roles"
         subtitle="Permission sets for operators, agronomists, and admins."
         actions={
-          <button
-            type="button"
-            className="btn btn-primary"
+          <Button
+            colorScheme="brand"
             onClick={() => {
               setEditing(null);
               setName("");
@@ -47,61 +60,72 @@ export default function RolesPage() {
             }}
           >
             New role
-          </button>
+          </Button>
         }
       />
       <ErrorBanner message={rolesQ.error ? getApiError(rolesQ.error) : null} />
-      <div className="stack">
+      <Stack spacing={4}>
         {(rolesQ.data?.results ?? []).map((r) => (
-          <article key={r.id} className="card card-pad">
-            <div className="row">
-              <h3>{r.name}</h3>
-              <span className="spacer" />
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => {
-                  setEditing(r.id);
-                  setName(r.name);
-                  setDescription(r.description);
-                  setPerms(r.permissions ?? []);
-                  setOpen(true);
-                }}
-              >
-                Edit
-              </button>
-            </div>
-            <p className="muted">{r.description}</p>
-            <div className="row" style={{ flexWrap: "wrap" }}>
-              {(r.permissions ?? []).map((p) => (
-                <span key={p} className="chip">
-                  {p}
-                </span>
-              ))}
-            </div>
-          </article>
+          <Card key={r.id} as="article" variant="outline" borderColor="border.default" bg="bg.surface">
+            <CardBody>
+              <Flex align="center" gap={2}>
+                <Heading size="sm">{r.name}</Heading>
+                <Spacer />
+                <Button
+                  variant="ghost"
+                  colorScheme="gray"
+                  size="sm"
+                  onClick={() => {
+                    setEditing(r.id);
+                    setName(r.name);
+                    setDescription(r.description);
+                    setPerms(r.permissions ?? []);
+                    setOpen(true);
+                  }}
+                >
+                  Edit
+                </Button>
+              </Flex>
+              <Text color="fg.muted" mt={1}>
+                {r.description}
+              </Text>
+              <Flex align="center" gap={2} wrap="wrap" mt={2}>
+                {(r.permissions ?? []).map((p) => (
+                  <Tag key={p} size="sm" colorScheme="gray" variant="subtle">
+                    {p}
+                  </Tag>
+                ))}
+              </Flex>
+            </CardBody>
+          </Card>
         ))}
-      </div>
+      </Stack>
       <Drawer open={open} title={editing ? "Edit role" : "New role"} onClose={() => setOpen(false)} wide>
         <FormField label="Name" htmlFor="rname">
-          <input id="rname" className="input" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input id="rname" value={name} onChange={(e) => setName(e.target.value)} />
         </FormField>
         <FormField label="Description" htmlFor="rdesc">
-          <input id="rdesc" className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <Input id="rdesc" value={description} onChange={(e) => setDescription(e.target.value)} />
         </FormField>
-        <fieldset>
-          <legend className="field-label">Permissions</legend>
-          {ROLE_PERMISSIONS.map((p) => (
-            <label key={p.key} className="row" style={{ padding: "6px 0" }}>
-              <input type="checkbox" checked={perms.includes(p.key)} onChange={() => toggle(p.key)} />
-              {p.label} <span className="muted">({p.key})</span>
-            </label>
-          ))}
-        </fieldset>
-        <button type="button" className="btn btn-primary" style={{ marginTop: 12 }} disabled={save.isPending} onClick={() => save.mutate()}>
+        <Box as="fieldset">
+          <Text as="legend" fontWeight="medium" mb={1}>
+            Permissions
+          </Text>
+          <Stack spacing={1}>
+            {ROLE_PERMISSIONS.map((p) => (
+              <Checkbox key={p.key} isChecked={perms.includes(p.key)} onChange={() => toggle(p.key)} py={1}>
+                {p.label}{" "}
+                <Text as="span" color="fg.muted">
+                  ({p.key})
+                </Text>
+              </Checkbox>
+            ))}
+          </Stack>
+        </Box>
+        <Button colorScheme="brand" mt={3} isDisabled={save.isPending} onClick={() => save.mutate()}>
           Save role
-        </button>
+        </Button>
       </Drawer>
-    </div>
+    </Box>
   );
 }

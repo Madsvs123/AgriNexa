@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Card, CardBody, Flex, Heading, Input, Text } from "@chakra-ui/react";
 import { getApiError, platformApi } from "@/api/client";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { EmptyState } from "@/components/ui/StatCard";
@@ -33,47 +34,56 @@ export default function SearchPage() {
   const any = groups.some((g) => g.items.length);
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader title="Search" subtitle="Farms, fields, equipment, inventory, and tasks." />
-      <form
-        className="filters"
+      <Flex
+        as="form"
+        gap={3}
+        wrap="wrap"
+        mb={4}
         onSubmit={(e) => {
           e.preventDefault();
         }}
       >
-        <input
-          className="input"
-          style={{ minWidth: 280 }}
+        <Input
+          minW="280px"
+          maxW="420px"
           value={q}
           onChange={(e) => setParams({ q: e.target.value })}
           placeholder="North Ridge, Planter 12, MAP 11-52-0…"
           aria-label="Search"
         />
-      </form>
+      </Flex>
       <ErrorBanner message={searchQ.error ? getApiError(searchQ.error) : null} />
       {!q ? (
-        <div className="card">
+        <Card variant="outline" borderColor="border.default" bg="bg.surface">
           <EmptyState title="Start typing" body="Search by farm code, field nickname, SKU, or machine name." />
-        </div>
+        </Card>
       ) : !any && searchQ.isFetched ? (
-        <div className="card">
+        <Card variant="outline" borderColor="border.default" bg="bg.surface">
           <EmptyState title={`No matches for “${q}”`} body="Try a shorter token or a farm code like WR-02." />
-        </div>
+        </Card>
       ) : (
         groups.map((g) =>
           g.items.length ? (
-            <section key={g.label} className="card card-pad" style={{ marginBottom: 12 }}>
-              <h3>{g.label}</h3>
-              {g.items.map((item) => (
-                <Link key={item.id} to={item.to} className="row" style={{ padding: "8px 0" }}>
-                  <strong>{item.name}</strong>
-                  <span className="muted">{item.meta}</span>
-                </Link>
-              ))}
-            </section>
+            <Card as="section" key={g.label} variant="outline" borderColor="border.default" bg="bg.surface" mb={3}>
+              <CardBody>
+                <Heading size="sm">{g.label}</Heading>
+                {g.items.map((item) => (
+                  <Flex key={item.id} as={RouterLink} to={item.to} align="center" gap={2} py={2}>
+                    <Text as="span" fontWeight="semibold">
+                      {item.name}
+                    </Text>
+                    <Text as="span" color="fg.muted">
+                      {item.meta}
+                    </Text>
+                  </Flex>
+                ))}
+              </CardBody>
+            </Card>
           ) : null,
         )
       )}
-    </div>
+    </Box>
   );
 }

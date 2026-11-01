@@ -2,6 +2,19 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { format, parseISO } from "date-fns";
+import {
+  Alert,
+  AlertIcon,
+  Badge,
+  Box,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  Select,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import { farmsApi, getApiError, weatherApi } from "@/api/client";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { ChartCard } from "@/components/ui/StatCard";
@@ -29,60 +42,76 @@ export default function WeatherPage() {
   );
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Weather"
         subtitle="Conditions, forecast, and agronomic recommendations."
         actions={
-          <select className="select" aria-label="Farm" value={farmId ?? ""} onChange={(e) => setFarm(e.target.value)}>
+          <Select aria-label="Farm" value={farmId ?? ""} onChange={(e) => setFarm(e.target.value)} maxW="xs" bg="bg.surface">
             {(farmsQ.data?.results ?? []).map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>
             ))}
-          </select>
+          </Select>
         }
       />
       <ErrorBanner message={currentQ.error ? getApiError(currentQ.error) : null} />
       {frost.map((a) => (
-        <div key={a.id} className="notice-frost" style={{ marginBottom: 10 }}>
-          <strong>{a.title}</strong> — {a.message}
-        </div>
+        <Alert key={a.id} status="info" borderRadius="md" mb={2.5}>
+          <AlertIcon />
+          <Text as="span">
+            <Text as="strong">{a.title}</Text> — {a.message}
+          </Text>
+        </Alert>
       ))}
       {heat.map((a) => (
-        <div key={a.id} className="notice-heat" style={{ marginBottom: 10 }}>
-          <strong>{a.title}</strong> — {a.message}
-        </div>
+        <Alert key={a.id} status="warning" borderRadius="md" mb={2.5}>
+          <AlertIcon />
+          <Text as="span">
+            <Text as="strong">{a.title}</Text> — {a.message}
+          </Text>
+        </Alert>
       ))}
-      <section className="card weather-hero" style={{ marginBottom: 16 }}>
-        <div>
-          <div className="muted">Now at {farmsQ.data?.results.find((f) => f.id === farmId)?.name}</div>
-          <div className="temp">{current ? `${Math.round(current.temperature_f)}°` : "—"}</div>
-          <div>
-            {current?.conditions ?? "No station feed"} · Feels {current?.feels_like ?? "—"}°
-          </div>
-        </div>
-        <div>
-          <div>Humidity {current?.humidity ?? "—"}%</div>
-          <div>Wind {current?.wind_mph ?? "—"} mph</div>
-          <div>Rain today {current?.rainfall_in ?? "—"} in</div>
-        </div>
-      </section>
-      <div className="forecast-strip" style={{ marginBottom: 16 }}>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mb={4}>
+        <CardBody>
+          <Flex justify="space-between" align="center" gap={6} wrap="wrap">
+            <Box>
+              <Text color="fg.muted">Now at {farmsQ.data?.results.find((f) => f.id === farmId)?.name}</Text>
+              <Text fontFamily="heading" fontSize="5xl" lineHeight="1.1">
+                {current ? `${Math.round(current.temperature_f)}°` : "—"}
+              </Text>
+              <Text>
+                {current?.conditions ?? "No station feed"} · Feels {current?.feels_like ?? "—"}°
+              </Text>
+            </Box>
+            <Box>
+              <Text>Humidity {current?.humidity ?? "—"}%</Text>
+              <Text>Wind {current?.wind_mph ?? "—"} mph</Text>
+              <Text>Rain today {current?.rainfall_in ?? "—"} in</Text>
+            </Box>
+          </Flex>
+        </CardBody>
+      </Card>
+      <Flex gap={3} overflowX="auto" mb={4}>
         {forecast.map((d) => (
-          <article key={d.date} className="card forecast-day">
-            <div className="muted">{safeDay(d.date)}</div>
-            <strong>
-              {Math.round(d.high)}° / {Math.round(d.low)}°
-            </strong>
-            <div>{d.conditions}</div>
-            <div className="muted">{d.precip_chance}% · {d.rainfall_in} in</div>
-          </article>
+          <Card key={d.date} as="article" variant="outline" borderColor="border.default" bg="bg.surface" minW="140px" flexShrink={0}>
+            <CardBody py={3}>
+              <Text color="fg.muted">{safeDay(d.date)}</Text>
+              <Text as="strong">
+                {Math.round(d.high)}° / {Math.round(d.low)}°
+              </Text>
+              <Text>{d.conditions}</Text>
+              <Text color="fg.muted">
+                {d.precip_chance}% · {d.rainfall_in} in
+              </Text>
+            </CardBody>
+          </Card>
         ))}
-      </div>
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
+      </Flex>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <ChartCard title="Rainfall history">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <BarChart data={history}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -92,10 +121,10 @@ export default function WeatherPage() {
                 <Bar dataKey="rainfall_in" fill="#3D7EA6" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
         <ChartCard title="Temperature trend">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <LineChart data={tempLine}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -106,28 +135,38 @@ export default function WeatherPage() {
                 <Line dataKey="low" stroke="#175CD3" dot={false} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
-      </div>
-      <div className="grid grid-3">
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
         {(recQ.data ?? []).map((r) => (
-          <article key={r.id} className="card card-pad">
-            <div className="chip">{r.category}</div>
-            <h3>{r.title}</h3>
-            <p>{r.body}</p>
-          </article>
+          <Card key={r.id} as="article" variant="outline" borderColor="border.default" bg="bg.surface">
+            <CardBody>
+              <Badge colorScheme="brand" variant="subtle" mb={2}>
+                {r.category}
+              </Badge>
+              <Heading size="sm" mb={2}>
+                {r.title}
+              </Heading>
+              <Text>{r.body}</Text>
+            </CardBody>
+          </Card>
         ))}
         {!recQ.data?.length ? (
-          <article className="card card-pad">
-            <h3>Recommendations</h3>
-            <p className="muted">Spray windows and planting advice appear when a forecast is available.</p>
-          </article>
+          <Card as="article" variant="outline" borderColor="border.default" bg="bg.surface">
+            <CardBody>
+              <Heading size="sm" mb={2}>
+                Recommendations
+              </Heading>
+              <Text color="fg.muted">Spray windows and planting advice appear when a forecast is available.</Text>
+            </CardBody>
+          </Card>
         ) : null}
-      </div>
-      <p className="muted" style={{ marginTop: 16 }}>
+      </SimpleGrid>
+      <Text color="fg.muted" mt={4}>
         {stationsQ.data?.count ?? 0} weather stations registered.
-      </p>
-    </div>
+      </Text>
+    </Box>
   );
 }
 

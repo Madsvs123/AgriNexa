@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link as RouterLink, Navigate, useNavigate } from "react-router-dom";
+import { Button, Input, Link, Text } from "@chakra-ui/react";
 import { authApi, getApiError } from "@/api/client";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthLayout } from "./AuthLayout";
@@ -37,9 +38,8 @@ export default function LoginPage() {
       <ErrorBanner message={error} />
       <form onSubmit={onSubmit}>
         <FormField label="Work email" htmlFor="email">
-          <input
+          <Input
             id="email"
-            className="input"
             type="email"
             autoComplete="username"
             required
@@ -48,9 +48,8 @@ export default function LoginPage() {
           />
         </FormField>
         <FormField label="Password" htmlFor="password">
-          <input
+          <Input
             id="password"
-            className="input"
             type="password"
             autoComplete="current-password"
             required
@@ -58,13 +57,16 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </FormField>
-        <button type="submit" className="btn btn-primary" style={{ width: "100%" }} disabled={pending}>
+        <Button type="submit" colorScheme="brand" w="100%" isDisabled={pending}>
           {pending ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
       </form>
-      <p className="muted" style={{ marginTop: 14 }}>
-        New grower? <Link to="/register">Create an organization</Link>
-      </p>
+      <Text color="fg.muted" mt={3.5}>
+        New grower?{" "}
+        <Link as={RouterLink} to="/register" color="brand.500">
+          Create an organization
+        </Link>
+      </Text>
     </AuthLayout>
   );
 }

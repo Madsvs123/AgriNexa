@@ -1,6 +1,7 @@
-import { Link, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { differenceInDays, parseISO } from "date-fns";
+import { Box, Card, CardBody, Flex, Grid, Heading, Link, SimpleGrid, Text } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { formatAcres, formatDate } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
@@ -17,16 +18,16 @@ export default function CropPlanDetailPage() {
 
   if (planQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock />
-      </div>
+      </Box>
     );
   }
   if (!plan) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={planQ.error ? getApiError(planQ.error) : "Plan not found."} />
-      </div>
+      </Box>
     );
   }
 
@@ -36,50 +37,67 @@ export default function CropPlanDetailPage() {
   }, Date.now());
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={plan.name}
         subtitle={`${plan.crop_name} · ${plan.variety_name ?? "Variety TBD"} · ${plan.field_name}`}
         crumbs={
           <>
-            <Link to="/crops/plans">Plans</Link>
-            <span>/</span>
-            <span>{plan.name}</span>
+            <Link as={RouterLink} to="/crops/plans">
+              Plans
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{plan.name}</Text>
           </>
         }
       />
-      <div className="row" style={{ marginBottom: 16, gap: 16 }}>
+      <Flex align="center" gap={4} wrap="wrap" mb={4}>
         <StatusBadge status={plan.status} />
-        <span>{formatAcres(plan.planted_acres)}</span>
-        <span>Target {plan.target_yield ?? "—"} bu/ac</span>
-        <span>Plant {formatDate(plan.planting_date)}</span>
-        <span>Harvest {formatDate(plan.expected_harvest)}</span>
-      </div>
-      <section className="card card-pad" style={{ marginBottom: 16 }}>
-        <h3>Planting schedule</h3>
-        {(schedQ.data?.results ?? []).map((s) => {
-          const start = parseISO(s.start_date);
-          const offset = Math.max(0, differenceInDays(start, new Date(ganttStart)));
-          const width = Math.max(8, differenceInDays(parseISO(s.end_date), start) * 12);
-          return (
-            <div key={s.id} className="gantt-row">
-              <div>
-                <strong>{s.activity}</strong>
-                <div className="muted">{s.field_name ?? plan.field_name}</div>
-              </div>
-              <div style={{ position: "relative", background: "#efece3", borderRadius: 8, height: 28 }}>
-                <div className="gantt-bar" style={{ marginLeft: offset * 8, width }} title={`${formatDate(s.start_date)} – ${formatDate(s.end_date)}`} />
-              </div>
-            </div>
-          );
-        })}
-        {!schedQ.data?.results.length ? <p className="muted">Add tillage, plant, and harvest windows to see the Gantt.</p> : null}
-      </section>
-      <div className="grid grid-2">
-        <div className="card">
-          <div className="card-pad">
-            <h3>Fertilizer plan</h3>
-          </div>
+        <Text as="span">{formatAcres(plan.planted_acres)}</Text>
+        <Text as="span">Target {plan.target_yield ?? "—"} bu/ac</Text>
+        <Text as="span">Plant {formatDate(plan.planting_date)}</Text>
+        <Text as="span">Harvest {formatDate(plan.expected_harvest)}</Text>
+      </Flex>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mb={4}>
+        <CardBody>
+          <Heading size="sm" mb={3}>
+            Planting schedule
+          </Heading>
+          {(schedQ.data?.results ?? []).map((s) => {
+            const start = parseISO(s.start_date);
+            const offset = Math.max(0, differenceInDays(start, new Date(ganttStart)));
+            const width = Math.max(8, differenceInDays(parseISO(s.end_date), start) * 12);
+            return (
+              <Grid key={s.id} templateColumns={{ base: "1fr", md: "220px 1fr" }} gap={3} alignItems="center" mb={3}>
+                <Box>
+                  <Text fontWeight="semibold">{s.activity}</Text>
+                  <Text color="fg.muted">{s.field_name ?? plan.field_name}</Text>
+                </Box>
+                <Box position="relative" bg="bg.subtle" borderRadius="lg" h="28px">
+                  <Box
+                    h="100%"
+                    bg="brand.500"
+                    borderRadius="lg"
+                    ml={`${offset * 8}px`}
+                    w={`${width}px`}
+                    title={`${formatDate(s.start_date)} – ${formatDate(s.end_date)}`}
+                  />
+                </Box>
+              </Grid>
+            );
+          })}
+          {!schedQ.data?.results.length ? (
+            <Text color="fg.muted">Add tillage, plant, and harvest windows to see the Gantt.</Text>
+          ) : null}
+        </CardBody>
+      </Card>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <Box>
+          <Heading size="sm" mb={3}>
+            Fertilizer plan
+          </Heading>
           <DataTable
             rows={fertQ.data?.results ?? []}
             rowKey={(r) => r.id}
@@ -92,11 +110,11 @@ export default function CropPlanDetailPage() {
               { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status} /> },
             ]}
           />
-        </div>
-        <div className="card">
-          <div className="card-pad">
-            <h3>Pesticide applications</h3>
-          </div>
+        </Box>
+        <Box>
+          <Heading size="sm" mb={3}>
+            Pesticide applications
+          </Heading>
           <DataTable
             rows={pestQ.data?.results ?? []}
             rowKey={(r) => r.id}
@@ -109,8 +127,8 @@ export default function CropPlanDetailPage() {
               { key: "applied_at", header: "Applied", render: (r) => formatDate(r.applied_at) },
             ]}
           />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </SimpleGrid>
+    </Box>
   );
 }

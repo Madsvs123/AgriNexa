@@ -1,6 +1,19 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Heading,
+  Link,
+  ListItem,
+  OrderedList,
+  SimpleGrid,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import { farmsApi, getApiError, irrigationApi, sensorsApi } from "@/api/client";
 import { formatAcres, formatDate, formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/ui/FormField";
@@ -27,112 +40,167 @@ export default function FieldDetailPage() {
 
   if (fieldQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock rows={8} />
-      </div>
+      </Box>
     );
   }
   if (!field) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={fieldQ.error ? getApiError(fieldQ.error) : "Field not found."} />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={field.name}
         subtitle={`${field.farm_name ?? "Farm"} · ${field.soil_type || "Soil unknown"}`}
         crumbs={
           <>
-            <Link to="/fields">Fields</Link>
-            <span>/</span>
-            <span>{field.name}</span>
+            <Link as={RouterLink} to="/fields">
+              Fields
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{field.name}</Text>
           </>
         }
         actions={
           <>
-            <Link to={`/fields/${field.id}/edit`} className="btn btn-ghost">
+            <Button as={RouterLink} to={`/fields/${field.id}/edit`} variant="ghost" colorScheme="gray">
               Edit field
-            </Link>
-            <Link to={`/farms/${field.farm}`} className="btn btn-ghost">
+            </Button>
+            <Button as={RouterLink} to={`/farms/${field.farm}`} variant="ghost" colorScheme="gray">
               Open farm
-            </Link>
+            </Button>
           </>
         }
       />
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={4}>
         <StatCard label="Acres" value={formatAcres(field.acres)} />
         <StatCard label="Crop" value={field.crop_name ?? "Fallow"} />
         <StatCard label="Moisture" value={field.moisture != null ? `${field.moisture}%` : "—"} />
         <StatCard label="Health" value={<StatusBadge status={field.health_status} />} />
-      </div>
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
-        <div className="card" style={{ minHeight: 280 }}>
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+        <Box
+          bg="bg.surface"
+          borderWidth="1px"
+          borderColor="border.default"
+          borderRadius="xl"
+          minH="280px"
+          overflow="hidden"
+        >
           <MapView height="280px" fields={[field]} sensors={sensorsQ.data?.results ?? []} />
-        </div>
-        <div className="card card-pad">
-          <h3>Planting window</h3>
-          <p>Planted {formatDate(field.planting_date)}</p>
-          <p>Expected harvest {formatDate(field.harvest_date)}</p>
-          <p className="muted">Update dates from the crop plan if this field is in a seasonal rotation.</p>
-        </div>
-      </div>
-      <div className="grid grid-2">
-        <section className="card card-pad">
-          <h3>Crop history</h3>
-          {(historyQ.data ?? []).length === 0 ? (
-            <EmptyState title="No history yet" body="Prior seasons (corn, soy, wheat) will timeline here." />
-          ) : (
-            <ol style={{ paddingLeft: 18 }}>
-              {(historyQ.data ?? []).map((h) => (
-                <li key={h.id} style={{ marginBottom: 10 }}>
-                  <strong>{h.crop_name}</strong> · {h.season}
-                  <div className="muted">
-                    {formatDate(h.planted_at)} → {formatDate(h.harvested_at)} · {h.yield_amount ?? "—"} bu
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-        </section>
-        <section className="card card-pad">
-          <h3>Irrigation zones</h3>
-          {(zonesQ.data?.results ?? []).map((z) => (
-            <Link key={z.id} to={`/irrigation/zones/${z.id}`} className="row" style={{ marginBottom: 8 }}>
-              <StatusBadge status={z.status} />
-              {z.name} · threshold {z.threshold}%
-            </Link>
+        </Box>
+        <Card variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={2}>
+              Planting window
+            </Heading>
+            <Text>Planted {formatDate(field.planting_date)}</Text>
+            <Text>Expected harvest {formatDate(field.harvest_date)}</Text>
+            <Text color="fg.muted" mt={2}>
+              Update dates from the crop plan if this field is in a seasonal rotation.
+            </Text>
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Crop history
+            </Heading>
+            {(historyQ.data ?? []).length === 0 ? (
+              <EmptyState title="No history yet" body="Prior seasons (corn, soy, wheat) will timeline here." />
+            ) : (
+              <OrderedList pl="18px">
+                {(historyQ.data ?? []).map((h) => (
+                  <ListItem key={h.id} mb={2.5}>
+                    <Text as="span" fontWeight="semibold">
+                      {h.crop_name}
+                    </Text>{" "}
+                    · {h.season}
+                    <Text color="fg.muted">
+                      {formatDate(h.planted_at)} → {formatDate(h.harvested_at)} · {h.yield_amount ?? "—"} bu
+                    </Text>
+                  </ListItem>
+                ))}
+              </OrderedList>
+            )}
+          </CardBody>
+        </Card>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Irrigation zones
+            </Heading>
+            {(zonesQ.data?.results ?? []).map((z) => (
+              <Link
+                as={RouterLink}
+                key={z.id}
+                to={`/irrigation/zones/${z.id}`}
+                display="flex"
+                alignItems="center"
+                gap={2}
+                mb={2}
+              >
+                <StatusBadge status={z.status} />
+                {z.name} · threshold {z.threshold}%
+              </Link>
+            ))}
+            {!zonesQ.data?.results.length ? <Text color="fg.muted">No zones on this field.</Text> : null}
+            <Heading size="sm" mt={4} mb={3}>
+              Sensors
+            </Heading>
+            {(sensorsQ.data?.results ?? []).map((s) => (
+              <Link
+                as={RouterLink}
+                key={s.id}
+                to={`/sensors/${s.id}`}
+                display="flex"
+                alignItems="center"
+                gap={2}
+                mb={2}
+              >
+                <StatusBadge status={s.status} />
+                {s.name}
+              </Link>
+            ))}
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mt={4}>
+        <CardBody>
+          <Heading size="sm" mb={3}>
+            Notes
+          </Heading>
+          <FormField label="Add a note" htmlFor="fnote">
+            <Textarea
+              id="fnote"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Residue heavy on the east headland…"
+            />
+          </FormField>
+          <Button colorScheme="brand" isDisabled={!body || addNote.isPending} onClick={() => addNote.mutate()}>
+            Post note
+          </Button>
+          {(notesQ.data?.results ?? []).map((n) => (
+            <Box key={n.id} mt={3}>
+              <Text color="fg.muted">
+                {n.author_name} · {formatDateTime(n.created_at)}
+              </Text>
+              <Text>{n.body}</Text>
+            </Box>
           ))}
-          {!zonesQ.data?.results.length ? <p className="muted">No zones on this field.</p> : null}
-          <h3 style={{ marginTop: 18 }}>Sensors</h3>
-          {(sensorsQ.data?.results ?? []).map((s) => (
-            <Link key={s.id} to={`/sensors/${s.id}`} className="row" style={{ marginBottom: 8 }}>
-              <StatusBadge status={s.status} />
-              {s.name}
-            </Link>
-          ))}
-        </section>
-      </div>
-      <section className="card card-pad" style={{ marginTop: 16 }}>
-        <h3>Notes</h3>
-        <FormField label="Add a note" htmlFor="fnote">
-          <textarea id="fnote" className="textarea" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Residue heavy on the east headland…" />
-        </FormField>
-        <button type="button" className="btn btn-primary" disabled={!body || addNote.isPending} onClick={() => addNote.mutate()}>
-          Post note
-        </button>
-        {(notesQ.data?.results ?? []).map((n) => (
-          <div key={n.id} style={{ marginTop: 12 }}>
-            <div className="muted">
-              {n.author_name} · {formatDateTime(n.created_at)}
-            </div>
-            {n.body}
-          </div>
-        ))}
-      </section>
-    </div>
+        </CardBody>
+      </Card>
+    </Box>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button, Input, Link, Select, Text, Textarea } from "@chakra-ui/react";
 import { farmsApi, getApiError, scoutingApi } from "@/api/client";
 import { formatDate } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
@@ -30,39 +31,41 @@ export default function TreatmentsPage() {
   });
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Treatments"
         subtitle="Spray plans and follow-up tasks from scouting."
         crumbs={
           <>
-            <Link to="/scouting">Scouting</Link>
-            <span>/</span>
-            <span>Treatments</span>
+            <Link as={RouterLink} to="/scouting">
+              Scouting
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">Treatments</Text>
           </>
         }
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>
             New treatment
-          </button>
+          </Button>
         }
       />
       <ErrorBanner message={treatQ.error ? getApiError(treatQ.error) : null} />
-      <div className="card">
-        <DataTable
-          rows={treatQ.data?.results ?? []}
-          rowKey={(t) => t.id}
-          emptyTitle="No treatments"
-          emptyBody="After a scout walk, schedule a fungicide or herbicide follow-up."
-          columns={[
-            { key: "field_name", header: "Field", render: (t) => t.field_name ?? "—" },
-            { key: "product", header: "Product" },
-            { key: "method", header: "Method" },
-            { key: "scheduled_date", header: "Scheduled", render: (t) => formatDate(t.scheduled_date) },
-            { key: "status", header: "Status", render: (t) => <StatusBadge status={t.status} /> },
-          ]}
-        />
-      </div>
+      <DataTable
+        rows={treatQ.data?.results ?? []}
+        rowKey={(t) => t.id}
+        emptyTitle="No treatments"
+        emptyBody="After a scout walk, schedule a fungicide or herbicide follow-up."
+        columns={[
+          { key: "field_name", header: "Field", render: (t) => t.field_name ?? "—" },
+          { key: "product", header: "Product" },
+          { key: "method", header: "Method" },
+          { key: "scheduled_date", header: "Scheduled", render: (t) => formatDate(t.scheduled_date) },
+          { key: "status", header: "Status", render: (t) => <StatusBadge status={t.status} /> },
+        ]}
+      />
       <Drawer open={open} title="Plan treatment" onClose={() => setOpen(false)}>
         <form
           onSubmit={(e: FormEvent) => {
@@ -71,32 +74,32 @@ export default function TreatmentsPage() {
           }}
         >
           <FormField label="Field" htmlFor="tfield">
-            <select id="tfield" className="select" required value={form.field} onChange={(e) => setForm({ ...form, field: e.target.value })}>
+            <Select id="tfield" isRequired value={form.field} onChange={(e) => setForm({ ...form, field: e.target.value })}>
               <option value="">Select field</option>
               {(fieldsQ.data?.results ?? []).map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </FormField>
           <FormField label="Product" htmlFor="tprod">
-            <input id="tprod" className="input" required value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} placeholder="Headline AMP" />
+            <Input id="tprod" isRequired value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} placeholder="Headline AMP" />
           </FormField>
           <FormField label="Method" htmlFor="tmethod">
-            <input id="tmethod" className="input" value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })} />
+            <Input id="tmethod" value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })} />
           </FormField>
           <FormField label="Scheduled date" htmlFor="tdate">
-            <input id="tdate" className="input" type="date" required value={form.scheduled_date} onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })} />
+            <Input id="tdate" type="date" isRequired value={form.scheduled_date} onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })} />
           </FormField>
           <FormField label="Notes" htmlFor="tnotes">
-            <textarea id="tnotes" className="textarea" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+            <Textarea id="tnotes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </FormField>
-          <button type="submit" className="btn btn-primary" disabled={create.isPending}>
+          <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>
             Save plan
-          </button>
+          </Button>
         </form>
       </Drawer>
-    </div>
+    </Box>
   );
 }

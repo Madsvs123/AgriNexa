@@ -1,5 +1,6 @@
-import { Link, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Card, CardBody, Flex, Heading, Link, SimpleGrid, Text } from "@chakra-ui/react";
 import { getApiError, irrigationApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
@@ -14,60 +15,74 @@ export default function IrrigationZonePage() {
 
   if (zoneQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock />
-      </div>
+      </Box>
     );
   }
   if (!zone) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={zoneQ.error ? getApiError(zoneQ.error) : "Zone not found."} />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={zone.name}
         subtitle={`${zone.field_name} · ${zone.method}`}
         crumbs={
           <>
-            <Link to="/irrigation">Irrigation</Link>
-            <span>/</span>
-            <span>{zone.name}</span>
+            <Link as={RouterLink} to="/irrigation">
+              Irrigation
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{zone.name}</Text>
           </>
         }
       />
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
         <StatCard label="Moisture" value={`${zone.moisture ?? "—"}%`} />
         <StatCard label="Threshold" value={`${zone.threshold}%`} />
         <StatCard label="Status" value={<StatusBadge status={zone.status} />} />
         <StatCard label="Last run" value={formatDateTime(zone.last_run_at)} />
-      </div>
-      <div className="grid grid-2">
-        <section className="card card-pad">
-          <h3>Schedules</h3>
-          {(schedQ.data?.results ?? []).map((s) => (
-            <div key={s.id} className="row" style={{ marginBottom: 8 }}>
-              <span>
-                {s.start_time} · {s.duration_minutes} min
-              </span>
-              <StatusBadge status={s.is_active ? "healthy" : "idle"} />
-            </div>
-          ))}
-        </section>
-        <section className="card card-pad">
-          <h3>Water usage</h3>
-          {(usageQ.data?.results ?? []).slice(0, 8).map((u) => (
-            <div key={u.id} className="row" style={{ marginBottom: 8 }}>
-              <span>{u.gallons} gal</span>
-              <span className="muted">{formatDateTime(u.recorded_at)}</span>
-            </div>
-          ))}
-        </section>
-      </div>
-    </div>
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Schedules
+            </Heading>
+            {(schedQ.data?.results ?? []).map((s) => (
+              <Flex key={s.id} align="center" gap={2} justify="space-between" mb={2}>
+                <Text as="span">
+                  {s.start_time} · {s.duration_minutes} min
+                </Text>
+                <StatusBadge status={s.is_active ? "healthy" : "idle"} />
+              </Flex>
+            ))}
+          </CardBody>
+        </Card>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Water usage
+            </Heading>
+            {(usageQ.data?.results ?? []).slice(0, 8).map((u) => (
+              <Flex key={u.id} align="center" gap={2} justify="space-between" mb={2}>
+                <Text as="span">{u.gallons} gal</Text>
+                <Text as="span" color="fg.muted">
+                  {formatDateTime(u.recorded_at)}
+                </Text>
+              </Flex>
+            ))}
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+    </Box>
   );
 }

@@ -1,7 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  Input,
+  Link,
+  Progress,
+  SimpleGrid,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
 import { getApiError, irrigationApi } from "@/api/client";
 import { formatDateTime, formatNumber, formatTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
@@ -27,83 +41,99 @@ export default function IrrigationPage() {
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader title="Irrigation" subtitle="Zones, schedules, recommendations, and water efficiency." />
       <ErrorBanner message={zonesQ.error ? getApiError(zonesQ.error) : null} />
-      <div className="grid grid-3" style={{ marginBottom: 16 }}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
         {(zonesQ.data?.results ?? []).map((z) => (
-          <article key={z.id} className="card card-pad">
-            <div className="row">
-            <Link to={`/irrigation/zones/${z.id}`}>
-                <strong>{z.name}</strong>
-              </Link>
-              <span className="spacer" />
-              <StatusBadge status={z.status} />
-            </div>
-            <p className="muted">
-              {z.field_name} · {z.method}
-            </p>
-            <p>
-              Moisture {z.moisture ?? "—"}% / threshold {z.threshold}%
-            </p>
-            <div className="progress" style={{ margin: "8px 0" }}>
-              <span style={{ width: `${Math.min(100, ((z.moisture ?? 0) / Math.max(z.threshold, 1)) * 100)}%` }} />
-            </div>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOverrideId(z.id)}>
-              Manual override
-            </button>
-          </article>
+          <Card key={z.id} as="article" variant="outline" borderColor="border.default" bg="bg.surface">
+            <CardBody>
+              <Flex align="center" gap={2}>
+                <Link as={RouterLink} to={`/irrigation/zones/${z.id}`}>
+                  <Text as="strong">{z.name}</Text>
+                </Link>
+                <Spacer />
+                <StatusBadge status={z.status} />
+              </Flex>
+              <Text color="fg.muted">
+                {z.field_name} · {z.method}
+              </Text>
+              <Text>
+                Moisture {z.moisture ?? "—"}% / threshold {z.threshold}%
+              </Text>
+              <Progress
+                value={Math.min(100, ((z.moisture ?? 0) / Math.max(z.threshold, 1)) * 100)}
+                size="sm"
+                colorScheme="brand"
+                borderRadius="full"
+                my={2}
+              />
+              <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setOverrideId(z.id)}>
+                Manual override
+              </Button>
+            </CardBody>
+          </Card>
         ))}
-      </div>
+      </SimpleGrid>
       {!zonesQ.data?.results.length ? (
-        <div className="card">
+        <Card variant="outline" borderColor="border.default" bg="bg.surface">
           <EmptyState title="No irrigation zones" body="Create a pivot or drip zone on South Bottom to schedule sets." />
-        </div>
+        </Card>
       ) : null}
 
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
-        <section className="card card-pad">
-          <h3>Schedules</h3>
-          {(schedQ.data?.results ?? []).map((s) => (
-            <div key={s.id} className="row" style={{ marginBottom: 10 }}>
-              <div>
-                <strong>{s.zone_name ?? "Zone"}</strong>
-                <div className="muted">
-                  {formatTime(s.start_time)} · {s.duration_minutes} min · {(s.days_of_week ?? []).join(", ")}
-                </div>
-              </div>
-              <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "On" : "Off"} />
-            </div>
-          ))}
-          {!schedQ.data?.results.length ? <p className="muted">No repeating sets. Add a 5 a.m. corn pivot program.</p> : null}
-        </section>
-        <section className="card card-pad">
-          <h3>Recommendations</h3>
-          {(recQ.data ?? []).filter((r) => !dismissedIds.includes(r.id)).map((r) => (
-            <div key={r.id} className="card card-pad" style={{ marginBottom: 8, boxShadow: "none" }}>
-              <div className="row">
-                <StatusBadge status={r.priority} />
-                <strong>{r.zone_name}</strong>
-              </div>
-              <p>{r.message}</p>
-              <p className="muted">{r.suggested_minutes} min suggested · {formatDateTime(r.created_at)}</p>
-              <div className="row">
-                <button type="button" className="btn btn-primary btn-sm" onClick={() => setOverrideId(r.zone)}>
-                  Apply
-                </button>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDismissedIds((ids) => [...ids, r.id])}>
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          ))}
-          {!recQ.data?.length ? <p className="muted">No moisture-driven recommendations right now.</p> : null}
-        </section>
-      </div>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Schedules
+            </Heading>
+            {(schedQ.data?.results ?? []).map((s) => (
+              <Flex key={s.id} align="center" gap={2} justify="space-between" mb={2.5}>
+                <Box>
+                  <Text as="strong">{s.zone_name ?? "Zone"}</Text>
+                  <Text color="fg.muted">
+                    {formatTime(s.start_time)} · {s.duration_minutes} min · {(s.days_of_week ?? []).join(", ")}
+                  </Text>
+                </Box>
+                <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "On" : "Off"} />
+              </Flex>
+            ))}
+            {!schedQ.data?.results.length ? <Text color="fg.muted">No repeating sets. Add a 5 a.m. corn pivot program.</Text> : null}
+          </CardBody>
+        </Card>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Recommendations
+            </Heading>
+            {(recQ.data ?? []).filter((r) => !dismissedIds.includes(r.id)).map((r) => (
+              <Box key={r.id} borderWidth="1px" borderColor="border.default" borderRadius="xl" bg="bg.subtle" p={4} mb={2}>
+                <Flex align="center" gap={2}>
+                  <StatusBadge status={r.priority} />
+                  <Text as="strong">{r.zone_name}</Text>
+                </Flex>
+                <Text>{r.message}</Text>
+                <Text color="fg.muted">
+                  {r.suggested_minutes} min suggested · {formatDateTime(r.created_at)}
+                </Text>
+                <Flex align="center" gap={2} mt={2}>
+                  <Button colorScheme="brand" size="sm" onClick={() => setOverrideId(r.zone)}>
+                    Apply
+                  </Button>
+                  <Button variant="ghost" colorScheme="gray" size="sm" onClick={() => setDismissedIds((ids) => [...ids, r.id])}>
+                    Dismiss
+                  </Button>
+                </Flex>
+              </Box>
+            ))}
+            {!recQ.data?.length ? <Text color="fg.muted">No moisture-driven recommendations right now.</Text> : null}
+          </CardBody>
+        </Card>
+      </SimpleGrid>
 
-      <div className="grid grid-2">
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <ChartCard title="Water by day">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <LineChart data={analyticsQ.data?.daily ?? []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -113,13 +143,13 @@ export default function IrrigationPage() {
                 <Line dataKey="gallons" stroke="#3D7EA6" dot={false} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
         <ChartCard title="Efficiency by zone">
-          <p className="muted">
+          <Text color="fg.muted">
             {formatNumber(analyticsQ.data?.efficiency_pct)}% efficiency · {formatNumber(analyticsQ.data?.gallons_this_week)} gal this week
-          </p>
-          <div style={{ height: 180 }}>
+          </Text>
+          <Box h="180px">
             <ResponsiveContainer>
               <BarChart data={analyticsQ.data?.by_zone ?? []}>
                 <XAxis dataKey="zone_name" hide />
@@ -127,9 +157,9 @@ export default function IrrigationPage() {
                 <Bar dataKey="gallons" fill="#2F6F4E" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
-      </div>
+      </SimpleGrid>
 
       <Modal
         open={!!overrideId}
@@ -137,22 +167,22 @@ export default function IrrigationPage() {
         onClose={() => setOverrideId(null)}
         footer={
           <>
-            <button type="button" className="btn btn-ghost" onClick={() => setOverrideId(null)}>
+            <Button variant="ghost" colorScheme="gray" onClick={() => setOverrideId(null)}>
               Cancel
-            </button>
-            <button type="button" className="btn btn-primary" disabled={override.isPending} onClick={() => override.mutate()}>
+            </Button>
+            <Button colorScheme="brand" isDisabled={override.isPending} onClick={() => override.mutate()}>
               Run set
-            </button>
+            </Button>
           </>
         }
       >
         <FormField label="Duration (minutes)" htmlFor="dur">
-          <input id="dur" className="input" type="number" value={minutes} onChange={(e) => setMinutes(e.target.value)} />
+          <Input id="dur" type="number" value={minutes} onChange={(e) => setMinutes(e.target.value)} />
         </FormField>
         <FormField label="Reason" htmlFor="reason">
-          <input id="reason" className="input" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <Input id="reason" value={reason} onChange={(e) => setReason(e.target.value)} />
         </FormField>
       </Modal>
-    </div>
+    </Box>
   );
 }

@@ -1,5 +1,17 @@
-import { Link, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  Image,
+  Link,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import { getApiError, scoutingApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
@@ -12,75 +24,93 @@ export default function ScoutReportDetailPage() {
   const r = reportQ.data;
   if (reportQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock />
-      </div>
+      </Box>
     );
   }
   if (!r) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={reportQ.error ? getApiError(reportQ.error) : "Report not found."} />
-      </div>
+      </Box>
     );
   }
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={r.field_name ?? "Scout report"}
         subtitle={`${r.farm_name ?? ""} · ${formatDateTime(r.observed_at)}`}
         crumbs={
           <>
-            <Link to="/scouting/treatments">Scouting</Link>
-            <span>/</span>
-            <span>Report</span>
+            <Link as={RouterLink} to="/scouting/treatments">
+              Scouting
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">Report</Text>
           </>
         }
       />
-      <div className="grid grid-2">
-        <section className="card card-pad">
-          <div className="row">
-            <span>Health {r.health_score}</span>
-            <div style={{ width: 100 }}>
-              <SeverityMeter value={r.severity} />
-            </div>
-          </div>
-          <p>{r.notes}</p>
-          <h3>Diseases</h3>
-          {(r.diseases ?? []).map((d, i) => (
-            <div key={i} className="row">
-              <StatusBadge status={d.severity} /> {d.name}
-            </div>
-          ))}
-          <h3>Pests</h3>
-          {(r.pests ?? []).map((d, i) => (
-            <div key={i} className="row">
-              <StatusBadge status={d.severity} /> {d.name}
-            </div>
-          ))}
-          <h3>Weeds</h3>
-          {(r.weeds ?? []).map((d, i) => (
-            <div key={i} className="row">
-              <StatusBadge status={d.severity} /> {d.name}
-            </div>
-          ))}
-        </section>
-        <section className="card card-pad">
-          <h3>Photos</h3>
-          <div className="grid grid-2">
-            {(r.photos ?? []).map((p, i) => (
-              <figure key={p.id ?? i}>
-                <img src={p.image} alt={p.caption || "Scout photo"} style={{ borderRadius: 8 }} />
-                <figcaption className="muted">{p.caption}</figcaption>
-              </figure>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Flex align="center" gap={2} justify="space-between">
+              <Text as="span">Health {r.health_score}</Text>
+              <Box w="100px">
+                <SeverityMeter value={r.severity} />
+              </Box>
+            </Flex>
+            <Text>{r.notes}</Text>
+            <Heading size="sm" mt={4} mb={2}>
+              Diseases
+            </Heading>
+            {(r.diseases ?? []).map((d, i) => (
+              <Flex key={i} align="center" gap={2}>
+                <StatusBadge status={d.severity} /> {d.name}
+              </Flex>
             ))}
-          </div>
-          {!r.photos?.length ? <p className="muted">No photos attached.</p> : null}
-          <Link to="/scouting/treatments" className="btn btn-primary" style={{ marginTop: 12 }}>
-            Plan treatment
-          </Link>
-        </section>
-      </div>
-    </div>
+            <Heading size="sm" mt={4} mb={2}>
+              Pests
+            </Heading>
+            {(r.pests ?? []).map((d, i) => (
+              <Flex key={i} align="center" gap={2}>
+                <StatusBadge status={d.severity} /> {d.name}
+              </Flex>
+            ))}
+            <Heading size="sm" mt={4} mb={2}>
+              Weeds
+            </Heading>
+            {(r.weeds ?? []).map((d, i) => (
+              <Flex key={i} align="center" gap={2}>
+                <StatusBadge status={d.severity} /> {d.name}
+              </Flex>
+            ))}
+          </CardBody>
+        </Card>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Photos
+            </Heading>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+              {(r.photos ?? []).map((p, i) => (
+                <Box as="figure" key={p.id ?? i}>
+                  <Image src={p.image} alt={p.caption || "Scout photo"} borderRadius="lg" />
+                  <Text as="figcaption" color="fg.muted">
+                    {p.caption}
+                  </Text>
+                </Box>
+              ))}
+            </SimpleGrid>
+            {!r.photos?.length ? <Text color="fg.muted">No photos attached.</Text> : null}
+            <Button as={RouterLink} to="/scouting/treatments" colorScheme="brand" mt={3}>
+              Plan treatment
+            </Button>
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+    </Box>
   );
 }

@@ -1,6 +1,26 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  Link,
+  SimpleGrid,
+  Stack,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Textarea,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
 import { equipmentApi, farmsApi, getApiError, sensorsApi, cropsApi, tenancyApi } from "@/api/client";
 import { formatAcres, formatDate, formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/ui/FormField";
@@ -39,183 +59,246 @@ export default function FarmDetailPage() {
   const farm = farmQ.data;
   if (farmQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock rows={8} />
-      </div>
+      </Box>
     );
   }
   if (!farm) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={farmQ.error ? getApiError(farmQ.error) : "Farm not found."} />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={farm.name}
         subtitle={`${farm.code} · ${farm.address || "No address"} · ${farm.timezone}`}
         crumbs={
           <>
-            <Link to="/farms">Farms</Link>
-            <span>/</span>
-            <span>{farm.name}</span>
+            <Link as={RouterLink} to="/farms">
+              Farms
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{farm.name}</Text>
           </>
         }
         actions={
           <>
-            <Link to={`/farms/${id}/edit`} className="btn btn-ghost">
+            <Button as={RouterLink} to={`/farms/${id}/edit`} variant="ghost" colorScheme="gray">
               Edit
-            </Link>
-            <button type="button" className="btn btn-danger" onClick={() => setConfirm(true)}>
+            </Button>
+            <Button colorScheme="red" onClick={() => setConfirm(true)}>
               Archive
-            </button>
+            </Button>
           </>
         }
       />
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={4}>
         <StatCard label="Total acres" value={formatAcres(farm.total_acres)} />
         <StatCard label="Fields" value={fieldsQ.data?.count ?? "—"} />
         <StatCard label="Sensors" value={sensorsQ.data?.count ?? "—"} />
         <StatCard label="Region" value={farm.region?.name ?? "Unassigned"} />
-      </div>
-      <div className="tabs">
+      </SimpleGrid>
+      <Flex gap={2} wrap="wrap" mb={4}>
         {["overview", "fields", "equipment", "sensors", "seasons", "notes", "access"].map((t) => (
-          <button key={t} type="button" className={tab === t ? "tab active" : "tab"} onClick={() => setTab(t)}>
+          <Button
+            key={t}
+            size="sm"
+            variant={tab === t ? "solid" : "ghost"}
+            colorScheme={tab === t ? "brand" : "gray"}
+            textTransform="capitalize"
+            onClick={() => setTab(t)}
+          >
             {t}
-          </button>
+          </Button>
         ))}
-      </div>
+      </Flex>
       {tab === "overview" ? (
-        <div className="grid grid-2">
-          <div className="card" style={{ minHeight: 320 }}>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+          <Box
+            bg="bg.surface"
+            borderWidth="1px"
+            borderColor="border.default"
+            borderRadius="xl"
+            minH="320px"
+            overflow="hidden"
+          >
             <MapView height="320px" fields={fieldsQ.data?.results ?? []} sensors={sensorsQ.data?.results ?? []} />
-          </div>
-          <div className="card card-pad">
-            <h3>Location</h3>
-            <p>
-              {farm.lat != null && farm.lng != null
-                ? `${farm.lat.toFixed(4)}, ${farm.lng.toFixed(4)}`
-                : "Drop a pin when you edit this farm."}
-            </p>
-            <p className="muted">Timezone {farm.timezone}. Use the map to inspect field boundaries.</p>
-          </div>
-        </div>
+          </Box>
+          <Card variant="outline" borderColor="border.default" bg="bg.surface">
+            <CardBody>
+              <Heading size="sm" mb={2}>
+                Location
+              </Heading>
+              <Text>
+                {farm.lat != null && farm.lng != null
+                  ? `${farm.lat.toFixed(4)}, ${farm.lng.toFixed(4)}`
+                  : "Drop a pin when you edit this farm."}
+              </Text>
+              <Text color="fg.muted" mt={2}>
+                Timezone {farm.timezone}. Use the map to inspect field boundaries.
+              </Text>
+            </CardBody>
+          </Card>
+        </SimpleGrid>
       ) : null}
       {tab === "fields" ? (
-        <div className="grid grid-3">
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           {(fieldsQ.data?.results ?? []).map((f) => (
-            <Link key={f.id} to={`/fields/${f.id}`} className="card card-pad">
-              <strong>{f.name}</strong>
-              <div className="muted">
-                {formatAcres(f.acres)} · {f.soil_type || "Soil unknown"}
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <StatusBadge status={f.health_status} />
-              </div>
-            </Link>
+            <Card
+              key={f.id}
+              as={RouterLink}
+              to={`/fields/${f.id}`}
+              variant="outline"
+              borderColor="border.default"
+              bg="bg.surface"
+              _hover={{ borderColor: "brand.300" }}
+            >
+              <CardBody>
+                <Text fontWeight="semibold">{f.name}</Text>
+                <Text color="fg.muted">
+                  {formatAcres(f.acres)} · {f.soil_type || "Soil unknown"}
+                </Text>
+                <Box mt={2}>
+                  <StatusBadge status={f.health_status} />
+                </Box>
+              </CardBody>
+            </Card>
           ))}
           {!fieldsQ.data?.results.length ? (
             <EmptyState title="No fields on this farm" body="Split North 80 or South Bottom into managed fields." />
           ) : null}
-        </div>
+        </SimpleGrid>
       ) : null}
       {tab === "equipment" ? (
-        <div className="grid grid-3">
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           {(equipQ.data?.results ?? []).map((e) => (
-            <Link key={e.id} to={`/equipment/${e.id}`} className="card card-pad">
-              <strong>{e.name}</strong>
-              <div className="muted">
-                {e.make} {e.model} · {e.hours} hrs
-              </div>
-              <StatusBadge status={e.status} />
-            </Link>
+            <Card
+              key={e.id}
+              as={RouterLink}
+              to={`/equipment/${e.id}`}
+              variant="outline"
+              borderColor="border.default"
+              bg="bg.surface"
+              _hover={{ borderColor: "brand.300" }}
+            >
+              <CardBody>
+                <Text fontWeight="semibold">{e.name}</Text>
+                <Text color="fg.muted" mb={2}>
+                  {e.make} {e.model} · {e.hours} hrs
+                </Text>
+                <StatusBadge status={e.status} />
+              </CardBody>
+            </Card>
           ))}
-        </div>
+        </SimpleGrid>
       ) : null}
       {tab === "sensors" ? (
-        <div className="grid grid-3">
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           {(sensorsQ.data?.results ?? []).map((s) => (
-            <Link key={s.id} to={`/sensors/${s.id}`} className="card card-pad">
-              <strong>{s.name}</strong>
-              <div className="muted">{s.sensor_type_name}</div>
-              <StatusBadge status={s.status} />
-            </Link>
+            <Card
+              key={s.id}
+              as={RouterLink}
+              to={`/sensors/${s.id}`}
+              variant="outline"
+              borderColor="border.default"
+              bg="bg.surface"
+              _hover={{ borderColor: "brand.300" }}
+            >
+              <CardBody>
+                <Text fontWeight="semibold">{s.name}</Text>
+                <Text color="fg.muted" mb={2}>
+                  {s.sensor_type_name}
+                </Text>
+                <StatusBadge status={s.status} />
+              </CardBody>
+            </Card>
           ))}
-        </div>
+        </SimpleGrid>
       ) : null}
       {tab === "seasons" ? (
-        <div className="card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Season</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Season</Th>
+                <Th>Start</Th>
+                <Th>End</Th>
+                <Th>Status</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
               {(seasonsQ.data?.results ?? []).map((s) => (
-                <tr key={s.id}>
-                  <td>{s.name}</td>
-                  <td>{formatDate(s.start_date)}</td>
-                  <td>{formatDate(s.end_date)}</td>
-                  <td>{s.is_active ? <StatusBadge status="healthy" label="Active" /> : <StatusBadge status="idle" />}</td>
-                </tr>
+                <Tr key={s.id}>
+                  <Td>{s.name}</Td>
+                  <Td>{formatDate(s.start_date)}</Td>
+                  <Td>{formatDate(s.end_date)}</Td>
+                  <Td>{s.is_active ? <StatusBadge status="healthy" label="Active" /> : <StatusBadge status="idle" />}</Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </Tbody>
+          </Table>
+        </TableContainer>
       ) : null}
       {tab === "notes" ? (
-        <div className="card card-pad">
-          <FormField label="Field note" htmlFor="note">
-            <textarea id="note" className="textarea" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Tile outlet running clear on South Bottom…" />
-          </FormField>
-          <button type="button" className="btn btn-primary" disabled={!note || addNote.isPending} onClick={() => addNote.mutate()}>
-            Save note
-          </button>
-          <div className="stack" style={{ marginTop: 16 }}>
-            {(notesQ.data?.results ?? []).map((n) => (
-              <div key={n.id}>
-                <div className="muted">
-                  {n.author_name} · {formatDateTime(n.created_at)}
-                </div>
-                <div>{n.body}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Card variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <FormField label="Field note" htmlFor="note">
+              <Textarea
+                id="note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Tile outlet running clear on South Bottom…"
+              />
+            </FormField>
+            <Button colorScheme="brand" isDisabled={!note || addNote.isPending} onClick={() => addNote.mutate()}>
+              Save note
+            </Button>
+            <Stack spacing={3} mt={4}>
+              {(notesQ.data?.results ?? []).map((n) => (
+                <Box key={n.id}>
+                  <Text color="fg.muted">
+                    {n.author_name} · {formatDateTime(n.created_at)}
+                  </Text>
+                  <Text>{n.body}</Text>
+                </Box>
+              ))}
+            </Stack>
+          </CardBody>
+        </Card>
       ) : null}
       {tab === "access" ? (
-        <div className="card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>View</th>
-                <th>Edit</th>
-                <th>Manage</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Member</Th>
+                <Th>View</Th>
+                <Th>Edit</Th>
+                <Th>Manage</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
               {(accessQ.data ?? []).map((a) => (
-                <tr key={a.user_id}>
-                  <td>{a.user_name || a.user_email}</td>
-                  <td>{a.can_view ? "Yes" : "No"}</td>
-                  <td>{a.can_edit ? "Yes" : "No"}</td>
-                  <td>{a.can_manage ? "Yes" : "No"}</td>
-                </tr>
+                <Tr key={a.user_id}>
+                  <Td>{a.user_name || a.user_email}</Td>
+                  <Td>{a.can_view ? "Yes" : "No"}</Td>
+                  <Td>{a.can_edit ? "Yes" : "No"}</Td>
+                  <Td>{a.can_manage ? "Yes" : "No"}</Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
-          <p className="muted" style={{ padding: 14 }}>
+            </Tbody>
+          </Table>
+          <Text color="fg.muted" p="14px">
             Update the matrix in Settings → Farm access.
-          </p>
-        </div>
+          </Text>
+        </TableContainer>
       ) : null}
       <ConfirmDialog
         open={confirm}
@@ -226,6 +309,6 @@ export default function FarmDetailPage() {
         onClose={() => setConfirm(false)}
         onConfirm={() => remove.mutate()}
       />
-    </div>
+    </Box>
   );
 }

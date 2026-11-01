@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button, Input, Link, Select, Text } from "@chakra-ui/react";
 import { farmsApi, getApiError, platformApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
@@ -34,72 +35,79 @@ export default function DocumentsPage() {
   });
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Documents"
         subtitle="Contracts, soil tests, and insurance PDFs tied to a farm."
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>
             Upload
-          </button>
+          </Button>
         }
       />
       <ErrorBanner message={docsQ.error ? getApiError(docsQ.error) : null} />
-      <div className="card">
-        <DataTable
-          rows={docsQ.data?.results ?? []}
-          rowKey={(d) => d.id}
-          emptyTitle="No documents"
-          emptyBody="Drop a soil test PDF or cash-rent contract to file it against North Ridge."
-          columns={[
-            { key: "title", header: "Title" },
-            { key: "category", header: "Category" },
-            { key: "farm_name", header: "Farm", render: (d) => d.farm_name ?? "—" },
-            { key: "uploaded_at", header: "Uploaded", render: (d) => formatDateTime(d.uploaded_at) },
-            {
-              key: "file",
-              header: "File",
-              render: (d) =>
-                d.file ? (
-                  <a href={d.file} target="_blank" rel="noreferrer">
-                    Open
-                  </a>
-                ) : (
-                  "—"
-                ),
-            },
-          ]}
-        />
-      </div>
+      <DataTable
+        rows={docsQ.data?.results ?? []}
+        rowKey={(d) => d.id}
+        emptyTitle="No documents"
+        emptyBody="Drop a soil test PDF or cash-rent contract to file it against North Ridge."
+        columns={[
+          { key: "title", header: "Title" },
+          { key: "category", header: "Category" },
+          { key: "farm_name", header: "Farm", render: (d) => d.farm_name ?? "—" },
+          { key: "uploaded_at", header: "Uploaded", render: (d) => formatDateTime(d.uploaded_at) },
+          {
+            key: "file",
+            header: "File",
+            render: (d) =>
+              d.file ? (
+                <Link href={d.file} target="_blank" rel="noreferrer" color="brand.500">
+                  Open
+                </Link>
+              ) : (
+                "—"
+              ),
+          },
+        ]}
+      />
       <Drawer open={open} title="Upload document" onClose={() => setOpen(false)}>
         <FormField label="Title" htmlFor="dtitle">
-          <input id="dtitle" className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input id="dtitle" value={title} onChange={(e) => setTitle(e.target.value)} />
         </FormField>
         <FormField label="Category" htmlFor="dcat">
-          <select id="dcat" className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
+          <Select id="dcat" value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="contract">Contract</option>
             <option value="soil_test">Soil test</option>
             <option value="insurance">Insurance</option>
             <option value="permit">Permit</option>
             <option value="other">Other</option>
-          </select>
+          </Select>
         </FormField>
         <FormField label="Farm" htmlFor="dfarm">
-          <select id="dfarm" className="select" value={farm} onChange={(e) => setFarm(e.target.value)}>
+          <Select id="dfarm" value={farm} onChange={(e) => setFarm(e.target.value)}>
             <option value="">Organization-wide</option>
             {(farmsQ.data?.results ?? []).map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>
             ))}
-          </select>
+          </Select>
         </FormField>
         <FileDrop onFiles={(files) => setFile(files[0] ?? null)} />
-        {file ? <p className="muted">{file.name}</p> : null}
-        <button type="button" className="btn btn-primary" style={{ marginTop: 12 }} disabled={!file || !title || upload.isPending} onClick={() => upload.mutate()}>
+        {file ? (
+          <Text color="fg.muted" mt={2}>
+            {file.name}
+          </Text>
+        ) : null}
+        <Button
+          colorScheme="brand"
+          mt={3}
+          isDisabled={!file || !title || upload.isPending}
+          onClick={() => upload.mutate()}
+        >
           Upload
-        </button>
+        </Button>
       </Drawer>
-    </div>
+    </Box>
   );
 }

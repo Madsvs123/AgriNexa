@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { Box, Card, CardBody, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import { PageHeader } from "@/components/ui/FormField";
 
 const LINKS = [
@@ -12,16 +13,28 @@ const LINKS = [
 
 export default function SettingsPage() {
   return (
-    <div className="page">
+    <Box>
       <PageHeader title="Settings" subtitle="Organization, people, and access." />
-      <div className="grid grid-3">
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
         {LINKS.map((l) => (
-          <Link key={l.to} to={l.to} className="card card-pad">
-            <h3>{l.title}</h3>
-            <p className="muted">{l.body}</p>
-          </Link>
+          <Card
+            key={l.to}
+            as={RouterLink}
+            to={l.to}
+            variant="outline"
+            borderColor="border.default"
+            bg="bg.surface"
+            _hover={{ borderColor: "brand.400", textDecoration: "none" }}
+          >
+            <CardBody>
+              <Heading size="sm">{l.title}</Heading>
+              <Text color="fg.muted" mt={1}>
+                {l.body}
+              </Text>
+            </CardBody>
+          </Card>
         ))}
-      </div>
-    </div>
+      </SimpleGrid>
+    </Box>
   )
 }

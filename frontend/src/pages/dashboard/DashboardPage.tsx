@@ -1,5 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  Link,
+  Progress,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import {
   Area,
   AreaChart,
@@ -25,6 +37,13 @@ import { formatAcres, formatNumber, formatPct, seasonParams, statusTone } from "
 import { PageHeader, ErrorBanner, SkeletonKpis } from "@/components/ui/FormField";
 import { StatCard, StatusBadge } from "@/components/ui/StatCard";
 import { ChartCard } from "@/components/ui/StatCard";
+
+const TONE_ACCENT: Record<string, string> = {
+  healthy: "green.400",
+  warning: "yellow.400",
+  critical: "red.500",
+  idle: "gray.400",
+};
 
 export default function DashboardPage() {
   const seasonId = useUiStore((s) => s.seasonId);
@@ -59,21 +78,21 @@ export default function DashboardPage() {
   const summary = summaryQ.data;
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Season operations"
         subtitle="Acres, moisture, water, and alerts across the organization."
         actions={
-          <Link to="/map" className="btn btn-primary">
+          <Button as={RouterLink} to="/map" colorScheme="brand">
             Open farm map
-          </Link>
+          </Button>
         }
       />
       <ErrorBanner message={err ? getApiError(err) : null} />
       {summaryQ.isLoading ? (
         <SkeletonKpis />
       ) : (
-        <div className="kpi-grid">
+        <SimpleGrid columns={{ base: 2, md: 3, xl: 6 }} spacing={4} mb={6}>
           <StatCard label="Acres" value={formatAcres(summary?.total_acres)} icon={<MapPinned size={14} />} hint="Owned + operated" />
           <StatCard label="Active fields" value={formatNumber(summary?.active_fields)} icon={<Wheat size={14} />} />
           <StatCard
@@ -97,85 +116,107 @@ export default function DashboardPage() {
             icon={<Tractor size={14} />}
             hint="Rolling 7-day"
           />
-        </div>
+        </SimpleGrid>
       )}
 
-      <div className="grid grid-3" style={{ marginBottom: 16 }}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
         <ChartCard title="Crop progress">
           {(progressQ.data ?? []).length === 0 ? (
-            <p className="muted">No crop plans in this season. Add a plan for corn on North 80.</p>
+            <Text color="fg.muted">No crop plans in this season. Add a plan for corn on North 80.</Text>
           ) : (
             (progressQ.data ?? []).map((c) => (
-              <div key={c.crop_name} style={{ marginBottom: 12 }}>
-                <div className="row">
-                  <strong>{c.crop_name}</strong>
-                  <span className="spacer" />
-                  <span className="muted">{formatAcres(c.planted_acres)}</span>
-                </div>
-                <div className="progress" style={{ marginTop: 6 }}>
-                  <span style={{ width: `${Math.min(100, c.progress_pct)}%` }} />
-                </div>
-              </div>
+              <Box key={c.crop_name} mb={3}>
+                <Flex align="center" justify="space-between" gap={2}>
+                  <Text as="span" fontWeight="semibold">
+                    {c.crop_name}
+                  </Text>
+                  <Text as="span" color="fg.muted">
+                    {formatAcres(c.planted_acres)}
+                  </Text>
+                </Flex>
+                <Progress
+                  value={Math.min(100, c.progress_pct)}
+                  size="sm"
+                  colorScheme="brand"
+                  borderRadius="full"
+                  bg="bg.subtle"
+                  mt={1.5}
+                />
+              </Box>
             ))
           )}
         </ChartCard>
         <ChartCard title="Irrigation">
-          <div className="row">
+          <Flex align="center" gap={2}>
             <Gauge size={18} />
-            <div>
-              <div>
+            <Box>
+              <Text>
                 {irrigQ.data?.zones_running ?? 0} of {irrigQ.data?.zones_total ?? 0} zones running
-              </div>
-              <div className="muted">
+              </Text>
+              <Text color="fg.muted">
                 {formatNumber(irrigQ.data?.gallons_today)} gal today · {formatPct(irrigQ.data?.efficiency_pct)} efficiency
-              </div>
-            </div>
-          </div>
-          <Link to="/irrigation" className="btn btn-ghost btn-sm" style={{ marginTop: 12 }}>
+              </Text>
+            </Box>
+          </Flex>
+          <Button as={RouterLink} to="/irrigation" variant="ghost" colorScheme="gray" size="sm" mt={3}>
             Review zones
-          </Link>
+          </Button>
         </ChartCard>
         <ChartCard title="Weather now">
           {weatherQ.data ? (
-            <div>
-              <div className="temp" style={{ fontFamily: "var(--display)", fontSize: 36 }}>
+            <Box>
+              <Text fontFamily="heading" fontSize="4xl" lineHeight="1.1">
                 {Math.round(weatherQ.data.temperature_f)}°
-              </div>
-              <div>
+              </Text>
+              <Text>
                 {weatherQ.data.conditions} · Wind {weatherQ.data.wind_mph} mph · RH {weatherQ.data.humidity}%
-              </div>
-              <Link to="/weather">Full forecast</Link>
-            </div>
+              </Text>
+              <Link as={RouterLink} to="/weather" color="brand.500">
+                Full forecast
+              </Link>
+            </Box>
           ) : (
-            <p className="muted">Select a farm with a weather station to see conditions.</p>
+            <Text color="fg.muted">Select a farm with a weather station to see conditions.</Text>
           )}
         </ChartCard>
-      </div>
+      </SimpleGrid>
 
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <ChartCard title="Field health">
-          <div className="grid grid-2">
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             {(healthQ.data ?? []).slice(0, 8).map((f) => (
-              <Link
+              <Box
                 key={f.id}
+                as={RouterLink}
                 to={`/fields/${f.id}`}
-                className={`card heatmap-card ${statusTone(f.health_status)}`}
+                bg="bg.surface"
+                borderWidth="1px"
+                borderColor="border.default"
+                borderLeftWidth="4px"
+                borderLeftColor={TONE_ACCENT[statusTone(f.health_status)] ?? "gray.400"}
+                borderRadius="lg"
+                p={3}
+                _hover={{ bg: "bg.subtle" }}
               >
-                <strong>{f.name}</strong>
-                <div className="muted">
+                <Text as="span" fontWeight="semibold">
+                  {f.name}
+                </Text>
+                <Text color="fg.muted">
                   {f.farm_name} · {f.crop_name ?? "Fallow"}
-                </div>
-                <div className="row" style={{ marginTop: 8 }}>
+                </Text>
+                <Flex align="center" gap={2} mt={2}>
                   <StatusBadge status={f.health_status} />
-                  <span className="muted">{f.moisture != null ? `${f.moisture}% moisture` : "No probe"}</span>
-                </div>
-              </Link>
+                  <Text as="span" color="fg.muted">
+                    {f.moisture != null ? `${f.moisture}% moisture` : "No probe"}
+                  </Text>
+                </Flex>
+              </Box>
             ))}
-          </div>
-          {!healthQ.data?.length ? <p className="muted">Field health cards appear once probes report in.</p> : null}
+          </SimpleGrid>
+          {!healthQ.data?.length ? <Text color="fg.muted">Field health cards appear once probes report in.</Text> : null}
         </ChartCard>
         <ChartCard title="Expenses">
-          <div style={{ height: 180 }}>
+          <Box h="180px">
             <ResponsiveContainer>
               <AreaChart data={expensesQ.data ?? []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -185,80 +226,96 @@ export default function DashboardPage() {
                 <Area dataKey="amount" stroke="#2F6F4E" fill="#7CB51833" />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
-      </div>
+      </SimpleGrid>
 
-      <div className="grid grid-3">
-        <section className="card card-pad">
-          <div className="card-title">
-            <h3>Low stock</h3>
-            <Link to="/inventory">Inventory</Link>
-          </div>
-          {(invAlertQ.data ?? []).slice(0, 5).map((a) => (
-            <div key={a.id} className="row" style={{ marginBottom: 8 }}>
-              <div>
-                <div>{a.item_name}</div>
-                <div className="muted">
-                  {a.quantity} on hand / reorder {a.reorder_level}
-                </div>
-              </div>
-            </div>
-          ))}
-          {!invAlertQ.data?.length ? <p className="muted">Seed, MAP, and diesel are above reorder points.</p> : null}
-        </section>
-        <section className="card card-pad">
-          <div className="card-title">
-            <h3>Sensor alerts</h3>
-            <Link to="/sensors">Sensors</Link>
-          </div>
-          {(liveQ.data ?? [])
-            .filter((s) => statusTone(s.status) !== "healthy")
-            .slice(0, 6)
-            .map((s) => (
-              <Link key={s.id} to={`/sensors/${s.id}`} className="row" style={{ marginBottom: 8 }}>
-                <StatusBadge status={s.status} />
-                <span>
-                  {s.name} · {s.field_name ?? s.farm_name}
-                </span>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Flex align="center" justify="space-between" mb={3}>
+              <Heading size="sm">Low stock</Heading>
+              <Link as={RouterLink} to="/inventory" color="brand.500">
+                Inventory
               </Link>
+            </Flex>
+            {(invAlertQ.data ?? []).slice(0, 5).map((a) => (
+              <Flex key={a.id} align="center" gap={2} mb={2}>
+                <Box>
+                  <Text>{a.item_name}</Text>
+                  <Text color="fg.muted">
+                    {a.quantity} on hand / reorder {a.reorder_level}
+                  </Text>
+                </Box>
+              </Flex>
             ))}
-          {(liveQ.data ?? []).every((s) => statusTone(s.status) === "healthy") ? (
-            <p className="muted">All live probes look healthy.</p>
-          ) : null}
-        </section>
-        <section className="card card-pad">
-          <div className="card-title">
-            <h3>Recent tasks</h3>
-            <Link to="/tasks">Board</Link>
-          </div>
-          {(tasksQ.data?.results ?? []).slice(0, 6).map((t) => (
-            <div key={t.id} className="row" style={{ marginBottom: 8 }}>
-              <StatusBadge status={t.status} />
-              <span>{t.title}</span>
-            </div>
-          ))}
-          {!tasksQ.data?.results.length ? (
-            <p className="muted">No open tasks. Side-dress and scout walks will show here.</p>
-          ) : null}
-        </section>
-      </div>
+            {!invAlertQ.data?.length ? <Text color="fg.muted">Seed, MAP, and diesel are above reorder points.</Text> : null}
+          </CardBody>
+        </Card>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Flex align="center" justify="space-between" mb={3}>
+              <Heading size="sm">Sensor alerts</Heading>
+              <Link as={RouterLink} to="/sensors" color="brand.500">
+                Sensors
+              </Link>
+            </Flex>
+            {(liveQ.data ?? [])
+              .filter((s) => statusTone(s.status) !== "healthy")
+              .slice(0, 6)
+              .map((s) => (
+                <Flex key={s.id} as={RouterLink} to={`/sensors/${s.id}`} align="center" gap={2} mb={2}>
+                  <StatusBadge status={s.status} />
+                  <Text as="span">
+                    {s.name} · {s.field_name ?? s.farm_name}
+                  </Text>
+                </Flex>
+              ))}
+            {(liveQ.data ?? []).every((s) => statusTone(s.status) === "healthy") ? (
+              <Text color="fg.muted">All live probes look healthy.</Text>
+            ) : null}
+          </CardBody>
+        </Card>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Flex align="center" justify="space-between" mb={3}>
+              <Heading size="sm">Recent tasks</Heading>
+              <Link as={RouterLink} to="/tasks" color="brand.500">
+                Board
+              </Link>
+            </Flex>
+            {(tasksQ.data?.results ?? []).slice(0, 6).map((t) => (
+              <Flex key={t.id} align="center" gap={2} mb={2}>
+                <StatusBadge status={t.status} />
+                <Text as="span">{t.title}</Text>
+              </Flex>
+            ))}
+            {!tasksQ.data?.results.length ? (
+              <Text color="fg.muted">No open tasks. Side-dress and scout walks will show here.</Text>
+            ) : null}
+          </CardBody>
+        </Card>
+      </SimpleGrid>
 
-      <section className="card card-pad" style={{ marginTop: 16 }}>
-        <h3>Yield vs target</h3>
-        <div style={{ height: 200 }}>
-          <ResponsiveContainer>
-            <BarChart data={yieldsQ.data ?? []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-              <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="actual" fill="#2F6F4E" />
-              <Bar dataKey="target" fill="#D4A017" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-    </div>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mt={4}>
+        <CardBody>
+          <Heading size="sm" mb={3}>
+            Yield vs target
+          </Heading>
+          <Box h="200px">
+            <ResponsiveContainer>
+              <BarChart data={yieldsQ.data ?? []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="actual" fill="#2F6F4E" />
+                <Bar dataKey="target" fill="#D4A017" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+        </CardBody>
+      </Card>
+    </Box>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Button, Input, Link, Select, SimpleGrid, Text, Textarea } from "@chakra-ui/react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 
@@ -76,77 +77,90 @@ export default function FieldFormPage() {
   };
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={isEdit ? "Edit field" : "New field"}
         subtitle="Name the boundary the way operators call it on the radio."
         crumbs={
           <>
-            <Link to="/fields">Fields</Link>
-            <span>/</span>
-            <span>{isEdit ? "Edit" : "New"}</span>
+            <Link as={RouterLink} to="/fields">
+              Fields
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{isEdit ? "Edit" : "New"}</Text>
           </>
         }
       />
       <ErrorBanner message={error} />
-      <form className="card card-pad" style={{ maxWidth: 720 }} onSubmit={onSubmit}>
+      <Box
+        as="form"
+        onSubmit={onSubmit}
+        bg="bg.surface"
+        borderWidth="1px"
+        borderColor="border.default"
+        borderRadius="xl"
+        p={5}
+        maxW="720px"
+      >
         <FormField label="Field name" htmlFor="fname" hint="e.g. South Bottom">
-          <input id="fname" className="input" required value={form.name} onChange={set("name")} />
+          <Input id="fname" isRequired value={form.name} onChange={set("name")} />
         </FormField>
-        <div className="grid grid-2">
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
           <FormField label="Farm" htmlFor="farm">
-            <select id="farm" className="select" required value={form.farm} onChange={set("farm")}>
+            <Select id="farm" isRequired value={form.farm} onChange={set("farm")}>
               <option value="">Select farm</option>
               {(farmsQ.data?.results ?? []).map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </FormField>
           <FormField label="Acres" htmlFor="facres">
-            <input id="facres" className="input" type="number" step="0.1" required value={form.acres} onChange={set("acres")} />
+            <Input id="facres" type="number" step="0.1" isRequired value={form.acres} onChange={set("acres")} />
           </FormField>
-        </div>
-        <div className="grid grid-2">
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
           <FormField label="Soil type" htmlFor="soil">
-            <select id="soil" className="select" value={form.soil_type} onChange={set("soil_type")}>
+            <Select id="soil" value={form.soil_type} onChange={set("soil_type")}>
               <option value="loam">Loam</option>
               <option value="clay_loam">Clay loam</option>
               <option value="sandy_loam">Sandy loam</option>
               <option value="silt_loam">Silt loam</option>
-            </select>
+            </Select>
           </FormField>
           <FormField label="Current crop" htmlFor="crop">
-            <select id="crop" className="select" value={form.crop} onChange={set("crop")}>
+            <Select id="crop" value={form.crop} onChange={set("crop")}>
               <option value="">Fallow</option>
               {(cropsQ.data?.results ?? []).map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </FormField>
-        </div>
-        <div className="grid grid-2">
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
           <FormField label="Planting date" htmlFor="pdate">
-            <input id="pdate" className="input" type="date" value={form.planting_date} onChange={set("planting_date")} />
+            <Input id="pdate" type="date" value={form.planting_date} onChange={set("planting_date")} />
           </FormField>
           <FormField label="Harvest date" htmlFor="hdate">
-            <input id="hdate" className="input" type="date" value={form.harvest_date} onChange={set("harvest_date")} />
+            <Input id="hdate" type="date" value={form.harvest_date} onChange={set("harvest_date")} />
           </FormField>
-        </div>
+        </SimpleGrid>
         <FormField
           label="Boundary GeoJSON"
           htmlFor="boundary"
           hint='Polygon: {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
         >
-          <textarea id="boundary" className="textarea" value={form.boundary_text} onChange={set("boundary_text")} />
+          <Textarea id="boundary" value={form.boundary_text} onChange={set("boundary_text")} />
         </FormField>
-        <button type="submit" className="btn btn-primary" disabled={pending}>
+        <Button type="submit" colorScheme="brand" isDisabled={pending}>
           {pending ? "Saving…" : isEdit ? "Save field" : "Create field"}
-        </button>
-      </form>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }

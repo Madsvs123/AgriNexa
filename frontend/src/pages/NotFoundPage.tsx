@@ -1,17 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { Box, Button, Card, CardBody, Text } from "@chakra-ui/react";
 import { PageHeader } from "@/components/ui/FormField";
 
 export default function NotFoundPage() {
   return (
-    <div className="page">
+    <Box>
       <PageHeader title="Field not on the map" subtitle="That route is fallow — nothing is planted here." />
-      <div className="card card-pad" style={{ maxWidth: 480 }}>
-        <div className="empty-art" />
-        <p>The page you requested is not part of AgriNexa operations.</p>
-        <Link to="/home" className="btn btn-primary">
-          Back to dashboard
-        </Link>
-      </div>
-    </div>
+      <Card variant="outline" borderColor="border.default" bg="bg.surface" maxW="480px">
+        <CardBody>
+          <Box boxSize={12} borderRadius="full" bg="brand.50" _dark={{ bg: "whiteAlpha.200" }} mb={3} />
+          <Text mb={4}>The page you requested is not part of AgriNexa operations.</Text>
+          <Button as={RouterLink} to="/home" colorScheme="brand">
+            Back to dashboard
+          </Button>
+        </CardBody>
+      </Card>
+    </Box>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Button, Input, Select, SimpleGrid } from "@chakra-ui/react";
 import { getApiError, tenancyApi } from "@/api/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
@@ -62,43 +63,50 @@ export default function OrganizationPage() {
   };
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader title="Organization" subtitle="Legal name, units, and default season calendar." />
       <ErrorBanner message={error} />
-      <form className="card card-pad" style={{ maxWidth: 720 }} onSubmit={onSubmit}>
+      <Box
+        as="form"
+        bg="bg.surface"
+        borderWidth="1px"
+        borderColor="border.default"
+        borderRadius="xl"
+        p={5}
+        maxW="720px"
+        onSubmit={onSubmit}
+      >
         <FormField label="Display name" htmlFor="oname">
-          <input id="oname" className="input" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input id="oname" value={name} onChange={(e) => setName(e.target.value)} />
         </FormField>
         <FormField label="Legal name" htmlFor="olegal">
-          <input id="olegal" className="input" value={settings.legal_name} onChange={(e) => setSettings({ ...settings, legal_name: e.target.value })} />
+          <Input id="olegal" value={settings.legal_name} onChange={(e) => setSettings({ ...settings, legal_name: e.target.value })} />
         </FormField>
         <FormField label="Tax ID" htmlFor="otax">
-          <input id="otax" className="input" value={settings.tax_id} onChange={(e) => setSettings({ ...settings, tax_id: e.target.value })} />
+          <Input id="otax" value={settings.tax_id} onChange={(e) => setSettings({ ...settings, tax_id: e.target.value })} />
         </FormField>
-        <div className="grid grid-2">
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
           <FormField label="Timezone" htmlFor="otz">
-            <input id="otz" className="input" value={settings.timezone} onChange={(e) => setSettings({ ...settings, timezone: e.target.value })} />
+            <Input id="otz" value={settings.timezone} onChange={(e) => setSettings({ ...settings, timezone: e.target.value })} />
           </FormField>
           <FormField label="Currency" htmlFor="ocur">
-            <input id="ocur" className="input" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} />
+            <Input id="ocur" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} />
           </FormField>
-        </div>
-        <div className="grid grid-2">
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
           <FormField label="Unit system" htmlFor="ounit">
-            <select
+            <Select
               id="ounit"
-              className="select"
               value={settings.unit_system}
               onChange={(e) => setSettings({ ...settings, unit_system: e.target.value as "imperial" | "metric" })}
             >
               <option value="imperial">Imperial (acres, gallons)</option>
               <option value="metric">Metric (hectares, liters)</option>
-            </select>
+            </Select>
           </FormField>
           <FormField label="Season start month" htmlFor="oseason">
-            <input
+            <Input
               id="oseason"
-              className="input"
               type="number"
               min={1}
               max={12}
@@ -106,11 +114,11 @@ export default function OrganizationPage() {
               onChange={(e) => setSettings({ ...settings, season_start_month: e.target.value })}
             />
           </FormField>
-        </div>
-        <button type="submit" className="btn btn-primary">
+        </SimpleGrid>
+        <Button type="submit" colorScheme="brand">
           Save organization
-        </button>
-      </form>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }

@@ -1,5 +1,6 @@
-import { Link, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Card, CardBody, Heading, Link, SimpleGrid, Text } from "@chakra-ui/react";
 import { equipmentApi, getApiError } from "@/api/client";
 import { formatDate, formatDateTime, formatNumber } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
@@ -17,57 +18,65 @@ export default function EquipmentDetailPage() {
   const e = eqQ.data;
   if (eqQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock />
-      </div>
+      </Box>
     );
   }
   if (!e) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={eqQ.error ? getApiError(eqQ.error) : "Machine not found."} />
-      </div>
+      </Box>
     );
   }
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={e.name}
         subtitle={`${e.year ?? ""} ${e.make} ${e.model} · ${e.farm_name}`}
         crumbs={
           <>
-            <Link to="/equipment">Equipment</Link>
-            <span>/</span>
-            <span>{e.name}</span>
+            <Link as={RouterLink} to="/equipment">
+              Equipment
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{e.name}</Text>
           </>
         }
       />
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
         <StatCard label="Hours" value={formatNumber(e.hours)} />
         <StatCard label="Fuel" value={e.fuel_level != null ? `${e.fuel_level}%` : "—"} />
         <StatCard label="Status" value={<StatusBadge status={e.status} />} />
         <StatCard label="Type" value={e.type} />
-      </div>
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
-        <div className="card" style={{ minHeight: 220 }}>
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+        <Box bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl" overflow="hidden" minH="220px">
           <MapView height="220px" equipment={[e]} center={e.lat && e.lng ? [e.lat, e.lng] : undefined} />
-        </div>
-        <section className="card card-pad">
-          <h3>Breakdowns</h3>
-          {(bdQ.data?.results ?? []).map((b) => (
-            <div key={b.id} style={{ marginBottom: 8 }}>
-              <strong>{formatDateTime(b.occurred_at)}</strong> — {b.description}
-              <div className="muted">{b.resolved_at ? `Resolved ${formatDate(b.resolved_at)}` : "Open"}</div>
-            </div>
-          ))}
-          {!bdQ.data?.results.length ? <p className="muted">No open breakdowns.</p> : null}
-        </section>
-      </div>
-      <div className="grid grid-2">
-        <div className="card">
-          <div className="card-pad">
-            <h3>Maintenance schedule</h3>
-          </div>
+        </Box>
+        <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+          <CardBody>
+            <Heading size="sm" mb={3}>
+              Breakdowns
+            </Heading>
+            {(bdQ.data?.results ?? []).map((b) => (
+              <Box key={b.id} mb={2}>
+                <Text as="strong">{formatDateTime(b.occurred_at)}</Text> — {b.description}
+                <Text color="fg.muted">{b.resolved_at ? `Resolved ${formatDate(b.resolved_at)}` : "Open"}</Text>
+              </Box>
+            ))}
+            {!bdQ.data?.results.length ? <Text color="fg.muted">No open breakdowns.</Text> : null}
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <Box>
+          <Heading size="sm" mb={3}>
+            Maintenance schedule
+          </Heading>
           <DataTable
             rows={maintQ.data?.results ?? []}
             rowKey={(r) => r.id}
@@ -79,11 +88,11 @@ export default function EquipmentDetailPage() {
               { key: "cost", header: "Cost", render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
             ]}
           />
-        </div>
-        <div className="card">
-          <div className="card-pad">
-            <h3>Fuel logs</h3>
-          </div>
+        </Box>
+        <Box>
+          <Heading size="sm" mb={3}>
+            Fuel logs
+          </Heading>
           <DataTable
             rows={fuelQ.data?.results ?? []}
             rowKey={(r) => r.id}
@@ -95,12 +104,12 @@ export default function EquipmentDetailPage() {
               { key: "cost", header: "Cost", render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
             ]}
           />
-        </div>
-      </div>
-      <section className="card" style={{ marginTop: 16 }}>
-        <div className="card-pad">
-          <h3>Service history</h3>
-        </div>
+        </Box>
+      </SimpleGrid>
+      <Box as="section" mt={4}>
+        <Heading size="sm" mb={3}>
+          Service history
+        </Heading>
         <DataTable
           rows={svcQ.data?.results ?? []}
           rowKey={(r) => r.id}
@@ -113,7 +122,7 @@ export default function EquipmentDetailPage() {
             { key: "cost", header: "Cost", render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
           ]}
         />
-      </section>
-    </div>
+      </Box>
+    </Box>
   );
 }

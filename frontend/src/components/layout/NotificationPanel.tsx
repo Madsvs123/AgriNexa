@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { platformApi } from "@/api/client";
 import type { NotificationItem } from "@/types";
 import { fromNow } from "@/lib/utils";
@@ -23,44 +24,46 @@ export function NotificationPanel({
   });
 
   return (
-    <div>
-      <div className="row" style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)" }}>
-        <strong>Notifications</strong>
-        <span className="spacer" />
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => readAll.mutate()}>
+    <Box>
+      <Flex align="center" px={4} py={3} borderBottomWidth="1px" borderColor="border.default">
+        <Text fontWeight="semibold">Notifications</Text>
+        <Box flex="1" />
+        <Button size="xs" variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>
           Mark all read
-        </button>
-      </div>
+        </Button>
+      </Flex>
       {items.length === 0 ? (
-        <p className="muted" style={{ padding: 16 }}>
+        <Text color="fg.muted" p={4} fontSize="sm">
           Quiet in the yard. Frost, sensor, and inventory alerts will land here.
-        </p>
+        </Text>
       ) : (
         items.map((n) => (
-          <button
+          <Box
             key={n.id}
-            type="button"
-            className="dropdown-item"
-            style={{ alignItems: "flex-start", opacity: n.is_read ? 0.65 : 1 }}
+            as="button"
+            w="100%"
+            textAlign="left"
+            px={4}
+            py={2.5}
+            opacity={n.is_read ? 0.65 : 1}
+            _hover={{ bg: "bg.subtle" }}
             onClick={() => {
               if (!n.is_read) read.mutate(n.id);
               navigate(n.link || "/notifications");
             }}
           >
-            <div>
-              <div>{n.title}</div>
-              <div className="muted" style={{ fontSize: 12 }}>
-                {n.body} · {fromNow(n.created_at)}
-              </div>
-            </div>
-          </button>
+            <Text fontSize="sm">{n.title}</Text>
+            <Text fontSize="xs" color="fg.muted">
+              {n.body} · {fromNow(n.created_at)}
+            </Text>
+          </Box>
         ))
       )}
-      <div style={{ padding: 10 }}>
-        <button type="button" className="btn btn-ghost" style={{ width: "100%" }} onClick={onSeeAll}>
+      <Box p={2.5}>
+        <Button w="100%" variant="ghost" colorScheme="gray" size="sm" onClick={onSeeAll}>
           Open notification center
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }

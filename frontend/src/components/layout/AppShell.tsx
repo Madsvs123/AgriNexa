@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Outlet, useLocation } from "react-router-dom";
+import { Box, Flex } from "@chakra-ui/react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { SearchPalette } from "./SearchPalette";
@@ -50,13 +51,15 @@ export function AppShell() {
   }, [token, liveSensors, location.search, qc]);
 
   return (
-    <div className="layout">
+    <Flex minH="100vh" bg="bg.canvas">
       <Sidebar />
-      <div className="layout-main">
+      <Flex direction="column" flex="1" minW={0}>
         <Topbar />
-        <Outlet />
-      </div>
+        <Box as="main" flex="1" p={{ base: 4, md: 6 }}>
+          <Outlet />
+        </Box>
+      </Flex>
       <SearchPalette />
-    </div>
+    </Flex>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Button, Input, Link, Select, SimpleGrid, Text } from "@chakra-ui/react";
 import { farmsApi, getApiError } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 
@@ -66,61 +67,74 @@ export default function FarmFormPage() {
   };
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={isEdit ? "Edit farm" : "New farm"}
         subtitle="Codes should match your accounting and FSA records."
         crumbs={
           <>
-            <Link to="/farms">Farms</Link>
-            <span>/</span>
-            <span>{isEdit ? "Edit" : "New"}</span>
+            <Link as={RouterLink} to="/farms">
+              Farms
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{isEdit ? "Edit" : "New"}</Text>
           </>
         }
       />
       <ErrorBanner message={error} />
-      <form className="card card-pad" style={{ maxWidth: 720 }} onSubmit={onSubmit}>
+      <Box
+        as="form"
+        onSubmit={onSubmit}
+        bg="bg.surface"
+        borderWidth="1px"
+        borderColor="border.default"
+        borderRadius="xl"
+        p={5}
+        maxW="720px"
+      >
         <FormField label="Farm name" htmlFor="name" hint="e.g. North Ridge">
-          <input id="name" className="input" required value={form.name} onChange={set("name")} />
+          <Input id="name" isRequired value={form.name} onChange={set("name")} />
         </FormField>
-        <div className="grid grid-2">
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
           <FormField label="Code" htmlFor="code">
-            <input id="code" className="input" required value={form.code} onChange={set("code")} />
+            <Input id="code" isRequired value={form.code} onChange={set("code")} />
           </FormField>
           <FormField label="Total acres" htmlFor="acres">
-            <input id="acres" className="input" type="number" step="0.1" value={form.total_acres} onChange={set("total_acres")} />
+            <Input id="acres" type="number" step="0.1" value={form.total_acres} onChange={set("total_acres")} />
           </FormField>
-        </div>
+        </SimpleGrid>
         <FormField label="Address" htmlFor="address">
-          <input id="address" className="input" value={form.address} onChange={set("address")} />
+          <Input id="address" value={form.address} onChange={set("address")} />
         </FormField>
-        <div className="grid grid-2">
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
           <FormField label="Latitude" htmlFor="lat">
-            <input id="lat" className="input" value={form.lat} onChange={set("lat")} />
+            <Input id="lat" value={form.lat} onChange={set("lat")} />
           </FormField>
           <FormField label="Longitude" htmlFor="lng">
-            <input id="lng" className="input" value={form.lng} onChange={set("lng")} />
+            <Input id="lng" value={form.lng} onChange={set("lng")} />
           </FormField>
-        </div>
-        <div className="grid grid-2">
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
           <FormField label="Timezone" htmlFor="tz">
-            <input id="tz" className="input" value={form.timezone} onChange={set("timezone")} />
+            <Input id="tz" value={form.timezone} onChange={set("timezone")} />
           </FormField>
           <FormField label="Region" htmlFor="region">
-            <select id="region" className="select" value={form.region_id} onChange={set("region_id")}>
+            <Select id="region" value={form.region_id} onChange={set("region_id")}>
               <option value="">Unassigned</option>
               {(regionsQ.data?.results ?? []).map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </FormField>
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={pending}>
+        </SimpleGrid>
+        <Button type="submit" colorScheme="brand" isDisabled={pending}>
           {pending ? "Saving…" : "Save farm"}
-        </button>
-      </form>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }

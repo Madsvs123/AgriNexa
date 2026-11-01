@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Box, SimpleGrid } from "@chakra-ui/react";
 import {
   Area,
   AreaChart,
@@ -24,12 +25,12 @@ export default function AnalyticsPage() {
   const o = overviewQ.data;
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader title="Analytics" subtitle="Yield, water, cost, and field health trends." />
       <ErrorBanner message={overviewQ.error ? getApiError(overviewQ.error) : null} />
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <ChartCard title="Yield trend">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <AreaChart data={o?.water_trend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -39,10 +40,10 @@ export default function AnalyticsPage() {
                 <Area dataKey="value" stroke="#2F6F4E" fill="#7CB51833" />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
         <ChartCard title="Water trend">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <LineChart data={o?.yield_trend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -52,12 +53,12 @@ export default function AnalyticsPage() {
                 <Line dataKey="value" stroke="#3D7EA6" dot={false} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
-      </div>
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <ChartCard title="Cost trend">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <BarChart data={o?.cost_trend ?? []}>
                 <XAxis dataKey="date" hide />
@@ -65,10 +66,10 @@ export default function AnalyticsPage() {
                 <Bar dataKey="value" fill="#8C5A3C" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
         <ChartCard title="Field health mix">
-          <div style={{ height: 220 }}>
+          <Box h="220px">
             <ResponsiveContainer>
               <AreaChart data={o?.health_trend ?? []}>
                 <XAxis dataKey="date" hide />
@@ -78,12 +79,12 @@ export default function AnalyticsPage() {
                 <Area dataKey="critical" stackId="1" fill="#B42318" />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
-      </div>
-      <div className="grid grid-3">
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
         <ChartCard title="Yield by crop">
-          <div style={{ height: 200 }}>
+          <Box h="200px">
             <ResponsiveContainer>
               <BarChart data={yieldsQ.data?.by_crop ?? []}>
                 <XAxis dataKey="crop_name" />
@@ -92,10 +93,10 @@ export default function AnalyticsPage() {
                 <Bar dataKey="target" fill="#D4A017" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
         <ChartCard title="Water by farm">
-          <div style={{ height: 200 }}>
+          <Box h="200px">
             <ResponsiveContainer>
               <BarChart data={waterQ.data?.by_farm ?? []}>
                 <XAxis dataKey="farm_name" hide />
@@ -103,10 +104,10 @@ export default function AnalyticsPage() {
                 <Bar dataKey="gallons" fill="#3D7EA6" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
         <ChartCard title="Costs by category">
-          <div style={{ height: 200 }}>
+          <Box h="200px">
             <ResponsiveContainer>
               <BarChart data={costsQ.data?.by_category ?? []}>
                 <XAxis dataKey="category" hide />
@@ -114,9 +115,9 @@ export default function AnalyticsPage() {
                 <Bar dataKey="amount" fill="#8C5A3C" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         </ChartCard>
-      </div>
-    </div>
+      </SimpleGrid>
+    </Box>
   );
 }

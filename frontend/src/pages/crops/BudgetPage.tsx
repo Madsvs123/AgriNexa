@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Box, Link, Text } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { formatNumber } from "@/lib/utils";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
@@ -12,21 +13,25 @@ export default function BudgetPage() {
   const rows = budgetQ.data?.results ?? [];
   const chart = rows.map((r) => ({ category: r.category, planned: r.planned, actual: r.actual }));
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Seasonal budget"
         subtitle="Planned versus actual spend by input category."
         crumbs={
           <>
-            <Link to="/crops">Crops</Link>
-            <span>/</span>
-            <span>Budget</span>
+            <Link as={RouterLink} to="/crops">
+              Crops
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">Budget</Text>
           </>
         }
       />
       <ErrorBanner message={budgetQ.error ? getApiError(budgetQ.error) : null} />
       <ChartCard title="Planned vs actual">
-        <div style={{ height: 260 }}>
+        <Box h="260px">
           <ResponsiveContainer>
             <BarChart data={chart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -37,9 +42,9 @@ export default function BudgetPage() {
               <Bar dataKey="planned" fill="#D4A017" />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Box>
       </ChartCard>
-      <div className="card" style={{ marginTop: 16 }}>
+      <Box mt={4}>
         <DataTable
           rows={rows}
           rowKey={(r) => r.id}
@@ -53,7 +58,7 @@ export default function BudgetPage() {
             { key: "notes", header: "Notes" },
           ]}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

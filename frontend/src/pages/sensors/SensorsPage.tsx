@@ -1,5 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Box,
+  Card,
+  CardBody,
+  Flex,
+  Select,
+  SimpleGrid,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
 import { farmsApi, getApiError, sensorsApi } from "@/api/client";
 import { formatDateTime, formatPct } from "@/lib/utils";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
@@ -21,48 +31,61 @@ export default function SensorsPage() {
   const sensors = (liveQ.data?.length ? liveQ.data : listQ.data?.results) ?? [];
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Sensors"
         subtitle="Live probes across moisture, weather, and tank monitors."
         actions={
-          <select className="select" aria-label="Farm" value={selected ?? ""} onChange={(e) => setFarmId(e.target.value)}>
+          <Select aria-label="Farm" value={selected ?? ""} onChange={(e) => setFarmId(e.target.value)} maxW="xs" bg="bg.surface">
             {(farmsQ.data?.results ?? []).map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>
             ))}
-          </select>
+          </Select>
         }
       />
       <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
       {sensors.length === 0 ? (
-        <div className="card">
+        <Card variant="outline" borderColor="border.default" bg="bg.surface">
           <EmptyState title="No sensors reporting" body="Pair a soil probe on North 80 to see sparklines and battery." />
-        </div>
+        </Card>
       ) : (
-        <div className="grid grid-3">
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           {sensors.map((s) => (
-            <Link key={s.id} to={`/sensors/${s.id}`} className="card card-pad">
-              <div className="row">
-                <strong>{s.name}</strong>
-                <span className="spacer" />
-                <StatusBadge status={s.status} />
-              </div>
-              <div className="muted">
-                {s.sensor_type_name} · {s.field_name ?? s.farm_name}
-              </div>
-              <div style={{ fontFamily: "var(--display)", fontSize: 28, margin: "8px 0" }}>
-                {s.last_reading ?? "—"} <span style={{ fontSize: 14 }}>{s.unit}</span>
-              </div>
-              <SensorSparkline values={s.sparkline ?? []} />
-              <div className="muted" style={{ marginTop: 8 }}>
-                {formatDateTime(s.last_reading_at)} · Battery {formatPct(s.battery_pct)}
-              </div>
-            </Link>
+            <Card
+              key={s.id}
+              as={RouterLink}
+              to={`/sensors/${s.id}`}
+              variant="outline"
+              borderColor="border.default"
+              bg="bg.surface"
+              _hover={{ borderColor: "brand.300", textDecoration: "none" }}
+            >
+              <CardBody>
+                <Flex align="center" gap={2}>
+                  <Text as="strong">{s.name}</Text>
+                  <Spacer />
+                  <StatusBadge status={s.status} />
+                </Flex>
+                <Text color="fg.muted">
+                  {s.sensor_type_name} · {s.field_name ?? s.farm_name}
+                </Text>
+                <Text fontFamily="heading" fontSize="28px" my={2}>
+                  {s.last_reading ?? "—"}{" "}
+                  <Text as="span" fontSize="sm">
+                    {s.unit}
+                  </Text>
+                </Text>
+                <SensorSparkline values={s.sparkline ?? []} />
+                <Text color="fg.muted" mt={2}>
+                  {formatDateTime(s.last_reading_at)} · Battery {formatPct(s.battery_pct)}
+                </Text>
+              </CardBody>
+            </Card>
           ))}
-        </div>
+        </SimpleGrid>
       )}
-    </div>
+    </Box>
   );
 }

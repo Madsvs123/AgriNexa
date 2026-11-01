@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button, Checkbox, Input, Link, Text } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { formatDate } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
@@ -22,42 +23,44 @@ export default function SeasonsPage() {
   });
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Seasons"
         subtitle="Planning windows used by the top-bar season filter."
         crumbs={
           <>
-            <Link to="/crops">Crops</Link>
-            <span>/</span>
-            <span>Seasons</span>
+            <Link as={RouterLink} to="/crops">
+              Crops
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">Seasons</Text>
           </>
         }
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>
             Add season
-          </button>
+          </Button>
         }
       />
       <ErrorBanner message={seasonsQ.error ? getApiError(seasonsQ.error) : null} />
-      <div className="card">
-        <DataTable
-          rows={seasonsQ.data?.results ?? []}
-          rowKey={(s) => s.id}
-          emptyTitle="No seasons"
-          emptyBody="Create 2026 and mark it active before planting starts."
-          columns={[
-            { key: "name", header: "Season" },
-            { key: "start_date", header: "Start", render: (s) => formatDate(s.start_date) },
-            { key: "end_date", header: "End", render: (s) => formatDate(s.end_date) },
-            {
-              key: "is_active",
-              header: "Status",
-              render: (s) => <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "Active" : "Closed"} />,
-            },
-          ]}
-        />
-      </div>
+      <DataTable
+        rows={seasonsQ.data?.results ?? []}
+        rowKey={(s) => s.id}
+        emptyTitle="No seasons"
+        emptyBody="Create 2026 and mark it active before planting starts."
+        columns={[
+          { key: "name", header: "Season" },
+          { key: "start_date", header: "Start", render: (s) => formatDate(s.start_date) },
+          { key: "end_date", header: "End", render: (s) => formatDate(s.end_date) },
+          {
+            key: "is_active",
+            header: "Status",
+            render: (s) => <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "Active" : "Closed"} />,
+          },
+        ]}
+      />
       <Drawer open={open} title="Add season" onClose={() => setOpen(false)}>
         <form
           onSubmit={(e: FormEvent) => {
@@ -66,23 +69,42 @@ export default function SeasonsPage() {
           }}
         >
           <FormField label="Name" htmlFor="sname">
-            <input id="sname" className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="2026" />
+            <Input
+              id="sname"
+              isRequired
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="2026"
+            />
           </FormField>
           <FormField label="Start" htmlFor="sstart">
-            <input id="sstart" className="input" type="date" required value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+            <Input
+              id="sstart"
+              type="date"
+              isRequired
+              value={form.start_date}
+              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+            />
           </FormField>
           <FormField label="End" htmlFor="send">
-            <input id="send" className="input" type="date" required value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
+            <Input
+              id="send"
+              type="date"
+              isRequired
+              value={form.end_date}
+              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+            />
           </FormField>
-          <label className="row">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+          <Checkbox isChecked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })}>
             Active season
-          </label>
-          <button type="submit" className="btn btn-primary" style={{ marginTop: 14 }} disabled={create.isPending}>
-            Save
-          </button>
+          </Checkbox>
+          <Box mt={3.5}>
+            <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>
+              Save
+            </Button>
+          </Box>
         </form>
       </Drawer>
-    </div>
+    </Box>
   );
 }

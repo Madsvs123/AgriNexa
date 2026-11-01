@@ -1,5 +1,19 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  Input,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import { farmsApi, getApiError, platformApi } from "@/api/client";
 import { formatDate } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
@@ -36,64 +50,79 @@ export default function TasksPage() {
   }));
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Tasks"
         subtitle="Work grouped by status — scouting, maintenance, and agronomy."
         actions={
-          <button
-            type="button"
-            className="btn btn-primary"
+          <Button
+            colorScheme="brand"
             onClick={() =>
               setEditing({ title: "", description: "", status: "todo", priority: "medium", due_date: null, farm: null, field: null })
             }
           >
             New task
-          </button>
+          </Button>
         }
       />
       <ErrorBanner message={tasksQ.error ? getApiError(tasksQ.error) : null} />
-      <div className="kanban">
+      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={4}>
         {grouped.map((col) => (
-          <section key={col.key} className="card kanban-col">
-            <h3>
-              {col.label} <span className="muted">{col.items.length}</span>
-            </h3>
-            {col.items.map((t) => (
-              <button key={t.id} type="button" className="card task-card" onClick={() => setEditing(t)}>
-                <strong>{t.title}</strong>
-                <div className="muted">
-                  {t.field_name || t.farm_name || "Unassigned"} · {formatDate(t.due_date)}
-                </div>
-                <StatusBadge status={t.priority} />
-              </button>
-            ))}
-          </section>
+          <Card key={col.key} variant="outline" borderColor="border.default" bg="bg.surface">
+            <CardBody>
+              <Heading size="sm" mb={3}>
+                {col.label}{" "}
+                <Text as="span" color="fg.muted" fontWeight="normal">
+                  {col.items.length}
+                </Text>
+              </Heading>
+              <Stack spacing={3}>
+                {col.items.map((t) => (
+                  <Box
+                    key={t.id}
+                    as="button"
+                    type="button"
+                    textAlign="left"
+                    bg="bg.subtle"
+                    borderWidth="1px"
+                    borderColor="border.default"
+                    borderRadius="lg"
+                    p={3}
+                    _hover={{ borderColor: "brand.400" }}
+                    onClick={() => setEditing(t)}
+                  >
+                    <Text fontWeight="semibold">{t.title}</Text>
+                    <Text fontSize="sm" color="fg.muted" mb={2}>
+                      {t.field_name || t.farm_name || "Unassigned"} · {formatDate(t.due_date)}
+                    </Text>
+                    <StatusBadge status={t.priority} />
+                  </Box>
+                ))}
+              </Stack>
+            </CardBody>
+          </Card>
         ))}
-      </div>
+      </SimpleGrid>
       <Drawer open={!!editing} title={editing?.id ? "Edit task" : "New task"} onClose={() => setEditing(null)}>
         {editing ? (
           <>
             <FormField label="Title" htmlFor="ttitle">
-              <input
+              <Input
                 id="ttitle"
-                className="input"
                 value={editing.title ?? ""}
                 onChange={(e) => setEditing({ ...editing, title: e.target.value })}
               />
             </FormField>
             <FormField label="Description" htmlFor="tdesc">
-              <textarea
+              <Textarea
                 id="tdesc"
-                className="textarea"
                 value={editing.description ?? ""}
                 onChange={(e) => setEditing({ ...editing, description: e.target.value })}
               />
             </FormField>
             <FormField label="Status" htmlFor="tstat">
-              <select
+              <Select
                 id="tstat"
-                className="select"
                 value={editing.status}
                 onChange={(e) => setEditing({ ...editing, status: e.target.value as TaskStatus })}
               >
@@ -102,33 +131,30 @@ export default function TasksPage() {
                     {c.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </FormField>
             <FormField label="Priority" htmlFor="tpri">
-              <select
+              <Select
                 id="tpri"
-                className="select"
                 value={editing.priority}
                 onChange={(e) => setEditing({ ...editing, priority: e.target.value as TaskItem["priority"] })}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
-              </select>
+              </Select>
             </FormField>
             <FormField label="Due date" htmlFor="tdue">
-              <input
+              <Input
                 id="tdue"
-                className="input"
                 type="date"
                 value={editing.due_date ?? ""}
                 onChange={(e) => setEditing({ ...editing, due_date: e.target.value })}
               />
             </FormField>
             <FormField label="Farm" htmlFor="tfarm">
-              <select
+              <Select
                 id="tfarm"
-                className="select"
                 value={editing.farm ?? ""}
                 onChange={(e) => setEditing({ ...editing, farm: e.target.value || null })}
               >
@@ -138,12 +164,11 @@ export default function TasksPage() {
                     {f.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </FormField>
             <FormField label="Field" htmlFor="tfield">
-              <select
+              <Select
                 id="tfield"
-                className="select"
                 value={editing.field ?? ""}
                 onChange={(e) => setEditing({ ...editing, field: e.target.value || null })}
               >
@@ -153,14 +178,14 @@ export default function TasksPage() {
                     {f.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </FormField>
-            <button type="button" className="btn btn-primary" disabled={save.isPending} onClick={() => save.mutate()}>
+            <Button colorScheme="brand" isDisabled={save.isPending} onClick={() => save.mutate()}>
               Save task
-            </button>
+            </Button>
           </>
         ) : null}
       </Drawer>
-    </div>
+    </Box>
   );
 }

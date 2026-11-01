@@ -4,7 +4,9 @@ Precision farming platform for farms, agribusinesses, crop consultants, and fiel
 
 ## Stack
 
-Django 5 and Django REST Framework on the backend. React, TypeScript, and Vite on the frontend. PostgreSQL, Redis, and Celery support data and background work.
+Django 5 and Django REST Framework on the backend. React, TypeScript, Vite, and Chakra UI (light/dark theme) on the frontend, with Zustand for client state and TanStack Query for server state. PostgreSQL, Redis, and Celery support data and background work.
+
+Full platform documentation — features, API reference, pages, data model, and operations — lives in [AgriNexa.md](AgriNexa.md).
 
 ## Layout
 

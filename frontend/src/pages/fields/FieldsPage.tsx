@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { farmsApi, getApiError } from "@/api/client";
 import { formatAcres } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
@@ -17,28 +18,34 @@ export default function FieldsPage() {
   });
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Fields"
         subtitle="Soil, crop, acres, and moisture for every managed boundary."
         actions={
-          <Link to="/fields/new" className="btn btn-primary">
+          <Button as={RouterLink} to="/fields/new" colorScheme="brand">
             Add field
-          </Link>
+          </Button>
         }
       />
       <ErrorBanner message={fieldsQ.error ? getApiError(fieldsQ.error) : null} />
-      <div className="filters">
-        <input className="input" placeholder="Search South Bottom, NR-12…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search fields" />
-        <select className="select" value={soil} onChange={(e) => setSoil(e.target.value)} aria-label="Soil type">
+      <Flex gap={3} wrap="wrap" mb={4}>
+        <Input
+          maxW="320px"
+          placeholder="Search South Bottom, NR-12…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label="Search fields"
+        />
+        <Select maxW="220px" value={soil} onChange={(e) => setSoil(e.target.value)} aria-label="Soil type">
           <option value="">All soils</option>
           <option value="loam">Loam</option>
           <option value="clay_loam">Clay loam</option>
           <option value="sandy_loam">Sandy loam</option>
           <option value="silt_loam">Silt loam</option>
-        </select>
-      </div>
-      <div className="card">
+        </Select>
+      </Flex>
+      <Box>
         {fieldsQ.isLoading ? (
           <SkeletonBlock />
         ) : (
@@ -49,7 +56,15 @@ export default function FieldsPage() {
             emptyTitle="No fields mapped"
             emptyBody="Draw a boundary on North 80 or import a shapefile via the field form."
             columns={[
-              { key: "name", header: "Field", render: (f) => <strong>{f.name}</strong> },
+              {
+                key: "name",
+                header: "Field",
+                render: (f) => (
+                  <Text as="span" fontWeight="semibold">
+                    {f.name}
+                  </Text>
+                ),
+              },
               { key: "farm_name", header: "Farm", render: (f) => f.farm_name ?? "—" },
               { key: "soil_type", header: "Soil", render: (f) => f.soil_type || "—" },
               { key: "crop_name", header: "Crop", render: (f) => f.crop_name ?? "Fallow" },
@@ -63,7 +78,7 @@ export default function FieldsPage() {
             ]}
           />
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

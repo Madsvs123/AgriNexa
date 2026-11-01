@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { Flex, Text, VisuallyHiddenInput } from "@chakra-ui/react";
 import { Upload } from "lucide-react";
 
 export function FileDrop({
@@ -34,8 +35,18 @@ export function FileDrop({
   const onChange = (e: ChangeEvent<HTMLInputElement>) => take(e.target.files);
 
   return (
-    <div
-      className={over ? "dropzone over" : "dropzone"}
+    <Flex
+      direction="column"
+      align="center"
+      gap={1}
+      p={8}
+      borderWidth="2px"
+      borderStyle="dashed"
+      borderColor={over ? "brand.500" : "border.default"}
+      borderRadius="xl"
+      bg={over ? "brand.50" : "bg.subtle"}
+      _dark={{ bg: over ? "whiteAlpha.200" : "whiteAlpha.100" }}
+      cursor="pointer"
       onDragOver={(e) => {
         e.preventDefault();
         setOver(true);
@@ -50,18 +61,11 @@ export function FileDrop({
       }}
     >
       <Upload size={22} />
-      <p>
-        <strong>{label}</strong>
-      </p>
-      <p className="hint">{hint}</p>
-      <input
-        ref={inputRef}
-        type="file"
-        className="sr-only"
-        accept={accept}
-        multiple={multiple}
-        onChange={onChange}
-      />
-    </div>
+      <Text fontWeight="semibold">{label}</Text>
+      <Text fontSize="sm" color="fg.muted">
+        {hint}
+      </Text>
+      <VisuallyHiddenInput ref={inputRef} type="file" accept={accept} multiple={multiple} onChange={onChange} />
+    </Flex>
   );
 }

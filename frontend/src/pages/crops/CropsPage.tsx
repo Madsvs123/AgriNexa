@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button, Card, CardBody, Heading, Input, Select, SimpleGrid, Text } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { DataTable } from "@/components/ui/DataTable";
@@ -25,53 +26,84 @@ export default function CropsPage() {
   });
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Crop catalog"
         subtitle="Species grown across the organization this season."
         actions={
           <>
-            <Link to="/crops/plans" className="btn btn-ghost">
+            <Button as={RouterLink} to="/crops/plans" variant="ghost" colorScheme="gray">
               Seasonal plans
-            </Link>
-            <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
+            </Button>
+            <Button colorScheme="brand" onClick={() => setOpen(true)}>
               Add crop
-            </button>
+            </Button>
           </>
         }
       />
       <ErrorBanner message={cropsQ.error ? getApiError(cropsQ.error) : null} />
-      <div className="grid grid-3" style={{ marginBottom: 16 }}>
-        <Link to="/crops/varieties" className="card card-pad">
-          <h3>Varieties</h3>
-          <p className="muted">Hybrids and traits — P1197, AG27XF3, and more.</p>
-        </Link>
-        <Link to="/crops/rotations" className="card card-pad">
-          <h3>Rotations</h3>
-          <p className="muted">Corn–soy–wheat sequences by field.</p>
-        </Link>
-        <Link to="/crops/budget" className="card card-pad">
-          <h3>Budget</h3>
-          <p className="muted">Planned vs actual seed, chem, and fertilizer.</p>
-        </Link>
-      </div>
-      <div className="card">
-        <DataTable
-          rows={cropsQ.data?.results ?? []}
-          rowKey={(c) => c.id}
-          emptyTitle="No crops in the catalog"
-          emptyBody="Add corn, soybean, or wheat to start seasonal plans."
-          columns={[
-            { key: "name", header: "Crop" },
-            { key: "category", header: "Category" },
-            { key: "typical_days_to_harvest", header: "Days to harvest" },
-            { key: "water_needs", header: "Water needs" },
-          ]}
-        />
-      </div>
-      <p className="muted" style={{ marginTop: 12 }}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
+        <Card
+          as={RouterLink}
+          to="/crops/varieties"
+          variant="outline"
+          borderColor="border.default"
+          bg="bg.surface"
+          _hover={{ borderColor: "brand.300" }}
+        >
+          <CardBody>
+            <Heading size="sm" mb={1}>
+              Varieties
+            </Heading>
+            <Text color="fg.muted">Hybrids and traits — P1197, AG27XF3, and more.</Text>
+          </CardBody>
+        </Card>
+        <Card
+          as={RouterLink}
+          to="/crops/rotations"
+          variant="outline"
+          borderColor="border.default"
+          bg="bg.surface"
+          _hover={{ borderColor: "brand.300" }}
+        >
+          <CardBody>
+            <Heading size="sm" mb={1}>
+              Rotations
+            </Heading>
+            <Text color="fg.muted">Corn–soy–wheat sequences by field.</Text>
+          </CardBody>
+        </Card>
+        <Card
+          as={RouterLink}
+          to="/crops/budget"
+          variant="outline"
+          borderColor="border.default"
+          bg="bg.surface"
+          _hover={{ borderColor: "brand.300" }}
+        >
+          <CardBody>
+            <Heading size="sm" mb={1}>
+              Budget
+            </Heading>
+            <Text color="fg.muted">Planned vs actual seed, chem, and fertilizer.</Text>
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+      <DataTable
+        rows={cropsQ.data?.results ?? []}
+        rowKey={(c) => c.id}
+        emptyTitle="No crops in the catalog"
+        emptyBody="Add corn, soybean, or wheat to start seasonal plans."
+        columns={[
+          { key: "name", header: "Crop" },
+          { key: "category", header: "Category" },
+          { key: "typical_days_to_harvest", header: "Days to harvest" },
+          { key: "water_needs", header: "Water needs" },
+        ]}
+      />
+      <Text color="fg.muted" mt={3}>
         {plansQ.data?.count ?? 0} active crop plans this season.
-      </p>
+      </Text>
       <Drawer open={open} title="Add crop" onClose={() => setOpen(false)}>
         <form
           onSubmit={(e: FormEvent) => {
@@ -80,37 +112,36 @@ export default function CropsPage() {
           }}
         >
           <FormField label="Name" htmlFor="cname">
-            <input id="cname" className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Input id="cname" isRequired value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </FormField>
           <FormField label="Category" htmlFor="ccat">
-            <select id="ccat" className="select" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            <Select id="ccat" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
               <option value="grain">Grain</option>
               <option value="oilseed">Oilseed</option>
               <option value="forage">Forage</option>
               <option value="specialty">Specialty</option>
-            </select>
+            </Select>
           </FormField>
           <FormField label="Days to harvest" htmlFor="cdays">
-            <input
+            <Input
               id="cdays"
-              className="input"
               type="number"
               value={form.typical_days_to_harvest}
               onChange={(e) => setForm({ ...form, typical_days_to_harvest: e.target.value })}
             />
           </FormField>
           <FormField label="Water needs" htmlFor="cwater">
-            <select id="cwater" className="select" value={form.water_needs} onChange={(e) => setForm({ ...form, water_needs: e.target.value })}>
+            <Select id="cwater" value={form.water_needs} onChange={(e) => setForm({ ...form, water_needs: e.target.value })}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
-            </select>
+            </Select>
           </FormField>
-          <button type="submit" className="btn btn-primary" disabled={create.isPending}>
+          <Button type="submit" colorScheme="brand" isDisabled={create.isPending}>
             Save crop
-          </button>
+          </Button>
         </form>
       </Drawer>
-    </div>
+    </Box>
   );
 }

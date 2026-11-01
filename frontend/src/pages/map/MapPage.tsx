@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Button, Flex, Select, Stack, Text } from "@chakra-ui/react";
 import { equipmentApi, farmsApi, irrigationApi, platformApi, sensorsApi } from "@/api/client";
 import { formatAcres } from "@/lib/utils";
 import { Drawer } from "@/components/ui/Modal";
@@ -9,6 +10,15 @@ import { MapView } from "@/components/ui/MapView";
 import { StatusBadge } from "@/components/ui/StatCard";
 import { useSensorSocket } from "@/hooks/useSensorSocket";
 import type { Field } from "@/types";
+
+const panelProps = {
+  bg: "bg.surface",
+  borderWidth: "1px",
+  borderColor: "border.default",
+  borderRadius: "lg",
+  boxShadow: "md",
+  p: 3,
+} as const;
 
 export default function MapPage() {
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
@@ -40,8 +50,16 @@ export default function MapPage() {
   );
 
   return (
-    <div className="page page--flush">
-      <div className="map-page">
+    <Box>
+      <Box
+        position="relative"
+        h={{ base: "calc(100vh - 120px)", md: "calc(100vh - 140px)" }}
+        minH="420px"
+        borderWidth="1px"
+        borderColor="border.default"
+        borderRadius="xl"
+        overflow="hidden"
+      >
         <MapView
           height="100%"
           fields={layers.fields || layers.history ? fieldsQ.data?.results ?? [] : []}
@@ -55,22 +73,28 @@ export default function MapPage() {
           onFieldClick={setPicked}
           center={farm?.lat && farm?.lng ? [Number(farm.lat), Number(farm.lng)] : undefined}
         />
-        <div className="map-toolbar">
-          <div className="card card-pad">
-            <label htmlFor="map-farm">Farm</label>
-            <select
-              id="map-farm"
-              className="select"
-              value={selectedFarm}
-              onChange={(e) => setFarmId(e.target.value)}
-            >
+        <Stack
+          position="absolute"
+          top={3}
+          right={3}
+          zIndex={1000}
+          spacing={3}
+          w="260px"
+          maxH="calc(100% - 24px)"
+          overflowY="auto"
+        >
+          <Box {...panelProps}>
+            <Text as="label" htmlFor="map-farm" fontWeight="semibold" fontSize="sm" display="block" mb={1}>
+              Farm
+            </Text>
+            <Select id="map-farm" value={selectedFarm} onChange={(e) => setFarmId(e.target.value)}>
               {(farmsQ.data?.results ?? []).map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
                 </option>
               ))}
-            </select>
-          </div>
+            </Select>
+          </Box>
           <LayerToggle
             layers={[
               { key: "fields", label: "Field boundaries", on: layers.fields },
@@ -82,61 +106,65 @@ export default function MapPage() {
             ]}
             onChange={(key, on) => setLayers((l) => ({ ...l, [key]: on }))}
           />
-          <div className="card card-pad map-legend">
-            <span>
-              <i className="swatch" style={{ background: "#7CB518" }} /> Healthy
-            </span>
-            <span>
-              <i className="swatch" style={{ background: "#D4A017" }} /> Warning
-            </span>
-            <span>
-              <i className="swatch" style={{ background: "#B42318" }} /> Critical
-            </span>
-          </div>
+          <Flex {...panelProps} gap={3} wrap="wrap" fontSize="sm">
+            <Flex align="center" gap={1.5}>
+              <Box boxSize="10px" borderRadius="sm" bg="#7CB518" /> Healthy
+            </Flex>
+            <Flex align="center" gap={1.5}>
+              <Box boxSize="10px" borderRadius="sm" bg="#D4A017" /> Warning
+            </Flex>
+            <Flex align="center" gap={1.5}>
+              <Box boxSize="10px" borderRadius="sm" bg="#B42318" /> Critical
+            </Flex>
+          </Flex>
           {layers.irrigation ? (
-            <div className="card card-pad">
-              <strong>Zones</strong>
+            <Box {...panelProps}>
+              <Text as="span" fontWeight="semibold">
+                Zones
+              </Text>
               {(zonesQ.data?.results ?? []).slice(0, 6).map((z) => (
-                <div key={z.id} className="row" style={{ marginTop: 6 }}>
+                <Flex key={z.id} align="center" gap={2} mt={1.5}>
                   <StatusBadge status={z.status} />
-                  <span>{z.name}</span>
-                </div>
+                  <Text as="span">{z.name}</Text>
+                </Flex>
               ))}
-            </div>
+            </Box>
           ) : null}
           {layers.alerts ? (
-            <div className="card card-pad">
-              <strong>Alerts</strong>
+            <Box {...panelProps}>
+              <Text as="span" fontWeight="semibold">
+                Alerts
+              </Text>
               {alertSensors.slice(0, 4).map((s) => (
-                <div key={s.id} className="muted" style={{ marginTop: 6 }}>
+                <Text key={s.id} color="fg.muted" mt={1.5}>
                   {s.name} · {s.status}
-                </div>
+                </Text>
               ))}
               {(alertsQ.data?.results ?? []).slice(0, 3).map((n) => (
-                <div key={n.id} className="muted" style={{ marginTop: 6 }}>
+                <Text key={n.id} color="fg.muted" mt={1.5}>
                   {n.title}
-                </div>
+                </Text>
               ))}
-            </div>
+            </Box>
           ) : null}
-        </div>
-      </div>
+        </Stack>
+      </Box>
       <Drawer open={!!picked} title={picked?.name ?? "Field"} onClose={() => setPicked(null)}>
         {picked ? (
           <>
-            <p className="muted">
+            <Text color="fg.muted">
               {picked.crop_name ?? "Fallow"} · {formatAcres(picked.acres)}
-            </p>
-            <div className="row" style={{ margin: "12px 0" }}>
+            </Text>
+            <Flex align="center" gap={2} my={3}>
               <StatusBadge status={picked.health_status} />
-              <span>{picked.moisture != null ? `${picked.moisture}% moisture` : "No probe"}</span>
-            </div>
-            <Link to={`/fields/${picked.id}`} className="btn btn-primary">
+              <Text as="span">{picked.moisture != null ? `${picked.moisture}% moisture` : "No probe"}</Text>
+            </Flex>
+            <Button as={RouterLink} to={`/fields/${picked.id}`} colorScheme="brand">
               Open field record
-            </Link>
+            </Button>
           </>
         ) : null}
       </Drawer>
-    </div>
+    </Box>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Button, Input, SimpleGrid, Text } from "@chakra-ui/react";
 import { getApiError, tenancyApi } from "@/api/client";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthLayout } from "./AuthLayout";
@@ -50,27 +51,21 @@ export default function InvitePage() {
     >
       <ErrorBanner message={error} />
       <form onSubmit={onSubmit}>
-        <p className="muted">
+        <Text color="fg.muted" mb={4}>
           If you already have an AgriNexa account with this email, you can accept without a password while signed in.
           New operators should set a password below.
-        </p>
-        <div className="grid grid-2">
+        </Text>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
           <FormField label="First name" htmlFor="inv-first">
-            <input
-              id="inv-first"
-              className="input"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
+            <Input id="inv-first" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </FormField>
           <FormField label="Last name" htmlFor="inv-last">
-            <input id="inv-last" className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <Input id="inv-last" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           </FormField>
-        </div>
+        </SimpleGrid>
         <FormField label="Password" htmlFor="inv-pass" hint="Required when creating a new account.">
-          <input
+          <Input
             id="inv-pass"
-            className="input"
             type="password"
             autoComplete="new-password"
             minLength={8}
@@ -78,9 +73,9 @@ export default function InvitePage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </FormField>
-        <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: 8 }} disabled={pending}>
+        <Button type="submit" colorScheme="brand" w="100%" mt={2} isDisabled={pending}>
           {pending ? "Accepting…" : "Accept invitation"}
-        </button>
+        </Button>
       </form>
     </AuthLayout>
   );

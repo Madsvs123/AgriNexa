@@ -1,52 +1,54 @@
-import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Bell, Check, ChevronDown, Menu, Search } from "lucide-react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  IconButton,
+  Kbd,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  Text,
+  useColorMode,
+  VisuallyHidden,
+} from "@chakra-ui/react";
+import { Bell, Check, ChevronDown, Menu as MenuIcon, Moon, Search, Sun } from "lucide-react";
 import { authApi, cropsApi, platformApi } from "@/api/client";
 import { REFRESH_KEY, useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
-import { displayName, fromNow, initials } from "@/lib/utils";
+import { displayName, fromNow } from "@/lib/utils";
 import { NotificationPanel } from "./NotificationPanel";
 
 export function OrgSwitcher() {
   const orgs = useAuthStore((s) => s.organizations);
   const currentOrgId = useAuthStore((s) => s.currentOrgId);
   const setOrg = useAuthStore((s) => s.setOrg);
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
   const current = orgs.find((o) => o.id === currentOrgId);
-  useEffect(() => {
-    const onDoc = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
   return (
-    <div className="dropdown" ref={ref}>
-      <button type="button" className="menu-trigger" onClick={() => setOpen((v) => !v)} aria-haspopup="listbox">
-        <span className="hide-sm">{current?.name ?? "Organization"}</span>
-        <ChevronDown size={14} />
-      </button>
-      {open ? (
-        <div className="dropdown-panel" role="listbox">
-          {orgs.map((o) => (
-            <button
-              key={o.id}
-              type="button"
-              className={o.id === currentOrgId ? "dropdown-item active" : "dropdown-item"}
-              onClick={() => {
-                setOrg(o.id);
-                setOpen(false);
-              }}
-            >
-              {o.id === currentOrgId ? <Check size={14} /> : null}
-              {o.name}
-            </button>
-          ))}
-        </div>
-      ) : null}
-    </div>
+    <Menu>
+      <MenuButton as={Button} variant="ghost" colorScheme="gray" rightIcon={<ChevronDown size={14} />}>
+        <Text as="span" display={{ base: "none", md: "inline" }}>
+          {current?.name ?? "Organization"}
+        </Text>
+      </MenuButton>
+      <MenuList>
+        {orgs.map((o) => (
+          <MenuItem key={o.id} onClick={() => setOrg(o.id)} icon={o.id === currentOrgId ? <Check size={14} /> : undefined}>
+            {o.name}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Menu>
   );
 }
 
@@ -58,10 +60,7 @@ export function Topbar() {
   const setCommandPalette = useUiStore((s) => s.setCommandPalette);
   const seasonId = useUiStore((s) => s.seasonId);
   const setSeasonId = useUiStore((s) => s.setSeasonId);
-  const [userOpen, setUserOpen] = useState(false);
-  const [bellOpen, setBellOpen] = useState(false);
-  const userRef = useRef<HTMLDivElement>(null);
-  const bellRef = useRef<HTMLDivElement>(null);
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const seasonsQ = useQuery({
     queryKey: ["seasons"],
@@ -73,34 +72,53 @@ export function Topbar() {
   });
   const unread = (notifQ.data?.results ?? []).some((n) => !n.is_read);
 
-  useEffect(() => {
-    const onDoc = (e: MouseEvent) => {
-      if (!userRef.current?.contains(e.target as Node)) setUserOpen(false);
-      if (!bellRef.current?.contains(e.target as Node)) setBellOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
-
   return (
-    <header className="topbar">
-      <button type="button" className="icon-btn mobile-only" onClick={toggleSidebar} aria-label="Open navigation">
-        <Menu size={20} />
-      </button>
-      <button type="button" className="search-trigger" onClick={() => setCommandPalette(true)}>
-        <Search size={16} />
-        <span>Search fields, equipment, inventory…</span>
-        <kbd>Ctrl K</kbd>
-      </button>
-      <div className="topbar-tools">
+    <Flex
+      as="header"
+      align="center"
+      gap={3}
+      px={{ base: 4, md: 6 }}
+      py={3}
+      bg="bg.surface"
+      borderBottomWidth="1px"
+      borderColor="border.default"
+      position="sticky"
+      top={0}
+      zIndex={10}
+    >
+      <IconButton
+        aria-label="Open navigation"
+        icon={<MenuIcon size={20} />}
+        variant="ghost"
+        colorScheme="gray"
+        display={{ base: "inline-flex", lg: "none" }}
+        onClick={toggleSidebar}
+      />
+      <Button
+        variant="outline"
+        colorScheme="gray"
+        fontWeight="normal"
+        color="fg.muted"
+        leftIcon={<Search size={16} />}
+        onClick={() => setCommandPalette(true)}
+        flex={{ base: 1, md: "0 1 360px" }}
+        justifyContent="flex-start"
+      >
+        <Text as="span" flex="1" textAlign="left" display={{ base: "none", sm: "inline" }}>
+          Search fields, equipment, inventory…
+        </Text>
+        <Kbd display={{ base: "none", md: "inline-flex" }}>Ctrl K</Kbd>
+      </Button>
+      <Box flex="1" />
+      <HStack spacing={2}>
         <OrgSwitcher />
-        <label className="sr-only" htmlFor="season-filter">
-          Season
-        </label>
-        <select
+        <VisuallyHidden>
+          <label htmlFor="season-filter">Season</label>
+        </VisuallyHidden>
+        <Select
           id="season-filter"
-          className="select"
-          style={{ width: 150, height: 40 }}
+          w="150px"
+          display={{ base: "none", md: "block" }}
           value={seasonId ?? ""}
           onChange={(e) => setSeasonId(e.target.value || null)}
         >
@@ -110,62 +128,63 @@ export function Topbar() {
               {s.name}
             </option>
           ))}
-        </select>
-        <div className="bell-wrap dropdown" ref={bellRef}>
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="Notifications"
-            onClick={() => setBellOpen((v) => !v)}
-          >
-            <Bell size={18} />
-            {unread ? <span className="bell-dot" /> : null}
-          </button>
-          {bellOpen ? (
-            <div className="dropdown-panel" style={{ width: 340, padding: 0 }}>
+        </Select>
+        <IconButton
+          aria-label={colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          icon={colorMode === "light" ? <Moon size={18} /> : <Sun size={18} />}
+          variant="ghost"
+          colorScheme="gray"
+          onClick={toggleColorMode}
+        />
+        <Popover placement="bottom-end">
+          <PopoverTrigger>
+            <Box position="relative">
+              <IconButton aria-label="Notifications" icon={<Bell size={18} />} variant="ghost" colorScheme="gray" />
+              {unread ? (
+                <Box position="absolute" top={1.5} right={1.5} boxSize={2} borderRadius="full" bg="red.500" />
+              ) : null}
+            </Box>
+          </PopoverTrigger>
+          <PopoverContent w="340px" bg="bg.surface">
+            <PopoverBody p={0}>
               <NotificationPanel
                 items={(notifQ.data?.results ?? []).slice(0, 8)}
-                onSeeAll={() => {
-                  setBellOpen(false);
-                  navigate("/notifications");
-                }}
+                onSeeAll={() => navigate("/notifications")}
               />
-            </div>
-          ) : null}
-        </div>
-        <div className="dropdown" ref={userRef}>
-          <button type="button" className="menu-trigger" onClick={() => setUserOpen((v) => !v)}>
-            <span className="avatar">{initials(user?.first_name, user?.last_name, user?.email)}</span>
-            <span className="hide-sm">{displayName(user?.first_name, user?.last_name, user?.email)}</span>
-            <ChevronDown size={14} />
-          </button>
-          {userOpen ? (
-            <div className="dropdown-panel">
-              <button type="button" className="dropdown-item" onClick={() => navigate("/settings/profile")}>
-                Farmer profile
-              </button>
-              <button type="button" className="dropdown-item" onClick={() => navigate("/settings/organization")}>
-                Organization
-              </button>
-              <button
-                type="button"
-                className="dropdown-item"
-                onClick={() => {
-                  const refresh = localStorage.getItem(REFRESH_KEY);
-                  if (refresh) void authApi.logout(refresh).catch(() => undefined);
-                  logout();
-                  navigate("/signin");
-                }}
-              >
-                Sign out
-              </button>
-              <div className="muted" style={{ padding: "8px 10px", fontSize: 12 }}>
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
+        <Menu>
+          <MenuButton as={Button} variant="ghost" colorScheme="gray" rightIcon={<ChevronDown size={14} />}>
+            <HStack spacing={2}>
+              <Avatar size="sm" name={displayName(user?.first_name, user?.last_name, user?.email)} bg="brand.500" />
+              <Text as="span" display={{ base: "none", md: "inline" }}>
+                {displayName(user?.first_name, user?.last_name, user?.email)}
+              </Text>
+            </HStack>
+          </MenuButton>
+          <MenuList>
+            <MenuItem onClick={() => navigate("/settings/profile")}>Farmer profile</MenuItem>
+            <MenuItem onClick={() => navigate("/settings/organization")}>Organization</MenuItem>
+            <MenuItem
+              onClick={() => {
+                const refresh = localStorage.getItem(REFRESH_KEY);
+                if (refresh) void authApi.logout(refresh).catch(() => undefined);
+                logout();
+                navigate("/signin");
+              }}
+            >
+              Sign out
+            </MenuItem>
+            <MenuDivider />
+            <Box px={3} py={1}>
+              <Text fontSize="xs" color="fg.muted">
                 {user?.email} · joined {fromNow(user?.date_joined)}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </header>
+              </Text>
+            </Box>
+          </MenuList>
+        </Menu>
+      </HStack>
+    </Flex>
   );
 }

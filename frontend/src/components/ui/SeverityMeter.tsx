@@ -1,1 +1,0 @@
-export { SeverityMeter } from "./SensorSparkline";

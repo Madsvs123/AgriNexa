@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalOverlay,
+  Text,
+} from "@chakra-ui/react";
 import { platformApi } from "@/api/client";
 import { useUiStore } from "@/stores/uiStore";
 
@@ -21,7 +30,6 @@ export function SearchPalette() {
         e.preventDefault();
         setOpen(!open);
       }
-      if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -45,55 +53,73 @@ export function SearchPalette() {
     ].filter((g) => g.items.length);
   }, [searchQ.data]);
 
-  if (!open) return null;
-
   return (
-    <div className="overlay" onClick={() => setOpen(false)} role="presentation">
-      <div className="palette" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Search">
-        <input
-          className="input palette-input"
-          autoFocus
-          placeholder="Search North Ridge, Planter 12, MAP 11-52-0…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && q.trim()) {
-              setOpen(false);
-              navigate(`/search?q=${encodeURIComponent(q)}`);
-            }
-          }}
-        />
-        <div className="palette-results">
-          {q.trim().length < 2 ? (
-            <p className="muted" style={{ padding: 16 }}>
-              Type at least two characters, or press Enter for the full search page.
-            </p>
-          ) : null}
-          {groups.map((g) => (
-            <div key={g.label}>
-              <div className="group-label">{g.label}</div>
-              {g.items.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className="dropdown-item"
-                  onClick={() => {
-                    setOpen(false);
-                    navigate(item.to);
-                  }}
+    <Modal isOpen={open} onClose={() => setOpen(false)} size="xl">
+      <ModalOverlay />
+      <ModalContent mt="10vh" bg="bg.surface">
+        <ModalBody p={0}>
+          <Input
+            variant="flushed"
+            px={5}
+            py={6}
+            autoFocus
+            placeholder="Search North Ridge, Planter 12, MAP 11-52-0…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && q.trim()) {
+                setOpen(false);
+                navigate(`/search?q=${encodeURIComponent(q)}`);
+              }
+            }}
+            aria-label="Search"
+          />
+          <Box maxH="50vh" overflowY="auto" pb={2}>
+            {q.trim().length < 2 ? (
+              <Text color="fg.muted" p={4} fontSize="sm">
+                Type at least two characters, or press Enter for the full search page.
+              </Text>
+            ) : null}
+            {groups.map((g) => (
+              <Box key={g.label}>
+                <Text
+                  fontSize="xs"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                  color="fg.muted"
+                  px={5}
+                  pt={3}
+                  pb={1}
                 >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          ))}
-          {searchQ.isFetched && q.trim().length > 1 && !groups.length ? (
-            <p className="muted" style={{ padding: 16 }}>
-              No matches for “{q}”. Try a farm code, SKU, or field name.
-            </p>
-          ) : null}
-        </div>
-      </div>
-    </div>
+                  {g.label}
+                </Text>
+                {g.items.map((item) => (
+                  <Box
+                    key={item.id}
+                    as="button"
+                    w="100%"
+                    textAlign="left"
+                    px={5}
+                    py={2}
+                    _hover={{ bg: "bg.subtle" }}
+                    onClick={() => {
+                      setOpen(false);
+                      navigate(item.to);
+                    }}
+                  >
+                    {item.name}
+                  </Box>
+                ))}
+              </Box>
+            ))}
+            {searchQ.isFetched && q.trim().length > 1 && !groups.length ? (
+              <Text color="fg.muted" p={4} fontSize="sm">
+                No matches for “{q}”. Try a farm code, SKU, or field name.
+              </Text>
+            ) : null}
+          </Box>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }

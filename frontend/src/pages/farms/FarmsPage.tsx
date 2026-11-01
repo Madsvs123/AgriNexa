@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Button, Flex, Input, Select, SimpleGrid, Text } from "@chakra-ui/react";
 import { farmsApi, getApiError } from "@/api/client";
 import { formatAcres, formatNumber } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
@@ -17,36 +18,36 @@ export default function FarmsPage() {
   const farms = farmsQ.data?.results ?? [];
 
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title="Farms"
         subtitle="Every operated unit — codes, acres, and map position."
         actions={
-          <Link to="/farms/new" className="btn btn-primary">
+          <Button as={RouterLink} to="/farms/new" colorScheme="brand">
             Add farm
-          </Link>
+          </Button>
         }
       />
       <ErrorBanner message={farmsQ.error ? getApiError(farmsQ.error) : null} />
-      <div className="filters">
-        <input
-          className="input"
+      <Flex gap={3} wrap="wrap" mb={4}>
+        <Input
+          maxW="320px"
           placeholder="Search North Ridge, WR-02…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           aria-label="Search farms"
         />
-        <select className="select" value={region} onChange={(e) => setRegion(e.target.value)} aria-label="Filter by region">
+        <Select maxW="220px" value={region} onChange={(e) => setRegion(e.target.value)} aria-label="Filter by region">
           <option value="">All regions</option>
           {(regionsQ.data?.results ?? []).map((r) => (
             <option key={r.id} value={r.id}>
               {r.name}
             </option>
           ))}
-        </select>
-      </div>
-      <div className="grid grid-2">
-        <div className="card">
+        </Select>
+      </Flex>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <Box>
           {farmsQ.isLoading ? (
             <SkeletonBlock />
           ) : (
@@ -57,12 +58,20 @@ export default function FarmsPage() {
               emptyTitle="No farms yet"
               emptyBody="Create North Ridge or Willow Creek to start mapping fields and sensors."
               emptyAction={
-                <Link to="/farms/new" className="btn btn-primary">
+                <Button as={RouterLink} to="/farms/new" colorScheme="brand">
                   Add farm
-                </Link>
+                </Button>
               }
               columns={[
-                { key: "name", header: "Farm", render: (f) => <strong>{f.name}</strong> },
+                {
+                  key: "name",
+                  header: "Farm",
+                  render: (f) => (
+                    <Text as="span" fontWeight="semibold">
+                      {f.name}
+                    </Text>
+                  ),
+                },
                 { key: "code", header: "Code" },
                 { key: "total_acres", header: "Acres", render: (f) => formatAcres(f.total_acres) },
                 { key: "field_count", header: "Fields", render: (f) => formatNumber(f.field_count) },
@@ -70,15 +79,15 @@ export default function FarmsPage() {
               ]}
             />
           )}
-        </div>
-        <div className="card" style={{ minHeight: 360, overflow: "hidden" }}>
+        </Box>
+        <Box bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl" minH="360px" overflow="hidden">
           <MapView
             height="420px"
             fields={fieldsQ.data?.results ?? []}
             center={farms[0]?.lat && farms[0]?.lng ? [farms[0].lat, farms[0].lng] : undefined}
           />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </SimpleGrid>
+    </Box>
   );
 }

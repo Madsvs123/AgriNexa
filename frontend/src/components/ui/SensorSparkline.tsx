@@ -1,12 +1,17 @@
+import { Box, Checkbox, Flex, Stack, Text } from "@chakra-ui/react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 
 export function SensorSparkline({ values, color = "#2F6F4E" }: { values: number[]; color?: string }) {
   const data = values.map((v, i) => ({ i, v }));
   if (!data.length) {
-    return <span className="muted">No series</span>;
+    return (
+      <Text as="span" fontSize="sm" color="fg.muted">
+        No series
+      </Text>
+    );
   }
   return (
-    <div style={{ width: "100%", height: 42 }}>
+    <Box w="100%" h="42px">
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
           <YAxis hide domain={["dataMin", "dataMax"]} />
@@ -18,23 +23,37 @@ export function SensorSparkline({ values, color = "#2F6F4E" }: { values: number[
           <Line type="monotone" dataKey="v" stroke={color} strokeWidth={2} dot={false} />
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </Box>
   );
 }
+
+const SEVERITY_COLOR: Record<string, string> = {
+  low: "green.400",
+  medium: "yellow.400",
+  high: "orange.400",
+  critical: "red.500",
+};
 
 export function SeverityMeter({
   value,
 }: {
   value: "low" | "medium" | "high" | "critical" | number;
 }) {
-  const level = typeof value === "number" ? (value <= 2 ? "low" : value <= 3 ? "medium" : value <= 4 ? "high" : "critical") : value;
+  const level =
+    typeof value === "number" ? (value <= 2 ? "low" : value <= 3 ? "medium" : value <= 4 ? "high" : "critical") : value;
   const filled = level === "low" ? 1 : level === "medium" ? 2 : level === "high" ? 3 : 4;
   return (
-    <div className={`severity ${level}`} aria-label={`Severity ${level}`}>
+    <Flex gap={1} aria-label={`Severity ${level}`}>
       {Array.from({ length: 4 }).map((_, i) => (
-        <i key={i} className={i < filled ? "on" : undefined} />
+        <Box
+          key={i}
+          w="14px"
+          h="6px"
+          borderRadius="full"
+          bg={i < filled ? SEVERITY_COLOR[level] : "border.default"}
+        />
       ))}
-    </div>
+    </Flex>
   );
 }
 
@@ -46,18 +65,23 @@ export function LayerToggle({
   onChange: (key: string, on: boolean) => void;
 }) {
   return (
-    <div className="card layer-toggle">
-      <strong>Layers</strong>
+    <Stack
+      spacing={2}
+      p={3}
+      bg="bg.surface"
+      borderWidth="1px"
+      borderColor="border.default"
+      borderRadius="lg"
+      boxShadow="md"
+    >
+      <Text fontWeight="semibold" fontSize="sm">
+        Layers
+      </Text>
       {layers.map((l) => (
-        <label key={l.key}>
-          <input
-            type="checkbox"
-            checked={l.on}
-            onChange={(e) => onChange(l.key, e.target.checked)}
-          />
+        <Checkbox key={l.key} isChecked={l.on} onChange={(e) => onChange(l.key, e.target.checked)} colorScheme="brand">
           {l.label}
-        </label>
+        </Checkbox>
       ))}
-    </div>
+    </Stack>
   );
 }

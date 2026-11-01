@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button, Card, CardBody, Input, Link, Select, SimpleGrid, Text } from "@chakra-ui/react";
 import { getApiError, inventoryApi } from "@/api/client";
 import { formatNumber } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/ui/FormField";
@@ -29,37 +30,41 @@ export default function InventoryDetailPage() {
   const item = itemQ.data;
   if (itemQ.isLoading) {
     return (
-      <div className="page">
+      <Box>
         <SkeletonBlock />
-      </div>
+      </Box>
     );
   }
   if (!item) {
     return (
-      <div className="page">
+      <Box>
         <ErrorBanner message={itemQ.error ? getApiError(itemQ.error) : "Item not found."} />
-      </div>
+      </Box>
     );
   }
   return (
-    <div className="page">
+    <Box>
       <PageHeader
         title={item.name}
         subtitle={`${item.sku} · ${item.location}`}
         crumbs={
           <>
-            <Link to="/inventory">Inventory</Link>
-            <span>/</span>
-            <span>{item.name}</span>
+            <Link as={RouterLink} to="/inventory">
+              Inventory
+            </Link>
+            <Text as="span" mx={1}>
+              /
+            </Text>
+            <Text as="span">{item.name}</Text>
           </>
         }
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
+          <Button colorScheme="brand" onClick={() => setOpen(true)}>
             Record movement
-          </button>
+          </Button>
         }
       />
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
         <StatCard label="On hand" value={`${formatNumber(item.quantity, 1)} ${item.unit}`} />
         <StatCard label="Reorder at" value={formatNumber(item.reorder_level, 1)} />
         <StatCard label="Unit cost" value={item.unit_cost != null ? `$${item.unit_cost}` : "—"} />
@@ -67,33 +72,35 @@ export default function InventoryDetailPage() {
           label="Status"
           value={<StatusBadge status={item.quantity <= item.reorder_level ? "warning" : "healthy"} />}
         />
-      </div>
-      <section className="card card-pad">
-        <p>
-          Category <strong>{item.category.replace("_", " ")}</strong>
-          {item.farm_name ? ` · Farm ${item.farm_name}` : ""}
-        </p>
-        <p className="muted">Use movements for issue to planter, receipt from dealer, or bin transfer.</p>
-      </section>
+      </SimpleGrid>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
+        <CardBody>
+          <Text>
+            Category <Text as="strong">{item.category.replace("_", " ")}</Text>
+            {item.farm_name ? ` · Farm ${item.farm_name}` : ""}
+          </Text>
+          <Text color="fg.muted">Use movements for issue to planter, receipt from dealer, or bin transfer.</Text>
+        </CardBody>
+      </Card>
       <Drawer open={open} title="Stock movement" onClose={() => setOpen(false)}>
         <FormField label="Quantity" htmlFor="qty">
-          <input id="qty" className="input" type="number" value={move.quantity} onChange={(e) => setMove({ ...move, quantity: e.target.value })} />
+          <Input id="qty" type="number" value={move.quantity} onChange={(e) => setMove({ ...move, quantity: e.target.value })} />
         </FormField>
         <FormField label="Type" htmlFor="mtype">
-          <select id="mtype" className="select" value={move.movement_type} onChange={(e) => setMove({ ...move, movement_type: e.target.value })}>
+          <Select id="mtype" value={move.movement_type} onChange={(e) => setMove({ ...move, movement_type: e.target.value })}>
             <option value="in">Receipt (in)</option>
             <option value="out">Issue (out)</option>
             <option value="adjust">Adjust</option>
             <option value="harvest">Harvest</option>
-          </select>
+          </Select>
         </FormField>
         <FormField label="Notes" htmlFor="mnotes">
-          <input id="mnotes" className="input" value={move.notes} onChange={(e) => setMove({ ...move, notes: e.target.value })} placeholder="Issued to planter on North 80" />
+          <Input id="mnotes" value={move.notes} onChange={(e) => setMove({ ...move, notes: e.target.value })} placeholder="Issued to planter on North 80" />
         </FormField>
-        <button type="button" className="btn btn-primary" disabled={mut.isPending} onClick={() => mut.mutate()}>
+        <Button colorScheme="brand" isDisabled={mut.isPending} onClick={() => mut.mutate()}>
           Save movement
-        </button>
+        </Button>
       </Drawer>
-    </div>
+    </Box>
   );
 }

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
 import { EmptyState } from "./StatCard";
 
 export interface Column<T> {
@@ -29,33 +30,32 @@ export function DataTable<T>({
     return <EmptyState title={emptyTitle} body={emptyBody} action={emptyAction} />;
   }
   return (
-    <div className="table-wrap">
-      <table className="data-table">
-        <thead>
-          <tr>
+    <TableContainer bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
+      <Table variant="simple" size="sm">
+        <Thead>
+          <Tr>
             {columns.map((c) => (
-              <th key={c.key} className={c.className}>
-                {c.header}
-              </th>
+              <Th key={c.key}>{c.header}</Th>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </Tr>
+        </Thead>
+        <Tbody>
           {rows.map((row) => (
-            <tr
+            <Tr
               key={rowKey(row)}
-              className={onRowClick ? "clickable" : undefined}
+              cursor={onRowClick ? "pointer" : undefined}
+              _hover={onRowClick ? { bg: "bg.subtle" } : undefined}
               onClick={() => onRowClick?.(row)}
             >
               {columns.map((c) => (
-                <td key={c.key} className={c.className}>
+                <Td key={c.key}>
                   {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? "—")}
-                </td>
+                </Td>
               ))}
-            </tr>
+            </Tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </Tbody>
+      </Table>
+    </TableContainer>
   );
 }
