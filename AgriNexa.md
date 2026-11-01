@@ -21,7 +21,7 @@ This document describes the platform as it exists today: architecture, features,
 | Client state | Zustand (auth session, current organization, UI state) |
 | Server state | TanStack Query v5 |
 | Routing | React Router v6 |
-| Maps | Leaflet / react-leaflet (OpenStreetMap + Esri satellite tiles) |
+| Maps | Leaflet / react-leaflet (OpenStreetMap + Esri satellite tiles), leaflet-geoman for boundary drawing/editing |
 | Charts | Recharts |
 | Icons | lucide-react |
 
@@ -84,9 +84,10 @@ Every business record belongs to an **Organization**. Users join organizations t
 | Domain | Capabilities |
 |---|---|
 | **Dashboard** | Season KPIs (acres, active fields, yield estimate, open alerts, water used, equipment uptime), crop progress bars, irrigation snapshot, current weather, field-health heatmap, expense chart, low-stock / sensor-alert / task feeds, yield-vs-target chart |
-| **Farms & Fields** | Regions → Farms → Fields → Plots hierarchy; GeoJSON field boundaries; field notes; crop history; per-farm access matrix |
+| **Farms & Fields** | Regions → Farms → Fields → Plots hierarchy; GeoJSON field boundaries with spatial validation; field notes; crop history; per-farm access matrix |
+| **Farm mapping** | Interactive boundary editor (draw/edit/clear polygons & rectangles with live acreage), plot subdivisions constrained to their field with overlap protection, typed soil layers (clay/loam/sand/… with pH & organic matter) rendered as colored overlays, per-field elevation estimates (Open-Meteo terrain with offline fallback, cached), map controls (recenter, basemap switch, scale bar, layer toggles) |
 | **Crops** | Crop catalog, varieties, growing seasons, seasonal crop plans (with Gantt timeline), rotation plans, planting schedules, fertilizer plans, pesticide applications, seasonal budgets |
-| **Map** | Interactive Leaflet map with satellite/street layers, field polygons colored by health, sensor and equipment markers, irrigation-zone overlays, layer toggles |
+| **Map** | Interactive Leaflet map with satellite/street layers, field polygons colored by health, plot-subdivision and soil-layer overlays, sensor and equipment markers, irrigation-zone overlays, layer toggles, recenter and scale controls |
 | **Sensors** | Sensor types (built-in + custom), device registry, readings time-series with date-range filtering, device health, live readings, real-time stream over WebSocket |
 | **Irrigation** | Zones with moisture thresholds, schedules, water-usage records, automated recommendations (evaluated every 15 min), manual zone override, irrigation analytics |
 | **Weather** | Stations per farm, current conditions, forecast (refreshed every 30 min; OpenWeather key optional), history with date ranges, alerts (frost/heat, evaluated every 10 min), field-work recommendations |
@@ -148,7 +149,7 @@ Protected routes (inside the app shell — sidebar, topbar with org switcher, se
 ### Theming & state
 - **Theme** (`src/theme.ts`): brand palette (forest green `brand.*`, wheat accent), Fraunces display / DM Sans body fonts, and semantic tokens (`bg.canvas`, `bg.surface`, `bg.subtle`, `fg.default`, `fg.muted`, `border.default`) that adapt to color mode. Light/dark is toggled from the topbar (persisted by Chakra; no flash on reload thanks to `ColorModeScript`).
 - **Zustand stores**: `authStore` (user, access token, organizations, current org id, session bootstrap state; refresh token + org id persisted to localStorage) and `uiStore` (sidebar, command palette, selected season — persisted).
-- **Shared components** (`components/ui/`): FormField/PageHeader/ErrorBanner/Skeletons, StatCard/StatusBadge/EmptyState/ChartCard, DataTable, Modal/Drawer/ConfirmDialog, FileDrop, SensorSparkline/SeverityMeter/LayerToggle, MapView.
+- **Shared components** (`components/ui/`): FormField/PageHeader/ErrorBanner/Skeletons, StatCard/StatusBadge/EmptyState/ChartCard, DataTable, Modal/Drawer/ConfirmDialog, FileDrop, SensorSparkline/SeverityMeter/LayerToggle, MapView (overlays + recenter/basemap/scale controls), BoundaryEditor (leaflet-geoman polygon drawing with live acreage and context outlines).
 
 ---
 
@@ -158,7 +159,7 @@ Protected routes (inside the app shell — sidebar, topbar with org switcher, se
 |---|---|
 | `accounts` | User (custom, email login, UUID pk), FarmerProfile |
 | `tenancy` | Organization, Role, Membership, Team, TeamMembership, Invitation, FarmAccess |
-| `farms` | Region, Farm, Field (GeoJSON boundary), Plot, FieldNote, CropHistory |
+| `farms` | Region, Farm, Field (GeoJSON boundary + elevation cache), Plot, SoilLayer, FieldNote, CropHistory; geometry module (validation, area, centroid, containment, overlap); elevation service |
 | `crops` | Crop, CropVariety, GrowingSeason, CropPlan, RotationPlan, PlantingSchedule, FertilizerPlan, PesticideApplication, SeasonalBudget |
 | `sensors` | SensorType (global + per-org), Sensor, SensorReading, DeviceHealth |
 | `irrigation` | IrrigationZone, IrrigationSchedule, WaterUsage, IrrigationRecommendation, IrrigationEvent |
@@ -205,8 +206,12 @@ Base URL: `/api/`. All endpoints require `Authorization: Bearer <access>` plus `
 |---|---|
 | `regions/` | Farm groupings |
 | `farms/` | `GET/PUT {id}/access/` — farm access matrix (PUT accepts a list of `{user, can_view, can_edit, can_manage}`; users must be org members). Annotated `field_count`. |
-| `fields/` | GeoJSON `boundary`; `GET/POST {id}/history/` — crop history entries. |
-| `plots/`, `field-notes/` | Sub-field plots; notes accept `content` (or alias `body`). |
+| `fields/` | GeoJSON `boundary` is spatially validated (closed simple ring, coordinate ranges, non-zero area); when present, `acres`, `centroid_lat`, and `centroid_lng` are derived from it. `GET/POST {id}/history/` — crop history. `GET {id}/elevation/` — elevation estimate `{source, min_m, max_m, mean_m, relief_m, points[]}` sampled on a grid inside the boundary (Open-Meteo, deterministic offline fallback), cached on the field; `?refresh=1` recomputes. |
+| `plots/` | Sub-field subdivisions. A plot boundary must lie within its field's boundary and may not overlap sibling plots; acreage derives from the boundary. |
+| `soil-layers/` | Typed soil polygons (`clay`, `clay_loam`, `loam`, `silt_loam`, `silt`, `sandy_loam`, `sand`, `peat`, `chalk`) with `ph`, `organic_matter_pct`, `drainage`; boundary must lie within the field; filter with `?field=`. |
+| `field-notes/` | Notes accept `content` (or alias `body`). |
+
+Spatial validation errors return HTTP 400 with a specific message (e.g. "The outer ring intersects itself.", "Plot boundary must lie within the field boundary.", "Plot boundary overlaps plot 'Strip A'.").
 
 ### Crops
 `crops/`, `varieties/`, `seasons/`, `crop-plans/`, `rotations/`, `planting-schedules/`, `fertilizer-plans/`, `pesticide-applications/`, `budgets/` — standard CRUD. Duplicate crop/region names per org return 400.
@@ -318,6 +323,6 @@ Upload limit 10 MB; media served from `/media/` in debug.
 
 ## 10. Quality & Testing
 
-- **Backend**: `python manage.py test apps` — smoke suite covering register → login → org header → tenant data, token refresh, mixed-case login, invitation-token non-exposure, owner-escalation protection, bad-header resilience, and cross-tenant isolation. `manage.py check` and the migration graph are clean.
+- **Backend**: `python manage.py test apps` — covers the auth/tenancy chain (register → login → org header → tenant data, token refresh, mixed-case login, invitation-token non-exposure, owner-escalation protection, bad-header resilience, cross-tenant isolation) plus spatial geometry units (ring validity, self-intersection, area/centroid accuracy, containment, overlap) and spatial API rules (derived acreage, invalid boundary 400s, plot containment/overlap, soil-layer containment, elevation estimate + cache). `manage.py check` and the migration graph are clean.
 - **Frontend**: `npm run typecheck` (strict TypeScript, zero errors); `npm run build` runs the type check before bundling.
 - Known technical debt: the JS bundle is ~1.4 MB minified (Chakra + Framer Motion + Recharts + Leaflet in one chunk) — route-level code-splitting is the recommended next step; `sensorsApi.live()` does not yet accept a farm filter (backend supports `?farm=`).
