@@ -1,6 +1,20 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
+from apps.farms import geometry
 from apps.farms.models import CropHistory, Farm, Field, FieldNote, Plot, Region
+
+
+def validate_boundary_field(value):
+    """Shared validator for GeoJSON Polygon boundary fields (empty allowed)."""
+    if not geometry.has_boundary(value):
+        return value
+    try:
+        geometry.validate_polygon(value)
+    except geometry.GeometryError as exc:
+        raise serializers.ValidationError(str(exc))
+    return value
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -129,6 +143,19 @@ class FieldSerializer(serializers.ModelSerializer):
             return "warning"
         return "idle"
 
+    def validate_boundary(self, value):
+        return validate_boundary_field(value)
+
+    def validate(self, attrs):
+        boundary = attrs.get("boundary")
+        if geometry.has_boundary(boundary):
+            # Boundary is the source of truth: derive acreage and centroid.
+            attrs["acres"] = Decimal(f"{geometry.polygon_area_acres(boundary):.2f}")
+            lat, lng = geometry.polygon_centroid(boundary)
+            attrs["centroid_lat"] = Decimal(f"{lat:.6f}")
+            attrs["centroid_lng"] = Decimal(f"{lng:.6f}")
+        return attrs
+
     def get_moisture(self, obj):
         for sensor in getattr(obj, "sensors", []).all() if hasattr(obj, "sensors") else []:
             if getattr(sensor.sensor_type, "category", None) != "soil_moisture":
@@ -212,3 +239,29 @@ class PlotSerializer(serializers.ModelSerializer):
             "updated_at",
         )
         read_only_fields = ("id", "created_at", "updated_at")
+
+    def validate_boundary(self, value):
+        return validate_boundary_field(value)
+
+    def validate(self, attrs):
+        boundary = attrs.get("boundary")
+        field = attrs.get("field") or getattr(self.instance, "field", None)
+        if geometry.has_boundary(boundary):
+            if field is not None and geometry.has_boundary(field.boundary):
+                if not geometry.polygon_contains(field.boundary, boundary):
+                    raise serializers.ValidationError(
+                        {"boundary": "Plot boundary must lie within the field boundary."}
+                    )
+            if field is not None:
+                siblings = field.plots.all()
+                if self.instance is not None:
+                    siblings = siblings.exclude(pk=self.instance.pk)
+                for sibling in siblings:
+                    if geometry.has_boundary(sibling.boundary) and geometry.polygons_overlap(
+                        boundary, sibling.boundary
+                    ):
+                        raise serializers.ValidationError(
+                            {"boundary": f"Plot boundary overlaps plot '{sibling.name}'."}
+                        )
+            attrs["acres"] = Decimal(f"{geometry.polygon_area_acres(boundary):.2f}")
+        return attrs

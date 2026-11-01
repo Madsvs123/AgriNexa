@@ -42,6 +42,11 @@ class IrrigationZoneSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "created_at", "updated_at")
 
+    def validate_boundary(self, value):
+        from apps.farms.serializers import validate_boundary_field
+
+        return validate_boundary_field(value)
+
     def get_moisture(self, obj):
         from apps.sensors.models import Sensor, SensorReading
 
