@@ -4,7 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.common.views import TenantModelViewSet
-from apps.farms.models import CropHistory, Farm, Field, FieldNote, Plot, Region
+from apps.farms import elevation, geometry
+from apps.farms.models import CropHistory, Farm, Field, FieldNote, Plot, Region, SoilLayer
 from apps.farms.serializers import (
     CropHistorySerializer,
     FarmSerializer,
@@ -12,6 +13,7 @@ from apps.farms.serializers import (
     FieldSerializer,
     PlotSerializer,
     RegionSerializer,
+    SoilLayerSerializer,
 )
 from apps.tenancy.models import FarmAccess
 from apps.tenancy.serializers import FarmAccessSerializer
@@ -89,6 +91,22 @@ class FieldViewSet(TenantModelViewSet):
     def get_queryset(self):
         return super().get_queryset().select_related("farm", "current_crop_plan", "current_crop_plan__crop")
 
+    @action(detail=True, methods=["get"], url_path="elevation")
+    def elevation(self, request, pk=None):
+        field = self.get_object()
+        if not geometry.has_boundary(field.boundary):
+            return Response(
+                {"detail": "Field has no boundary to estimate elevation for.", "code": "no_boundary"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        refresh = request.query_params.get("refresh") in ("1", "true", "yes")
+        if field.elevation_cache and not refresh:
+            return Response(field.elevation_cache)
+        estimate = elevation.estimate_elevation(field.boundary)
+        field.elevation_cache = estimate
+        field.save(update_fields=["elevation_cache", "updated_at"])
+        return Response(estimate)
+
     @action(detail=True, methods=["get", "post"], url_path="history")
     def history(self, request, pk=None):
         field = self.get_object()
@@ -106,6 +124,16 @@ class PlotViewSet(TenantModelViewSet):
     search_fields = ("name", "notes")
     filterset_fields = ("field",)
     queryset = Plot.objects.all()
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("field", "field__farm")
+
+
+class SoilLayerViewSet(TenantModelViewSet):
+    serializer_class = SoilLayerSerializer
+    search_fields = ("name", "soil_type", "notes")
+    filterset_fields = ("field", "soil_type")
+    queryset = SoilLayer.objects.all()
 
     def get_queryset(self):
         return super().get_queryset().select_related("field", "field__farm")

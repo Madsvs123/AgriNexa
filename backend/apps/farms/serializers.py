@@ -3,7 +3,7 @@ from decimal import Decimal
 from rest_framework import serializers
 
 from apps.farms import geometry
-from apps.farms.models import CropHistory, Farm, Field, FieldNote, Plot, Region
+from apps.farms.models import CropHistory, Farm, Field, FieldNote, Plot, Region, SoilLayer
 
 
 def validate_boundary_field(value):
@@ -164,6 +164,46 @@ class FieldSerializer(serializers.ModelSerializer):
             if reading:
                 return float(reading.value)
         return None
+
+
+class SoilLayerSerializer(serializers.ModelSerializer):
+    field_name = serializers.CharField(source="field.name", read_only=True)
+    soil_type_display = serializers.CharField(source="get_soil_type_display", read_only=True)
+
+    class Meta:
+        model = SoilLayer
+        fields = (
+            "id",
+            "field",
+            "field_name",
+            "name",
+            "soil_type",
+            "soil_type_display",
+            "boundary",
+            "acres",
+            "ph",
+            "organic_matter_pct",
+            "drainage",
+            "notes",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = ("id", "acres", "created_at", "updated_at")
+
+    def validate_boundary(self, value):
+        return validate_boundary_field(value)
+
+    def validate(self, attrs):
+        boundary = attrs.get("boundary")
+        field = attrs.get("field") or getattr(self.instance, "field", None)
+        if geometry.has_boundary(boundary):
+            if field is not None and geometry.has_boundary(field.boundary):
+                if not geometry.polygon_contains(field.boundary, boundary):
+                    raise serializers.ValidationError(
+                        {"boundary": "Soil layer boundary must lie within the field boundary."}
+                    )
+            attrs["acres"] = Decimal(f"{geometry.polygon_area_acres(boundary):.2f}")
+        return attrs
 
 
 class FieldNoteSerializer(serializers.ModelSerializer):

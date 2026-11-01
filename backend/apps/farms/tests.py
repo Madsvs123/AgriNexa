@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import SimpleTestCase
 from rest_framework.test import APITestCase
 
@@ -168,3 +170,59 @@ class SpatialApiTests(APITestCase):
             format="json",
         )
         self.assertEqual(disjoint.status_code, 201, disjoint.content)
+
+    def test_soil_layer_must_be_inside_field(self):
+        field_id = self._create_field(square(-93.6, 41.6, 0.01)).json()["id"]
+        outside = self.client.post(
+            "/api/soil-layers/",
+            {
+                "field": field_id,
+                "name": "Sandy ridge",
+                "soil_type": "sandy_loam",
+                "boundary": square(-93.7, 41.7, 0.002),
+            },
+            format="json",
+        )
+        self.assertEqual(outside.status_code, 400, outside.content)
+        inside = self.client.post(
+            "/api/soil-layers/",
+            {
+                "field": field_id,
+                "name": "Sandy ridge",
+                "soil_type": "sandy_loam",
+                "ph": "6.4",
+                "boundary": square(-93.598, 41.602, 0.003),
+            },
+            format="json",
+        )
+        self.assertEqual(inside.status_code, 201, inside.content)
+        self.assertGreater(float(inside.json()["acres"]), 0)
+        listing = self.client.get(f"/api/soil-layers/?field={field_id}")
+        self.assertEqual(listing.json()["count"], 1)
+
+    def test_elevation_estimate_and_cache(self):
+        field_id = self._create_field(square(-93.6, 41.6, 0.01)).json()["id"]
+        with mock.patch(
+            "apps.farms.elevation._fetch_open_meteo", side_effect=OSError("offline")
+        ):
+            res = self.client.get(f"/api/fields/{field_id}/elevation/")
+        self.assertEqual(res.status_code, 200, res.content)
+        data = res.json()
+        self.assertEqual(data["source"], "estimate")
+        self.assertGreater(len(data["points"]), 0)
+        self.assertLessEqual(data["min_m"], data["mean_m"])
+        self.assertLessEqual(data["mean_m"], data["max_m"])
+        # Second call is served from the cache without touching the network.
+        with mock.patch(
+            "apps.farms.elevation._fetch_open_meteo", side_effect=AssertionError("should not fetch")
+        ):
+            cached = self.client.get(f"/api/fields/{field_id}/elevation/")
+        self.assertEqual(cached.json(), data)
+
+    def test_elevation_requires_boundary(self):
+        res = self.client.post(
+            "/api/fields/", {"farm": self.farm_id, "name": "No boundary"}, format="json"
+        )
+        field_id = res.json()["id"]
+        out = self.client.get(f"/api/fields/{field_id}/elevation/")
+        self.assertEqual(out.status_code, 400)

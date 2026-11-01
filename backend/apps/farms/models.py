@@ -88,6 +88,7 @@ class Field(UUIDModel, TimeStampedModel):
         blank=True,
         related_name="current_fields",
     )
+    elevation_cache = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -108,6 +109,35 @@ class Plot(UUIDModel, TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+
+class SoilLayer(UUIDModel, TimeStampedModel):
+    class SoilType(models.TextChoices):
+        CLAY = "clay", "Clay"
+        CLAY_LOAM = "clay_loam", "Clay loam"
+        LOAM = "loam", "Loam"
+        SILT_LOAM = "silt_loam", "Silt loam"
+        SILT = "silt", "Silt"
+        SANDY_LOAM = "sandy_loam", "Sandy loam"
+        SAND = "sand", "Sand"
+        PEAT = "peat", "Peat"
+        CHALK = "chalk", "Chalk"
+
+    field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="soil_layers")
+    name = models.CharField(max_length=128)
+    soil_type = models.CharField(max_length=16, choices=SoilType.choices, default=SoilType.LOAM)
+    boundary = models.JSONField(default=dict, blank=True)
+    acres = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ph = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    organic_matter_pct = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    drainage = models.CharField(max_length=64, blank=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.soil_type} @ {self.field}"
 
 
 class FieldNote(UUIDModel, TimeStampedModel):
