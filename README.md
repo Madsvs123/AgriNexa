@@ -1,6 +1,6 @@
 # AgriNexa
 
-Precision farming platform for farms, agribusinesses, crop consultants, and field teams. It brings field records, crop plans, sensors, maps, irrigation, scouting, weather, inventory, and equipment into one multi-tenant operations center.
+Precision farming platform for farms, agribusinesses, crop consultants, and field teams. Available in English, Spanish, and Arabic, with full right-to-left support. It brings field records, crop plans, sensors, maps, irrigation, scouting, weather, inventory, and equipment into one multi-tenant operations center.
 
 ## Stack
 
@@ -45,7 +45,9 @@ The backend expects PostgreSQL (configure via `POSTGRES_*` env vars) and Redis (
 
 Run the backend test suite with `python manage.py test apps`. To run it without a PostgreSQL or Redis server, add `--settings=agrinexa.settings_test` (in-memory SQLite).
 
-On the frontend, `npm run typecheck` type-checks and `npm run check:nav` validates the navigation manifest against the route table.
+Compile translation catalogues with `python manage.py compilepo` (pure Python — no GNU gettext needed).
+
+On the frontend, `npm run typecheck` type-checks, `npm run check:nav` validates the navigation manifest against the route table, and `npm run check:i18n` checks the English, Spanish, and Arabic catalogues are in sync.
 
 ## License
 
