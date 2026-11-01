@@ -256,6 +256,8 @@ export const farmsApi = {
     api.get<FieldHistory[] | Paginated<FieldHistory>>(`/api/fields/${id}/history/`).then((r) => unwrapList(r.data)),
   plots: (params?: Record<string, unknown>) => getPage<Plot>("/api/plots/", params),
   createPlot: (body: Partial<Plot>) => api.post<Plot>("/api/plots/", body).then((r) => r.data),
+  patchPlot: (id: string, body: Partial<Plot>) => api.patch<Plot>(`/api/plots/${id}/`, body).then((r) => r.data),
+  deletePlot: (id: string) => api.delete(`/api/plots/${id}/`),
   notes: (params?: Record<string, unknown>) => getPage<FieldNote>("/api/field-notes/", params),
   createNote: (body: Partial<FieldNote>) => api.post<FieldNote>("/api/field-notes/", body).then((r) => r.data),
   patchNote: (id: string, body: Partial<FieldNote>) =>

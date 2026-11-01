@@ -6,11 +6,14 @@ import {
   Button,
   Card,
   CardBody,
+  Flex,
   Heading,
+  Input,
   Link,
   ListItem,
   OrderedList,
   SimpleGrid,
+  Spacer,
   Text,
   Textarea,
 } from "@chakra-ui/react";
@@ -19,6 +22,11 @@ import { formatAcres, formatDate, formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/ui/FormField";
 import { StatusBadge, StatCard, EmptyState } from "@/components/ui/StatCard";
 import { MapView } from "@/components/ui/MapView";
+import { Drawer } from "@/components/ui/Modal";
+import { BoundaryEditor, type ContextShape } from "@/components/ui/BoundaryEditor";
+import type { GeoJSONPolygon } from "@/types";
+
+const PLOT_COLORS = ["#3D7EA6", "#D4A017", "#8C5A3C", "#7CB518", "#B05A7A"];
 
 export default function FieldDetailPage() {
   const { id = "" } = useParams();
@@ -29,6 +37,26 @@ export default function FieldDetailPage() {
   const notesQ = useQuery({ queryKey: ["field-notes", { field: id }], queryFn: () => farmsApi.notes({ field: id }) });
   const zonesQ = useQuery({ queryKey: ["irrigation-zones", { field: id }], queryFn: () => irrigationApi.zones({ field: id }) });
   const sensorsQ = useQuery({ queryKey: ["sensors", { field: id }], queryFn: () => sensorsApi.list({ field: id }) });
+  const plotsQ = useQuery({ queryKey: ["plots", { field: id }], queryFn: () => farmsApi.plots({ field: id }) });
+  const [plotDrawer, setPlotDrawer] = useState(false);
+  const [plotName, setPlotName] = useState("");
+  const [plotBoundary, setPlotBoundary] = useState<GeoJSONPolygon | null>(null);
+  const [plotError, setPlotError] = useState<string | null>(null);
+  const createPlot = useMutation({
+    mutationFn: () => farmsApi.createPlot({ field: id, name: plotName, boundary: plotBoundary }),
+    onSuccess: () => {
+      setPlotDrawer(false);
+      setPlotName("");
+      setPlotBoundary(null);
+      setPlotError(null);
+      qc.invalidateQueries({ queryKey: ["plots"] });
+    },
+    onError: (err) => setPlotError(getApiError(err)),
+  });
+  const deletePlot = useMutation({
+    mutationFn: (plotId: string) => farmsApi.deletePlot(plotId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["plots"] }),
+  });
   const addNote = useMutation({
     mutationFn: () => farmsApi.createNote({ field: id, body }),
     onSuccess: () => {
@@ -110,6 +138,50 @@ export default function FieldDetailPage() {
           </CardBody>
         </Card>
       </SimpleGrid>
+      <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface" mb={4}>
+        <CardBody>
+          <Flex align="center" mb={3}>
+            <Heading size="sm">Plot subdivisions</Heading>
+            <Spacer />
+            <Button size="sm" colorScheme="brand" onClick={() => setPlotDrawer(true)}>
+              Add plot
+            </Button>
+          </Flex>
+          {(plotsQ.data?.results ?? []).length === 0 ? (
+            <Text color="fg.muted">
+              No plots yet. Subdivide this field into trial strips, management zones, or beds.
+            </Text>
+          ) : (
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3}>
+              {(plotsQ.data?.results ?? []).map((p, i) => (
+                <Flex
+                  key={p.id}
+                  align="center"
+                  gap={2}
+                  p={3}
+                  borderWidth="1px"
+                  borderColor="border.default"
+                  borderRadius="lg"
+                >
+                  <Box boxSize={3} borderRadius="sm" bg={PLOT_COLORS[i % PLOT_COLORS.length]} />
+                  <Text fontWeight="semibold">{p.name}</Text>
+                  <Text color="fg.muted">{formatAcres(p.acres)}</Text>
+                  <Spacer />
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="red"
+                    isDisabled={deletePlot.isPending}
+                    onClick={() => deletePlot.mutate(p.id)}
+                  >
+                    Remove
+                  </Button>
+                </Flex>
+              ))}
+            </SimpleGrid>
+          )}
+        </CardBody>
+      </Card>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
           <CardBody>
@@ -201,6 +273,46 @@ export default function FieldDetailPage() {
           ))}
         </CardBody>
       </Card>
+      <Drawer open={plotDrawer} title="Add plot" onClose={() => setPlotDrawer(false)} wide>
+        <ErrorBanner message={plotError} />
+        <FormField label="Plot name" htmlFor="plot-name" hint="e.g. Strip A, Trial block 3">
+          <Input id="plot-name" value={plotName} onChange={(e) => setPlotName(e.target.value)} />
+        </FormField>
+        <FormField
+          label="Plot boundary"
+          htmlFor="plot-boundary"
+          hint="Draw inside the dashed field outline. Plots may not overlap each other."
+        >
+          <BoundaryEditor
+            value={plotBoundary}
+            onChange={setPlotBoundary}
+            context={[
+              ...(field.boundary
+                ? [{ polygon: field.boundary, color: "#2F6F4E", label: field.name } satisfies ContextShape]
+                : []),
+              ...((plotsQ.data?.results ?? [])
+                .filter((p) => p.boundary)
+                .map((p, i) => ({
+                  polygon: p.boundary as GeoJSONPolygon,
+                  color: PLOT_COLORS[i % PLOT_COLORS.length],
+                  label: p.name,
+                })) satisfies ContextShape[]),
+            ]}
+            center={
+              field.centroid_lat != null && field.centroid_lng != null
+                ? [Number(field.centroid_lat), Number(field.centroid_lng)]
+                : undefined
+            }
+          />
+        </FormField>
+        <Button
+          colorScheme="brand"
+          isDisabled={!plotName || !plotBoundary || createPlot.isPending}
+          onClick={() => createPlot.mutate()}
+        >
+          {createPlot.isPending ? "Saving…" : "Save plot"}
+        </Button>
+      </Drawer>
     </Box>
   );
 }

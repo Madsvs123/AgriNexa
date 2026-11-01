@@ -142,6 +142,8 @@ export interface Field {
   moisture: number | null;
   health_status: StatusLevel;
   boundary: GeoJSONPolygon | null;
+  centroid_lat?: string | number | null;
+  centroid_lng?: string | number | null;
   planting_date: string | null;
   harvest_date: string | null;
 }
@@ -150,7 +152,10 @@ export interface Plot {
   id: UUID;
   name: string;
   field: UUID;
+  field_name?: string;
   acres: number;
+  boundary?: GeoJSONPolygon | null;
+  notes?: string;
 }
 
 export interface FieldNote {

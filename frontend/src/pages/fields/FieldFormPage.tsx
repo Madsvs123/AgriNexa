@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Button, Input, Link, Select, SimpleGrid, Text, Textarea } from "@chakra-ui/react";
+import { Box, Button, Input, Link, Select, SimpleGrid, Text } from "@chakra-ui/react";
 import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
+import { BoundaryEditor } from "@/components/ui/BoundaryEditor";
+import type { GeoJSONPolygon } from "@/types";
 
 export default function FieldFormPage() {
   const { id } = useParams();
@@ -14,6 +16,7 @@ export default function FieldFormPage() {
   const fieldQ = useQuery({ queryKey: ["field", id], queryFn: () => farmsApi.getField(id!), enabled: isEdit });
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [boundary, setBoundary] = useState<GeoJSONPolygon | null>(null);
   const [form, setForm] = useState({
     name: "",
     farm: "",
@@ -22,7 +25,6 @@ export default function FieldFormPage() {
     crop: "",
     planting_date: "",
     harvest_date: "",
-    boundary_text: "",
   });
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((s) => ({ ...s, [key]: e.target.value }));
@@ -38,24 +40,14 @@ export default function FieldFormPage() {
       crop: "",
       planting_date: field.planting_date ?? "",
       harvest_date: field.harvest_date ?? "",
-      boundary_text: field.boundary ? JSON.stringify(field.boundary, null, 2) : "",
     });
+    setBoundary(field.boundary ?? null);
   }, [fieldQ.data]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setPending(true);
     setError(null);
-    let boundary = null;
-    if (form.boundary_text.trim()) {
-      try {
-        boundary = JSON.parse(form.boundary_text);
-      } catch {
-        setError("Boundary must be valid GeoJSON Polygon JSON.");
-        setPending(false);
-        return;
-      }
-    }
     const payload = {
       name: form.name,
       farm: form.farm,
@@ -118,8 +110,20 @@ export default function FieldFormPage() {
               ))}
             </Select>
           </FormField>
-          <FormField label="Acres" htmlFor="facres">
-            <Input id="facres" type="number" step="0.1" isRequired value={form.acres} onChange={set("acres")} />
+          <FormField
+            label="Acres"
+            htmlFor="facres"
+            hint={boundary ? "Derived from the drawn boundary on save." : undefined}
+          >
+            <Input
+              id="facres"
+              type="number"
+              step="0.1"
+              isRequired
+              isDisabled={Boolean(boundary)}
+              value={form.acres}
+              onChange={set("acres")}
+            />
           </FormField>
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
@@ -150,12 +154,8 @@ export default function FieldFormPage() {
             <Input id="hdate" type="date" value={form.harvest_date} onChange={set("harvest_date")} />
           </FormField>
         </SimpleGrid>
-        <FormField
-          label="Boundary GeoJSON"
-          htmlFor="boundary"
-          hint='Polygon: {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
-        >
-          <Textarea id="boundary" value={form.boundary_text} onChange={set("boundary_text")} />
+        <FormField label="Boundary" htmlFor="boundary" hint="Draw the field outline on the map.">
+          <BoundaryEditor value={boundary} onChange={setBoundary} />
         </FormField>
         <Button type="submit" colorScheme="brand" isDisabled={pending}>
           {pending ? "Saving…" : isEdit ? "Save field" : "Create field"}
