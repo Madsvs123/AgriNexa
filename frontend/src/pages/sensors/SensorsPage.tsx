@@ -10,6 +10,7 @@ import { ListPage } from "@/components/templates/ListPage";
 import { useSensorSocket } from "@/hooks/useSensorSocket";
 import { useScope } from "@/hooks/useScope";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
+import { useTranslation } from "react-i18next";
 
 const STATUS_OPTIONS: Array<[string, string]> = [
   ["healthy", "Healthy"],
@@ -24,6 +25,7 @@ const DEFAULTS = { status: "" };
  * selector, so moving here from the map or a field keeps the same farm.
  */
 export default function SensorsPage() {
+  const { t } = useTranslation("operate");
   const { farmId } = useScope();
   const { values, setValue, reset, activeCount } = useUrlFilters(DEFAULTS);
   useSensorSocket(farmId);
@@ -41,8 +43,8 @@ export default function SensorsPage() {
 
   return (
     <ListPage
-      title="Sensors"
-      subtitle="Live probes across moisture, weather, and tank monitors."
+      title={t("sensors.title")}
+      subtitle={t("sensors.subtitle")}
       error={listQ.error ? getApiError(listQ.error) : null}
       loading={listQ.isLoading && !all.length}
       filters={
@@ -50,8 +52,8 @@ export default function SensorsPage() {
           <FilterSelect
             value={values.status}
             onChange={(v) => setValue("status", v)}
-            label="Sensor status"
-            allLabel="All statuses"
+            label={t("sensors.sensorStatus")}
+            allLabel={t("sensors.allStatuses")}
             options={STATUS_OPTIONS}
           />
         </FilterBar>

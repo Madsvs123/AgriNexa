@@ -6,8 +6,10 @@ import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { DataTable } from "@/components/ui/DataTable";
 import { StatusBadge } from "@/components/ui/StatCard";
+import { useTranslation } from "react-i18next";
 
 export default function ReportsPage() {
+  const { t } = useTranslation("insights");
   const qc = useQueryClient();
   const reportsQ = useQuery({ queryKey: ["reports"], queryFn: () => analyticsApi.reports() });
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
@@ -28,7 +30,7 @@ export default function ReportsPage() {
 
   return (
     <Box>
-      <PageHeader title="Reports" subtitle="Generate seasonal packets for agronomy and finance." />
+      <PageHeader title={t("reports.title")} subtitle={t("reports.subtitle")} />
       <ErrorBanner message={reportsQ.error ? getApiError(reportsQ.error) : gen.error ? getApiError(gen.error) : null} />
       <Box
         as="form"
@@ -44,18 +46,18 @@ export default function ReportsPage() {
         }}
       >
         <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={4}>
-          <FormField label="Report type" htmlFor="rtype">
+          <FormField label={t("reports.reportType")} htmlFor="rtype">
             <Select id="rtype" value={form.report_type} onChange={(e) => setForm({ ...form, report_type: e.target.value })}>
-              <option value="yield_summary">Yield summary</option>
-              <option value="water_use">Water use</option>
-              <option value="input_costs">Input costs</option>
-              <option value="field_health">Field health</option>
-              <option value="scouting">Scouting packet</option>
+              <option value="yield_summary">{t("reports.yieldSummary")}</option>
+              <option value="water_use">{t("reports.waterUse")}</option>
+              <option value="input_costs">{t("reports.inputCosts")}</option>
+              <option value="field_health">{t("reports.fieldHealth")}</option>
+              <option value="scouting">{t("reports.scoutingPacket")}</option>
             </Select>
           </FormField>
-          <FormField label="Farm" htmlFor="rfarm">
+          <FormField label={t("labels.farm", { ns: "common" })} htmlFor="rfarm">
             <Select id="rfarm" value={form.farm} onChange={(e) => setForm({ ...form, farm: e.target.value })}>
-              <option value="">All farms</option>
+              <option value="">{t("reports.allFarms")}</option>
               {(farmsQ.data?.results ?? []).map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -63,10 +65,10 @@ export default function ReportsPage() {
               ))}
             </Select>
           </FormField>
-          <FormField label="Start" htmlFor="rstart">
+          <FormField label={t("reports.start")} htmlFor="rstart">
             <Input id="rstart" type="date" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} />
           </FormField>
-          <FormField label="End" htmlFor="rend">
+          <FormField label={t("reports.end")} htmlFor="rend">
             <Input id="rend" type="date" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} />
           </FormField>
         </SimpleGrid>
@@ -77,15 +79,15 @@ export default function ReportsPage() {
       <DataTable
         rows={reportsQ.data?.results ?? []}
         rowKey={(r) => r.id}
-        emptyTitle="No generated reports"
-        emptyBody="Run a yield summary for North Ridge to populate this list."
+        emptyTitle={t("reports.emptyTitle")}
+        emptyBody={t("reports.emptyBody")}
         columns={[
-          { key: "report_type", header: "Type" },
-          { key: "created_at", header: "Created", render: (r) => formatDateTime(r.created_at) },
-          { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status} /> },
+          { key: "report_type", header: t("reports.type") },
+          { key: "created_at", header: t("reports.created"), render: (r) => formatDateTime(r.created_at) },
+          { key: "status", header: t("labels.status", { ns: "common" }), render: (r) => <StatusBadge status={r.status} /> },
           {
             key: "file",
-            header: "File",
+            header: t("reports.file"),
             render: (r) =>
               r.file ? (
                 <Link href={r.file} isExternal color="brand.500">

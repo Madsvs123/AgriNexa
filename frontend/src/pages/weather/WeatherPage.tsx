@@ -19,8 +19,10 @@ import { farmsApi, getApiError, weatherApi } from "@/api/client";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { ChartCard } from "@/components/ui/StatCard";
 import { ChartFrame } from "@/components/ui/ChartFrame";
+import { useTranslation } from "react-i18next";
 
 export default function WeatherPage() {
+  const { t } = useTranslation("operate");
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
   const [farm, setFarm] = useState("");
   const farmId = farm || farmsQ.data?.results[0]?.id;
@@ -45,10 +47,10 @@ export default function WeatherPage() {
   return (
     <Box>
       <PageHeader
-        title="Weather"
-        subtitle="Conditions, forecast, and agronomic recommendations."
+        title={t("weather.title")}
+        subtitle={t("weather.subtitle")}
         actions={
-          <Select aria-label="Farm" value={farmId ?? ""} onChange={(e) => setFarm(e.target.value)} maxW="xs" bg="bg.surface">
+          <Select aria-label={t("labels.farm", { ns: "common" })} value={farmId ?? ""} onChange={(e) => setFarm(e.target.value)} maxW="xs" bg="bg.surface">
             {(farmsQ.data?.results ?? []).map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
@@ -111,7 +113,7 @@ export default function WeatherPage() {
         ))}
       </Flex>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-        <ChartCard title="Rainfall history">
+        <ChartCard title={t("weather.rainfallHistory")}>
           <ChartFrame height="220px">
             <BarChart data={history}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -122,7 +124,7 @@ export default function WeatherPage() {
             </BarChart>
             </ChartFrame>
         </ChartCard>
-        <ChartCard title="Temperature trend">
+        <ChartCard title={t("weather.temperatureTrend")}>
           <ChartFrame height="220px">
             <LineChart data={tempLine}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -155,7 +157,7 @@ export default function WeatherPage() {
               <Heading size="sm" mb={2}>
                 Recommendations
               </Heading>
-              <Text color="fg.muted">Spray windows and planting advice appear when a forecast is available.</Text>
+              <Text color="fg.muted">{t("weather.noRecommendations")}</Text>
             </CardBody>
           </Card>
         ) : null}

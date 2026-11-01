@@ -6,8 +6,12 @@ import { cropsApi, farmsApi, getApiError } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { BoundaryEditor } from "@/components/ui/BoundaryEditor";
 import type { GeoJSONPolygon } from "@/types";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 export default function FieldFormPage() {
+  const { t } = useTranslation("land");
+  const labels = usePlanningLabels();
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -72,7 +76,7 @@ export default function FieldFormPage() {
     <Box>
       <PageHeader
         title={isEdit ? "Edit field" : "New field"}
-        subtitle="Name the boundary the way operators call it on the radio."
+        subtitle={t("fieldForm.subtitle")}
         crumbs={
           <>
             <Link as={RouterLink} to="/fields">
@@ -96,13 +100,13 @@ export default function FieldFormPage() {
         p={5}
         maxW="720px"
       >
-        <FormField label="Field name" htmlFor="fname" hint="e.g. South Bottom">
+        <FormField label={t("fieldForm.fieldName")} htmlFor="fname" hint={t("fieldForm.nameHint")}>
           <Input id="fname" isRequired value={form.name} onChange={set("name")} />
         </FormField>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
-          <FormField label="Farm" htmlFor="farm">
+          <FormField label={t("labels.farm", { ns: "common" })} htmlFor="farm">
             <Select id="farm" isRequired value={form.farm} onChange={set("farm")}>
-              <option value="">Select farm</option>
+              <option value="">{t("fieldForm.selectFarm")}</option>
               {(farmsQ.data?.results ?? []).map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -111,7 +115,7 @@ export default function FieldFormPage() {
             </Select>
           </FormField>
           <FormField
-            label="Acres"
+            label={t("labels.acres", { ns: "common" })}
             htmlFor="facres"
             hint={boundary ? "Derived from the drawn boundary on save." : undefined}
           >
@@ -127,17 +131,17 @@ export default function FieldFormPage() {
           </FormField>
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
-          <FormField label="Soil type" htmlFor="soil">
+          <FormField label={t("fields.soilType")} htmlFor="soil">
             <Select id="soil" value={form.soil_type} onChange={set("soil_type")}>
-              <option value="loam">Loam</option>
-              <option value="clay_loam">Clay loam</option>
-              <option value="sandy_loam">Sandy loam</option>
-              <option value="silt_loam">Silt loam</option>
+              <option value="loam">{labels.soil("loam")}</option>
+              <option value="clay_loam">{labels.soil("clay_loam")}</option>
+              <option value="sandy_loam">{labels.soil("sandy_loam")}</option>
+              <option value="silt_loam">{labels.soil("silt_loam")}</option>
             </Select>
           </FormField>
-          <FormField label="Current crop" htmlFor="crop">
+          <FormField label={t("fieldForm.currentCrop")} htmlFor="crop">
             <Select id="crop" value={form.crop} onChange={set("crop")}>
-              <option value="">Fallow</option>
+              <option value="">{t("fieldForm.fallow")}</option>
               {(cropsQ.data?.results ?? []).map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -147,14 +151,14 @@ export default function FieldFormPage() {
           </FormField>
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
-          <FormField label="Planting date" htmlFor="pdate">
+          <FormField label={t("fieldForm.plantingDate")} htmlFor="pdate">
             <Input id="pdate" type="date" value={form.planting_date} onChange={set("planting_date")} />
           </FormField>
-          <FormField label="Harvest date" htmlFor="hdate">
+          <FormField label={t("fieldForm.harvestDate")} htmlFor="hdate">
             <Input id="hdate" type="date" value={form.harvest_date} onChange={set("harvest_date")} />
           </FormField>
         </SimpleGrid>
-        <FormField label="Boundary" htmlFor="boundary" hint="Draw the field outline on the map.">
+        <FormField label={t("fieldForm.boundary")} htmlFor="boundary" hint={t("fieldForm.boundaryHint")}>
           <BoundaryEditor value={boundary} onChange={setBoundary} />
         </FormField>
         <Button type="submit" colorScheme="brand" isDisabled={pending}>

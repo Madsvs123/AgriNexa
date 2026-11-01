@@ -5,8 +5,10 @@ import { Box, Card, CardBody, Flex, Heading, Input, Text } from "@chakra-ui/reac
 import { getApiError, platformApi } from "@/api/client";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { EmptyState } from "@/components/ui/StatCard";
+import { useTranslation } from "react-i18next";
 
 export default function SearchPage() {
+  const { t } = useTranslation("insights");
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
   const searchQ = useQuery({
@@ -35,7 +37,7 @@ export default function SearchPage() {
 
   return (
     <Box>
-      <PageHeader title="Search" subtitle="Farms, fields, equipment, inventory, and tasks." />
+      <PageHeader title={t("search.title")} subtitle={t("search.subtitle")} />
       <Flex
         as="form"
         gap={3}
@@ -50,18 +52,18 @@ export default function SearchPage() {
           maxW="420px"
           value={q}
           onChange={(e) => setParams({ q: e.target.value })}
-          placeholder="North Ridge, Planter 12, MAP 11-52-0…"
-          aria-label="Search"
+          placeholder={t("search.placeholder")}
+          aria-label={t("search.title")}
         />
       </Flex>
       <ErrorBanner message={searchQ.error ? getApiError(searchQ.error) : null} />
       {!q ? (
         <Card variant="outline" borderColor="border.default" bg="bg.surface">
-          <EmptyState title="Start typing" body="Search by farm code, field nickname, SKU, or machine name." />
+          <EmptyState title={t("search.startTyping")} body={t("search.startBody")} />
         </Card>
       ) : !any && searchQ.isFetched ? (
         <Card variant="outline" borderColor="border.default" bg="bg.surface">
-          <EmptyState title={`No matches for “${q}”`} body="Try a shorter token or a farm code like WR-02." />
+          <EmptyState title={`No matches for “${q}”`} body={t("search.noResultsBody")} />
         </Card>
       ) : (
         groups.map((g) =>

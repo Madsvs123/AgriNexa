@@ -1,0 +1,72 @@
+{
+  "documents": {
+    "title": "Documentos",
+    "subtitle": "Contratos, análisis de suelo y pólizas en PDF asociados a una finca.",
+    "emptyTitle": "No hay documentos",
+    "emptyBody": "Arrastra un PDF de análisis de suelo o un contrato de arrendamiento para archivarlo en una finca.",
+    "docTitle": "Título",
+    "category": "Categoría",
+    "uploaded": "Subido",
+    "file": "Archivo",
+    "upload": "Subir documento",
+    "contract": "Contrato",
+    "soilTest": "Análisis de suelo",
+    "insurance": "Seguro",
+    "permit": "Permiso",
+    "other": "Otro",
+    "orgWide": "Toda la organización"
+  },
+  "reports": {
+    "title": "Informes",
+    "subtitle": "Genera paquetes de campaña para agronomía y finanzas.",
+    "reportType": "Tipo de informe",
+    "yieldSummary": "Resumen de rendimiento",
+    "waterUse": "Uso de agua",
+    "inputCosts": "Costos de insumos",
+    "fieldHealth": "Estado de los lotes",
+    "scoutingPacket": "Paquete de monitoreo",
+    "allFarms": "Todas las fincas",
+    "start": "Inicio",
+    "end": "Fin",
+    "emptyTitle": "No hay informes generados",
+    "emptyBody": "Ejecuta un resumen de rendimiento para poblar esta lista.",
+    "type": "Tipo",
+    "created": "Creado",
+    "file": "Archivo"
+  },
+  "analytics": {
+    "title": "Analítica",
+    "subtitle": "Tendencias de rendimiento, agua, costo y estado de los lotes.",
+    "yieldTrend": "Tendencia de rendimiento",
+    "waterTrend": "Tendencia de agua",
+    "costTrend": "Tendencia de costos",
+    "fieldHealthMix": "Distribución del estado de los lotes",
+    "yieldByCrop": "Rendimiento por cultivo",
+    "waterByFarm": "Agua por finca",
+    "costsByCategory": "Costos por categoría"
+  },
+  "search": {
+    "title": "Búsqueda",
+    "subtitle": "Fincas, lotes, maquinaria, inventario y tareas.",
+    "placeholder": "Buscar por nombre, código o SKU…",
+    "startTyping": "Empieza a escribir",
+    "startBody": "Busca por código de finca, apodo del lote, SKU o nombre de máquina.",
+    "noResultsBody": "Prueba con un término más corto o un código de finca."
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "subtitle": "Alertas de sensores, heladas, inventario y tareas.",
+    "quietTitle": "La bandeja está tranquila",
+    "quietBody": "Cuando una sonda entre en estado crítico o el stock llegue al punto de reposición, aparecerá aquí."
+  },
+  "notFound": {
+    "title": "Lote fuera del mapa",
+    "subtitle": "Esa ruta está en barbecho: aquí no hay nada sembrado.",
+    "body": "La página que solicitaste no forma parte de las operaciones de AgriNexa."
+  },
+  "invite": {
+    "title": "Únete al equipo",
+    "subtitle": "Acepta esta invitación para acceder a fincas, lotes y al mapa de operaciones.",
+    "passwordHint": "Obligatoria al crear una cuenta nueva."
+  }
+}

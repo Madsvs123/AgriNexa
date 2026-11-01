@@ -4,8 +4,10 @@ import { Box, Button, Card, CardBody, Divider, Stack, Text, Textarea } from "@ch
 import { farmsApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { FormField } from "@/components/ui/FormField";
+import { useTranslation } from "react-i18next";
 
 export function NotesTab({ fieldId }: { fieldId: string }) {
+  const { t } = useTranslation("land");
   const qc = useQueryClient();
   const [body, setBody] = useState("");
   const notesQ = useQuery({
@@ -25,12 +27,12 @@ export function NotesTab({ fieldId }: { fieldId: string }) {
   return (
     <Card variant="surface" as="section">
       <CardBody>
-        <FormField label="Add a note" htmlFor="fnote">
+        <FormField label={t("notesTab.addNote")} htmlFor="fnote">
           <Textarea
             id="fnote"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Residue heavy on the east headland…"
+            placeholder={t("notesTab.placeholder")}
           />
         </FormField>
         <Button
@@ -38,7 +40,7 @@ export function NotesTab({ fieldId }: { fieldId: string }) {
           isDisabled={!body || addNote.isPending}
           onClick={() => addNote.mutate()}
         >
-          {addNote.isPending ? "Posting…" : "Post note"}
+          {addNote.isPending ? t("notesTab.posting") : t("notesTab.postNote")}
         </Button>
 
         {notes.length ? (
@@ -57,7 +59,7 @@ export function NotesTab({ fieldId }: { fieldId: string }) {
           </>
         ) : (
           <Text color="fg.muted" mt={4}>
-            No notes on this field yet.
+            {t("notesTab.noNotes")}
           </Text>
         )}
       </CardBody>

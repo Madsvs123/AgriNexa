@@ -21,6 +21,8 @@ import { SOIL_COLORS } from "@/components/ui/MapView";
 import { Drawer } from "@/components/ui/Modal";
 import { BoundaryEditor, type ContextShape } from "@/components/ui/BoundaryEditor";
 import type { Field, GeoJSONPolygon } from "@/types";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 const SOIL_TYPES = [
   ["clay", "Clay"],
@@ -37,6 +39,8 @@ const SOIL_TYPES = [
 export function SoilTab({ field }: { field: Field }) {
   const id = field.id;
   const qc = useQueryClient();
+  const { t } = useTranslation("land");
+  const labels = usePlanningLabels();
 
   const soilQ = useQuery({
     queryKey: ["soil-layers", { field: id }],
@@ -89,15 +93,15 @@ export function SoilTab({ field }: { field: Field }) {
       <Card variant="surface" as="section">
         <CardBody>
           <Flex align="center" mb={3}>
-            <Heading size="sm">Soil layers</Heading>
+            <Heading size="sm">{t("soilTab.soilLayers")}</Heading>
             <Spacer />
             <Button size="sm" variant="ghost" colorScheme="gray" onClick={() => setOpen(true)}>
-              Add layer
+              {t("soilTab.addLayer")}
             </Button>
           </Flex>
           {layers.length === 0 ? (
             <Text color="fg.muted">
-              No soil layers mapped. Draw zones for clay knobs, sandy ridges, or peat pockets.
+              {t("soilTab.noLayers")}
             </Text>
           ) : (
             layers.map((s) => (
@@ -105,7 +109,7 @@ export function SoilTab({ field }: { field: Field }) {
                 <Box boxSize={3} borderRadius="sm" bg={SOIL_COLORS[s.soil_type] ?? "#B98A2F"} />
                 <Text fontWeight="semibold">{s.name}</Text>
                 <Text color="fg.muted" fontSize="sm">
-                  {s.soil_type_display ?? s.soil_type} · {formatAcres(Number(s.acres))}
+                  {s.soil_type_display ?? labels.soil(s.soil_type)} · {formatAcres(Number(s.acres))}
                   {s.ph != null ? ` · pH ${s.ph}` : ""}
                 </Text>
                 <Spacer />
@@ -116,7 +120,7 @@ export function SoilTab({ field }: { field: Field }) {
                   isDisabled={deleteSoil.isPending}
                   onClick={() => deleteSoil.mutate(s.id)}
                 >
-                  Remove
+                  {t("actions.remove", { ns: "common" })}
                 </Button>
               </Flex>
             ))
@@ -127,24 +131,29 @@ export function SoilTab({ field }: { field: Field }) {
       <Card variant="surface" as="section">
         <CardBody>
           <Heading size="sm" mb={3}>
-            Elevation
+            {t("soilTab.elevation")}
           </Heading>
           {!field.boundary ? (
-            <Text color="fg.muted">Draw a field boundary to estimate elevation.</Text>
+            <Text color="fg.muted">{t("soilTab.drawBoundaryFirst")}</Text>
           ) : elevationQ.isLoading ? (
-            <Text color="fg.muted">Estimating elevation…</Text>
+            <Text color="fg.muted">{t("soilTab.estimating")}</Text>
           ) : elevationQ.data ? (
             <Box>
               <SimpleGrid columns={3} spacing={3} mb={3}>
-                <StatCard label="Min" value={`${formatNumber(elevationQ.data.min_m)} m`} />
-                <StatCard label="Mean" value={`${formatNumber(elevationQ.data.mean_m)} m`} />
-                <StatCard label="Max" value={`${formatNumber(elevationQ.data.max_m)} m`} />
+                <StatCard label={t("soilTab.min")} value={`${formatNumber(elevationQ.data.min_m)} m`} />
+                <StatCard label={t("soilTab.mean")} value={`${formatNumber(elevationQ.data.mean_m)} m`} />
+                <StatCard label={t("soilTab.max")} value={`${formatNumber(elevationQ.data.max_m)} m`} />
               </SimpleGrid>
               <Flex align="center" gap={2} wrap="wrap">
                 <Text fontSize="sm" color="fg.muted">
-                  Relief {formatNumber(elevationQ.data.relief_m)} m ·{" "}
-                  {elevationQ.data.source === "open-meteo" ? "Open-Meteo terrain" : "offline estimate"} ·{" "}
-                  {elevationQ.data.points.length} sample points
+                  {t("soilTab.relief", {
+                    relief: formatNumber(elevationQ.data.relief_m),
+                    source:
+                      elevationQ.data.source === "open-meteo"
+                        ? t("soilTab.sourceOpenMeteo")
+                        : t("soilTab.sourceOffline"),
+                    points: elevationQ.data.points.length,
+                  })}
                 </Text>
                 <Button
                   size="xs"
@@ -153,42 +162,42 @@ export function SoilTab({ field }: { field: Field }) {
                   isDisabled={refreshElevation.isPending}
                   onClick={() => refreshElevation.mutate()}
                 >
-                  {refreshElevation.isPending ? "Refreshing…" : "Refresh"}
+                  {refreshElevation.isPending ? t("actions.refresh", { ns: "common" }) + "…" : t("actions.refresh", { ns: "common" })}
                 </Button>
               </Flex>
             </Box>
           ) : (
-            <Text color="fg.muted">Elevation unavailable for this boundary.</Text>
+            <Text color="fg.muted">{t("soilTab.unavailable")}</Text>
           )}
         </CardBody>
       </Card>
 
-      <Drawer open={open} title="Add soil layer" onClose={() => setOpen(false)} wide>
+      <Drawer open={open} title={t("soilTab.addSoilLayer")} onClose={() => setOpen(false)} wide>
         <ErrorBanner message={error} />
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
-          <FormField label="Name" htmlFor="soil-name" hint="e.g. Sandy ridge, Clay bottom">
+          <FormField label={t("labels.name", { ns: "common" })} htmlFor="soil-name" hint={t("soilTab.layerNameHint")}>
             <Input
               id="soil-name"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             />
           </FormField>
-          <FormField label="Soil type" htmlFor="soil-type">
+          <FormField label={t("fields.soilType")} htmlFor="soil-type">
             <Select
               id="soil-type"
               value={form.soil_type}
               onChange={(e) => setForm((f) => ({ ...f, soil_type: e.target.value }))}
             >
-              {SOIL_TYPES.map(([value, label]) => (
+              {SOIL_TYPES.map(([value]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {labels.soil(value)}
                 </option>
               ))}
             </Select>
           </FormField>
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={4}>
-          <FormField label="pH" htmlFor="soil-ph">
+          <FormField label={t("soilTab.ph")} htmlFor="soil-ph">
             <Input
               id="soil-ph"
               type="number"
@@ -199,7 +208,7 @@ export function SoilTab({ field }: { field: Field }) {
               onChange={(e) => setForm((f) => ({ ...f, ph: e.target.value }))}
             />
           </FormField>
-          <FormField label="Organic matter %" htmlFor="soil-om">
+          <FormField label={t("soilTab.organicMatter")} htmlFor="soil-om">
             <Input
               id="soil-om"
               type="number"
@@ -210,7 +219,7 @@ export function SoilTab({ field }: { field: Field }) {
             />
           </FormField>
         </SimpleGrid>
-        <FormField label="Layer boundary" htmlFor="soil-boundary" hint="Draw inside the dashed field outline.">
+        <FormField label={t("soilTab.layerBoundary")} htmlFor="soil-boundary" hint={t("soilTab.drawInside")}>
           <BoundaryEditor
             value={boundary}
             onChange={setBoundary}
@@ -231,7 +240,7 @@ export function SoilTab({ field }: { field: Field }) {
           isDisabled={!form.name || !boundary || createSoil.isPending}
           onClick={() => createSoil.mutate()}
         >
-          {createSoil.isPending ? "Saving…" : "Save soil layer"}
+          {createSoil.isPending ? t("actions.saving", { ns: "common" }) : t("soilTab.saveLayer")}
         </Button>
       </Drawer>
     </SimpleGrid>

@@ -18,10 +18,12 @@ import { farmsApi, getApiError, scoutingApi } from "@/api/client";
 import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { FileDrop } from "@/components/ui/FileDrop";
 import { SeverityMeter } from "@/components/ui/SensorSparkline";
+import { useTranslation } from "react-i18next";
 
 const STEPS = ["Field", "Health", "Pests", "Photos", "Review"];
 
 export default function ScoutReportNewPage() {
+  const { t } = useTranslation("operate");
   const navigate = useNavigate();
   const fieldsQ = useQuery({ queryKey: ["fields"], queryFn: () => farmsApi.fields() });
   const [step, setStep] = useState(0);
@@ -86,8 +88,8 @@ export default function ScoutReportNewPage() {
   return (
     <Box>
       <PageHeader
-        title="New scout report"
-        subtitle="Five-step walk: field, health, findings, photos, submit."
+        title={t("scouting.newTitle")}
+        subtitle={t("scouting.newSubtitle")}
         crumbs={
           <>
             <Link as={RouterLink} to="/scouting">
@@ -117,9 +119,9 @@ export default function ScoutReportNewPage() {
       <Card as="form" variant="outline" borderColor="border.default" bg="bg.surface" maxW="720px" onSubmit={onSubmit}>
         <CardBody>
           {step === 0 ? (
-            <FormField label="Field" htmlFor="sfield">
+            <FormField label={t("labels.field", { ns: "common" })} htmlFor="sfield">
               <Select id="sfield" isRequired value={form.field} onChange={(e) => setForm({ ...form, field: e.target.value })}>
-                <option value="">Select field</option>
+                <option value="">{t("scouting.selectField")}</option>
                 {(fieldsQ.data?.results ?? []).map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name} · {f.farm_name}
@@ -130,7 +132,7 @@ export default function ScoutReportNewPage() {
           ) : null}
           {step === 1 ? (
             <>
-              <FormField label="Canopy health (1–10)" htmlFor="health">
+              <FormField label={t("scouting.canopyHealth")} htmlFor="health">
                 <Input
                   id="health"
                   type="number"
@@ -140,7 +142,7 @@ export default function ScoutReportNewPage() {
                   onChange={(e) => setForm({ ...form, health_score: Number(e.target.value) })}
                 />
               </FormField>
-              <FormField label="Overall severity" htmlFor="sev">
+              <FormField label={t("scouting.overallSeverity")} htmlFor="sev">
                 <Select
                   id="sev"
                   value={form.severity}
@@ -153,27 +155,27 @@ export default function ScoutReportNewPage() {
                 </Select>
               </FormField>
               <SeverityMeter value={form.severity} />
-              <FormField label="Notes" htmlFor="snotes">
-                <Textarea id="snotes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Uneven stand on the west headland…" />
+              <FormField label={t("labels.notes", { ns: "common" })} htmlFor="snotes">
+                <Textarea id="snotes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder={t("scouting.notesPlaceholder")} />
               </FormField>
             </>
           ) : null}
           {step === 2 ? (
             <>
-              <FormField label="Diseases" htmlFor="dis" hint="Comma-separated, e.g. Gray leaf spot, Northern corn leaf blight">
+              <FormField label={t("scouting.diseases")} htmlFor="dis" hint={t("scouting.diseasesHint")}>
                 <Input id="dis" value={form.diseases} onChange={(e) => setForm({ ...form, diseases: e.target.value })} />
               </FormField>
-              <FormField label="Pests" htmlFor="pests" hint="e.g. Corn rootworm, Japanese beetle">
+              <FormField label={t("scouting.pests")} htmlFor="pests" hint={t("scouting.pestsHint")}>
                 <Input id="pests" value={form.pests} onChange={(e) => setForm({ ...form, pests: e.target.value })} />
               </FormField>
-              <FormField label="Weeds" htmlFor="weeds" hint="e.g. Waterhemp, Foxtail">
+              <FormField label={t("scouting.weeds")} htmlFor="weeds" hint={t("scouting.weedsHint")}>
                 <Input id="weeds" value={form.weeds} onChange={(e) => setForm({ ...form, weeds: e.target.value })} />
               </FormField>
             </>
           ) : null}
           {step === 3 ? (
             <>
-              <FileDrop accept="image/*" multiple onFiles={setFiles} label="Drop canopy or pest photos" />
+              <FileDrop accept="image/*" multiple onFiles={setFiles} label={t("scouting.dropPhotos")} />
               <Text color="fg.muted">{files.length} file(s) attached.</Text>
             </>
           ) : null}

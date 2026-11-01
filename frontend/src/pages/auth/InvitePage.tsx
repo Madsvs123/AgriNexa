@@ -5,8 +5,10 @@ import { getApiError, tenancyApi } from "@/api/client";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthLayout } from "./AuthLayout";
 import { ErrorBanner, FormField } from "@/components/ui/FormField";
+import { useTranslation } from "react-i18next";
 
 export default function InvitePage() {
+  const { t } = useTranslation("insights");
   const { token } = useParams();
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
@@ -46,8 +48,8 @@ export default function InvitePage() {
 
   return (
     <AuthLayout
-      title="Join the crew"
-      subtitle="Accept this invitation to access farms, fields, and the operations map."
+      title={t("invite.title")}
+      subtitle={t("invite.subtitle")}
     >
       <ErrorBanner message={error} />
       <form onSubmit={onSubmit}>
@@ -56,14 +58,14 @@ export default function InvitePage() {
           New operators should set a password below.
         </Text>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-          <FormField label="First name" htmlFor="inv-first">
+          <FormField label={t("fields.firstName", { ns: "auth" })} htmlFor="inv-first">
             <Input id="inv-first" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </FormField>
-          <FormField label="Last name" htmlFor="inv-last">
+          <FormField label={t("fields.lastName", { ns: "auth" })} htmlFor="inv-last">
             <Input id="inv-last" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           </FormField>
         </SimpleGrid>
-        <FormField label="Password" htmlFor="inv-pass" hint="Required when creating a new account.">
+        <FormField label={t("fields.password", { ns: "auth" })} htmlFor="inv-pass" hint={t("invite.passwordHint")}>
           <Input
             id="inv-pass"
             type="password"

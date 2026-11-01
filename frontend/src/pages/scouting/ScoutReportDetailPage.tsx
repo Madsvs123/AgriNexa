@@ -17,8 +17,10 @@ import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
 import { StatusBadge } from "@/components/ui/StatCard";
 import { SeverityMeter } from "@/components/ui/SensorSparkline";
+import { useTranslation } from "react-i18next";
 
 export default function ScoutReportDetailPage() {
+  const { t } = useTranslation("operate");
   const { id = "" } = useParams();
   const reportQ = useQuery({ queryKey: ["scout-report", id], queryFn: () => scoutingApi.getReport(id), enabled: !!id });
   const r = reportQ.data;
@@ -104,7 +106,7 @@ export default function ScoutReportDetailPage() {
                 </Box>
               ))}
             </SimpleGrid>
-            {!r.photos?.length ? <Text color="fg.muted">No photos attached.</Text> : null}
+            {!r.photos?.length ? <Text color="fg.muted">{t("scouting.noPhotos")}</Text> : null}
             <Button as={RouterLink} to="/scouting/treatments" colorScheme="brand" mt={3}>
               Plan treatment
             </Button>

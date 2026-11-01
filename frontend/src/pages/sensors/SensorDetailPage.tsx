@@ -20,8 +20,10 @@ import { StatusBadge, StatCard, ChartCard } from "@/components/ui/StatCard";
 import { MapView } from "@/components/ui/MapView";
 import { useSensorSocket } from "@/hooks/useSensorSocket";
 import { ChartFrame } from "@/components/ui/ChartFrame";
+import { useTranslation } from "react-i18next";
 
 export default function SensorDetailPage() {
+  const { t } = useTranslation("operate");
   const { id = "" } = useParams();
   const sensorQ = useQuery({ queryKey: ["sensor", id], queryFn: () => sensorsApi.get(id), enabled: !!id });
   const readingsQ = useQuery({
@@ -70,13 +72,13 @@ export default function SensorDetailPage() {
         }
       />
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
-        <StatCard label="Last reading" value={`${sensor.last_reading ?? "—"} ${sensor.unit ?? type?.unit ?? ""}`} hint={formatDateTime(sensor.last_reading_at)} />
-        <StatCard label="Status" value={<StatusBadge status={sensor.status} />} />
-        <StatCard label="Battery" value={formatPct(sensor.battery_pct ?? healthQ.data?.battery_pct)} />
-        <StatCard label="Signal" value={healthQ.data?.signal_strength != null ? `${healthQ.data.signal_strength} dBm` : "—"} />
+        <StatCard label={t("sensors.lastReading")} value={`${sensor.last_reading ?? "—"} ${sensor.unit ?? type?.unit ?? ""}`} hint={formatDateTime(sensor.last_reading_at)} />
+        <StatCard label={t("labels.status", { ns: "common" })} value={<StatusBadge status={sensor.status} />} />
+        <StatCard label={t("sensors.battery")} value={formatPct(sensor.battery_pct ?? healthQ.data?.battery_pct)} />
+        <StatCard label={t("sensors.signal")} value={healthQ.data?.signal_strength != null ? `${healthQ.data.signal_strength} dBm` : "—"} />
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-        <ChartCard title="History">
+        <ChartCard title={t("sensors.history")}>
           <ChartFrame height="260px">
             <LineChart data={chart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />

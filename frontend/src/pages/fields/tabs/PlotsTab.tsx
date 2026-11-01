@@ -8,12 +8,14 @@ import { EmptyState } from "@/components/ui/StatCard";
 import { Drawer } from "@/components/ui/Modal";
 import { BoundaryEditor, type ContextShape } from "@/components/ui/BoundaryEditor";
 import type { Field, GeoJSONPolygon } from "@/types";
+import { useTranslation } from "react-i18next";
 
 export const PLOT_COLORS = ["#3D7EA6", "#D4A017", "#8C5A3C", "#7CB518", "#B05A7A"];
 
 export function PlotsTab({ field }: { field: Field }) {
   const id = field.id;
   const qc = useQueryClient();
+  const { t } = useTranslation("land");
   const plotsQ = useQuery({ queryKey: ["plots", { field: id }], queryFn: () => farmsApi.plots({ field: id }) });
 
   const [open, setOpen] = useState(false);
@@ -42,18 +44,18 @@ export function PlotsTab({ field }: { field: Field }) {
   return (
     <Box>
       <Flex align="center" mb={3}>
-        <Text color="fg.muted">Subdivide this field into trial strips, management zones, or beds.</Text>
+        <Text color="fg.muted">{t("plotsTab.intro")}</Text>
         <Spacer />
         <Button size="sm" colorScheme="brand" onClick={() => setOpen(true)}>
-          Add plot
+          {t("plotsTab.addPlot")}
         </Button>
       </Flex>
 
       {plots.length === 0 ? (
         <Card variant="surface">
           <EmptyState
-            title="No plots yet"
-            body="Draw a plot inside this field to track a trial strip or management zone separately."
+            title={t("plotsTab.emptyTitle")}
+            body={t("plotsTab.emptyBody")}
             action={
               <Button size="sm" colorScheme="brand" onClick={() => setOpen(true)}>
                 Add plot
@@ -78,7 +80,7 @@ export function PlotsTab({ field }: { field: Field }) {
                     isDisabled={deletePlot.isPending}
                     onClick={() => deletePlot.mutate(p.id)}
                   >
-                    Remove
+                    {t("actions.remove", { ns: "common" })}
                   </Button>
                 </Flex>
               </CardBody>
@@ -87,15 +89,15 @@ export function PlotsTab({ field }: { field: Field }) {
         </SimpleGrid>
       )}
 
-      <Drawer open={open} title="Add plot" onClose={() => setOpen(false)} wide>
+      <Drawer open={open} title={t("plotsTab.addPlot")} onClose={() => setOpen(false)} wide>
         <ErrorBanner message={error} />
-        <FormField label="Plot name" htmlFor="plot-name" hint="e.g. Strip A, Trial block 3">
+        <FormField label={t("plotsTab.plotName")} htmlFor="plot-name" hint={t("plotsTab.plotNameHint")}>
           <Input id="plot-name" value={name} onChange={(e) => setName(e.target.value)} />
         </FormField>
         <FormField
-          label="Plot boundary"
+          label={t("plotsTab.plotBoundary")}
           htmlFor="plot-boundary"
-          hint="Draw inside the dashed field outline. Plots may not overlap each other."
+          hint={t("plotsTab.plotBoundaryHint")}
         >
           <BoundaryEditor
             value={boundary}
@@ -124,7 +126,7 @@ export function PlotsTab({ field }: { field: Field }) {
           isDisabled={!name || !boundary || createPlot.isPending}
           onClick={() => createPlot.mutate()}
         >
-          {createPlot.isPending ? "Saving…" : "Save plot"}
+          {createPlot.isPending ? t("actions.saving", { ns: "common" }) : t("plotsTab.savePlot")}
         </Button>
       </Drawer>
     </Box>

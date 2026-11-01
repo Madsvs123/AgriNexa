@@ -5,8 +5,10 @@ import { getApiError, irrigationApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormField";
 import { StatusBadge, StatCard } from "@/components/ui/StatCard";
+import { useTranslation } from "react-i18next";
 
 export default function IrrigationZonePage() {
+  const { t } = useTranslation("operate");
   const { id = "" } = useParams();
   const zoneQ = useQuery({ queryKey: ["irrigation-zone", id], queryFn: () => irrigationApi.getZone(id), enabled: !!id });
   const schedQ = useQuery({ queryKey: ["irrigation-schedules", id], queryFn: () => irrigationApi.schedules({ zone: id }) });
@@ -46,10 +48,10 @@ export default function IrrigationZonePage() {
         }
       />
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
-        <StatCard label="Moisture" value={`${zone.moisture ?? "—"}%`} />
-        <StatCard label="Threshold" value={`${zone.threshold}%`} />
-        <StatCard label="Status" value={<StatusBadge status={zone.status} />} />
-        <StatCard label="Last run" value={formatDateTime(zone.last_run_at)} />
+        <StatCard label={t("irrigation.moisture")} value={`${zone.moisture ?? "—"}%`} />
+        <StatCard label={t("irrigation.threshold")} value={`${zone.threshold}%`} />
+        <StatCard label={t("labels.status", { ns: "common" })} value={<StatusBadge status={zone.status} />} />
+        <StatCard label={t("irrigation.lastRun")} value={formatDateTime(zone.last_run_at)} />
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">

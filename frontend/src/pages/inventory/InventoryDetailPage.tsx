@@ -7,8 +7,10 @@ import { formatNumber } from "@/lib/utils";
 import { PageHeader, ErrorBanner, FormField, SkeletonBlock } from "@/components/ui/FormField";
 import { StatCard, StatusBadge } from "@/components/ui/StatCard";
 import { Drawer } from "@/components/ui/Modal";
+import { useTranslation } from "react-i18next";
 
 export default function InventoryDetailPage() {
+  const { t } = useTranslation("operate");
   const { id = "" } = useParams();
   const qc = useQueryClient();
   const itemQ = useQuery({ queryKey: ["inventory-item", id], queryFn: () => inventoryApi.get(id), enabled: !!id });
@@ -65,11 +67,11 @@ export default function InventoryDetailPage() {
         }
       />
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
-        <StatCard label="On hand" value={`${formatNumber(item.quantity, 1)} ${item.unit}`} />
-        <StatCard label="Reorder at" value={formatNumber(item.reorder_level, 1)} />
-        <StatCard label="Unit cost" value={item.unit_cost != null ? `$${item.unit_cost}` : "—"} />
+        <StatCard label={t("inventory.onHand")} value={`${formatNumber(item.quantity, 1)} ${item.unit}`} />
+        <StatCard label={t("inventory.reorderAt")} value={formatNumber(item.reorder_level, 1)} />
+        <StatCard label={t("inventory.unitCost")} value={item.unit_cost != null ? `$${item.unit_cost}` : "—"} />
         <StatCard
-          label="Status"
+          label={t("labels.status", { ns: "common" })}
           value={<StatusBadge status={item.quantity <= item.reorder_level ? "warning" : "healthy"} />}
         />
       </SimpleGrid>
@@ -79,23 +81,23 @@ export default function InventoryDetailPage() {
             Category <Text as="strong">{item.category.replace("_", " ")}</Text>
             {item.farm_name ? ` · Farm ${item.farm_name}` : ""}
           </Text>
-          <Text color="fg.muted">Use movements for issue to planter, receipt from dealer, or bin transfer.</Text>
+          <Text color="fg.muted">{t("inventory.movementsHint")}</Text>
         </CardBody>
       </Card>
-      <Drawer open={open} title="Stock movement" onClose={() => setOpen(false)}>
-        <FormField label="Quantity" htmlFor="qty">
+      <Drawer open={open} title={t("inventory.stockMovement")} onClose={() => setOpen(false)}>
+        <FormField label={t("inventory.quantity")} htmlFor="qty">
           <Input id="qty" type="number" value={move.quantity} onChange={(e) => setMove({ ...move, quantity: e.target.value })} />
         </FormField>
-        <FormField label="Type" htmlFor="mtype">
+        <FormField label={t("inventory.type")} htmlFor="mtype">
           <Select id="mtype" value={move.movement_type} onChange={(e) => setMove({ ...move, movement_type: e.target.value })}>
-            <option value="in">Receipt (in)</option>
-            <option value="out">Issue (out)</option>
-            <option value="adjust">Adjust</option>
-            <option value="harvest">Harvest</option>
+            <option value="in">{t("inventory.receiptIn")}</option>
+            <option value="out">{t("inventory.issueOut")}</option>
+            <option value="adjust">{t("inventory.adjust")}</option>
+            <option value="harvest">{t("inventory.harvest")}</option>
           </Select>
         </FormField>
-        <FormField label="Notes" htmlFor="mnotes">
-          <Input id="mnotes" value={move.notes} onChange={(e) => setMove({ ...move, notes: e.target.value })} placeholder="Issued to planter on North 80" />
+        <FormField label={t("labels.notes", { ns: "common" })} htmlFor="mnotes">
+          <Input id="mnotes" value={move.notes} onChange={(e) => setMove({ ...move, notes: e.target.value })} placeholder={t("inventory.movementPlaceholder")} />
         </FormField>
         <Button colorScheme="brand" isDisabled={mut.isPending} onClick={() => mut.mutate()}>
           Save movement

@@ -9,6 +9,7 @@ import { ListPage } from "@/components/templates/ListPage";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useDebounced } from "@/hooks/useDebounced";
 import { useScope } from "@/hooks/useScope";
+import { useTranslation } from "react-i18next";
 
 const STATUS_OPTIONS: Array<[string, string]> = [
   ["operational", "Operational"],
@@ -31,6 +32,7 @@ const TYPE_OPTIONS: Array<[string, string]> = [
 const DEFAULTS = { q: "", status: "", type: "" };
 
 export default function EquipmentPage() {
+  const { t } = useTranslation("operate");
   const { params: scopeParams } = useScope();
   const { values, setValue, reset, activeCount, apiParams } = useUrlFilters(DEFAULTS);
   const debouncedQ = useDebounced(values.q, 250);
@@ -51,31 +53,31 @@ export default function EquipmentPage() {
 
   return (
     <ListPage
-      title="Equipment"
-      subtitle="Fleet hours, fuel, and readiness."
+      title={t("equipment.title")}
+      subtitle={t("equipment.subtitle")}
       error={listQ.error ? getApiError(listQ.error) : null}
       loading={listQ.isLoading}
       filters={
         <FilterBar
           search={values.q}
           onSearchChange={(v) => setValue("q", v)}
-          searchPlaceholder="Search Planter 12, serial…"
-          searchLabel="Search equipment"
+          searchPlaceholder={t("equipment.searchPlaceholder")}
+          searchLabel={t("equipment.searchLabel")}
           activeCount={activeCount}
           onReset={reset}
         >
           <FilterSelect
             value={values.status}
             onChange={(v) => setValue("status", v)}
-            label="Status"
-            allLabel="All statuses"
+            label={t("labels.status", { ns: "common" })}
+            allLabel={t("equipment.allStatuses")}
             options={STATUS_OPTIONS}
           />
           <FilterSelect
             value={values.type}
             onChange={(v) => setValue("type", v)}
-            label="Equipment type"
-            allLabel="All types"
+            label={t("equipment.equipmentType")}
+            allLabel={t("equipment.allTypes")}
             options={TYPE_OPTIONS}
           />
         </FilterBar>

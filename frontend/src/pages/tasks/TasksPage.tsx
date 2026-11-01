@@ -20,6 +20,7 @@ import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { StatusBadge } from "@/components/ui/StatCard";
 import { Drawer } from "@/components/ui/Modal";
 import type { TaskItem, TaskStatus } from "@/types";
+import { useTranslation } from "react-i18next";
 
 const COLS: { key: TaskStatus; label: string }[] = [
   { key: "todo", label: "To do" },
@@ -29,6 +30,7 @@ const COLS: { key: TaskStatus; label: string }[] = [
 ];
 
 export default function TasksPage() {
+  const { t } = useTranslation("operate");
   const qc = useQueryClient();
   const tasksQ = useQuery({ queryKey: ["tasks"], queryFn: () => platformApi.tasks() });
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
@@ -52,8 +54,8 @@ export default function TasksPage() {
   return (
     <Box>
       <PageHeader
-        title="Tasks"
-        subtitle="Work grouped by status — scouting, maintenance, and agronomy."
+        title={t("tasks.title")}
+        subtitle={t("tasks.subtitle")}
         actions={
           <Button
             colorScheme="brand"
@@ -106,21 +108,21 @@ export default function TasksPage() {
       <Drawer open={!!editing} title={editing?.id ? "Edit task" : "New task"} onClose={() => setEditing(null)}>
         {editing ? (
           <>
-            <FormField label="Title" htmlFor="ttitle">
+            <FormField label={t("tasks.taskTitle")} htmlFor="ttitle">
               <Input
                 id="ttitle"
                 value={editing.title ?? ""}
                 onChange={(e) => setEditing({ ...editing, title: e.target.value })}
               />
             </FormField>
-            <FormField label="Description" htmlFor="tdesc">
+            <FormField label={t("tasks.description")} htmlFor="tdesc">
               <Textarea
                 id="tdesc"
                 value={editing.description ?? ""}
                 onChange={(e) => setEditing({ ...editing, description: e.target.value })}
               />
             </FormField>
-            <FormField label="Status" htmlFor="tstat">
+            <FormField label={t("labels.status", { ns: "common" })} htmlFor="tstat">
               <Select
                 id="tstat"
                 value={editing.status}
@@ -133,7 +135,7 @@ export default function TasksPage() {
                 ))}
               </Select>
             </FormField>
-            <FormField label="Priority" htmlFor="tpri">
+            <FormField label={t("tasks.priority")} htmlFor="tpri">
               <Select
                 id="tpri"
                 value={editing.priority}
@@ -144,7 +146,7 @@ export default function TasksPage() {
                 <option value="high">High</option>
               </Select>
             </FormField>
-            <FormField label="Due date" htmlFor="tdue">
+            <FormField label={t("tasks.dueDate")} htmlFor="tdue">
               <Input
                 id="tdue"
                 type="date"
@@ -152,13 +154,13 @@ export default function TasksPage() {
                 onChange={(e) => setEditing({ ...editing, due_date: e.target.value })}
               />
             </FormField>
-            <FormField label="Farm" htmlFor="tfarm">
+            <FormField label={t("labels.farm", { ns: "common" })} htmlFor="tfarm">
               <Select
                 id="tfarm"
                 value={editing.farm ?? ""}
                 onChange={(e) => setEditing({ ...editing, farm: e.target.value || null })}
               >
-                <option value="">None</option>
+                <option value="">{t("tasks.none")}</option>
                 {(farmsQ.data?.results ?? []).map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
@@ -166,13 +168,13 @@ export default function TasksPage() {
                 ))}
               </Select>
             </FormField>
-            <FormField label="Field" htmlFor="tfield">
+            <FormField label={t("labels.field", { ns: "common" })} htmlFor="tfield">
               <Select
                 id="tfield"
                 value={editing.field ?? ""}
                 onChange={(e) => setEditing({ ...editing, field: e.target.value || null })}
               >
-                <option value="">None</option>
+                <option value="">{t("tasks.none")}</option>
                 {(fieldsQ.data?.results ?? []).map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}

@@ -10,8 +10,12 @@ import { PlotsTab } from "./tabs/PlotsTab";
 import { SoilTab } from "./tabs/SoilTab";
 import { AgronomyTab } from "./tabs/AgronomyTab";
 import { NotesTab } from "./tabs/NotesTab";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 function OverviewTab({ fieldId }: { fieldId: string }) {
+  const { t } = useTranslation("land");
+  const labels = usePlanningLabels();
   const fieldQ = useQuery({ queryKey: ["field", fieldId], queryFn: () => farmsApi.getField(fieldId) });
   const sensorsQ = useQuery({
     queryKey: ["sensors", { field: fieldId }],
@@ -47,17 +51,17 @@ function OverviewTab({ fieldId }: { fieldId: string }) {
       <Card variant="surface">
         <CardBody>
           <Heading size="sm" mb={2}>
-            Planting window
+            {t("fieldDetail.plantingWindow")}
           </Heading>
-          <Text>Planted {formatDate(field.planting_date)}</Text>
-          <Text>Expected harvest {formatDate(field.harvest_date)}</Text>
+          <Text>{t("fieldDetail.planted", { date: formatDate(field.planting_date) })}</Text>
+          <Text>{t("fieldDetail.expectedHarvest", { date: formatDate(field.harvest_date) })}</Text>
           <Text color="fg.muted" mt={2}>
-            Update dates from the crop plan if this field is in a seasonal rotation.
+            {t("fieldDetail.cropPlanHint")}
           </Text>
           <Heading size="sm" mt={5} mb={2}>
-            Soil
+            {t("labels.soil", { ns: "common" })}
           </Heading>
-          <Text color="fg.muted">{field.soil_type || "Soil unknown"}</Text>
+          <Text color="fg.muted">{field.soil_type ? labels.soil(field.soil_type) : t("fieldDetail.soilUnknown")}</Text>
         </CardBody>
       </Card>
     </SimpleGrid>
@@ -73,6 +77,8 @@ function OverviewTab({ fieldId }: { fieldId: string }) {
  * elevation estimate, history, zones, sensors, and notes all at once.
  */
 export default function FieldDetailPage() {
+  const { t } = useTranslation("land");
+  const labels = usePlanningLabels();
   const { id = "" } = useParams();
   const fieldQ = useQuery({
     queryKey: ["field", id],
@@ -84,17 +90,17 @@ export default function FieldDetailPage() {
   return (
     <DetailPage
       loading={fieldQ.isLoading}
-      error={fieldQ.error ? getApiError(fieldQ.error) : !field && !fieldQ.isLoading ? "Field not found." : null}
+      error={fieldQ.error ? getApiError(fieldQ.error) : !field && !fieldQ.isLoading ? t("fieldDetail.notFound") : null}
       title={field?.name ?? "Field"}
-      subtitle={field ? `${field.farm_name ?? "Farm"} · ${field.soil_type || "Soil unknown"}` : undefined}
+      subtitle={field ? `${field.farm_name ?? ""} · ${field.soil_type ? labels.soil(field.soil_type) : t("fieldDetail.soilUnknown")}` : undefined}
       actions={
         field ? (
           <>
             <Button as={RouterLink} to={`/fields/${field.id}/edit`} variant="ghost" colorScheme="gray" size="sm">
-              Edit field
+              {t("fieldDetail.editField")}
             </Button>
             <Button as={RouterLink} to={`/farms/${field.farm}`} variant="outline" colorScheme="gray" size="sm">
-              Open farm
+              {t("fieldDetail.openFarm")}
             </Button>
           </>
         ) : null
@@ -102,25 +108,25 @@ export default function FieldDetailPage() {
       kpis={
         field
           ? [
-              <StatCard key="acres" label="Acres" value={formatAcres(field.acres)} />,
-              <StatCard key="crop" label="Crop" value={field.crop_name ?? "Fallow"} />,
+              <StatCard key="acres" label={t("labels.acres", { ns: "common" })} value={formatAcres(field.acres)} />,
+              <StatCard key="crop" label={t("labels.crop", { ns: "common" })} value={field.crop_name ?? "Fallow"} />,
               <StatCard
                 key="moisture"
-                label="Moisture"
+                label={t("fieldDetail.moisture")}
                 value={field.moisture != null ? `${field.moisture}%` : "—"}
               />,
-              <StatCard key="health" label="Health" value={<StatusBadge status={field.health_status} />} />,
+              <StatCard key="health" label={t("fieldDetail.health")} value={<StatusBadge status={field.health_status} />} />,
             ]
           : undefined
       }
       tabs={
         field
           ? [
-              { id: "overview", label: "Overview", render: () => <OverviewTab fieldId={field.id} /> },
-              { id: "plots", label: "Plots", render: () => <PlotsTab field={field} /> },
-              { id: "soil", label: "Soil & elevation", render: () => <SoilTab field={field} /> },
-              { id: "agronomy", label: "Agronomy", render: () => <AgronomyTab fieldId={field.id} /> },
-              { id: "notes", label: "Notes", render: () => <NotesTab fieldId={field.id} /> },
+              { id: "overview", label: t("fieldDetail.tabs.overview"), render: () => <OverviewTab fieldId={field.id} /> },
+              { id: "plots", label: t("fieldDetail.tabs.plots"), render: () => <PlotsTab field={field} /> },
+              { id: "soil", label: t("fieldDetail.tabs.soil"), render: () => <SoilTab field={field} /> },
+              { id: "agronomy", label: t("fieldDetail.tabs.agronomy"), render: () => <AgronomyTab fieldId={field.id} /> },
+              { id: "notes", label: t("fieldDetail.tabs.notes"), render: () => <NotesTab fieldId={field.id} /> },
             ]
           : []
       }

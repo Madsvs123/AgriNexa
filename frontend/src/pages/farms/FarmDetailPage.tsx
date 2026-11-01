@@ -26,6 +26,8 @@ import { StatusBadge, EmptyState, StatCard } from "@/components/ui/StatCard";
 import { ConfirmDialog } from "@/components/ui/Modal";
 import { MapView } from "@/components/ui/MapView";
 import { DetailPage } from "@/components/templates/DetailPage";
+import { useTranslation } from "react-i18next";
+import { usePlanningLabels } from "@/lib/usePlanningLabels";
 
 function RecordGrid<T extends { id: string }>({
   rows,
@@ -63,6 +65,8 @@ export default function FarmDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useTranslation("land");
+  const labels = usePlanningLabels();
   const [confirm, setConfirm] = useState(false);
   const [note, setNote] = useState("");
 
@@ -96,17 +100,17 @@ export default function FarmDetailPage() {
     <>
       <DetailPage
         loading={farmQ.isLoading}
-        error={farmQ.error ? getApiError(farmQ.error) : !farm && !farmQ.isLoading ? "Farm not found." : null}
+        error={farmQ.error ? getApiError(farmQ.error) : !farm && !farmQ.isLoading ? t("farmDetail.notFound") : null}
         title={farm?.name ?? "Farm"}
         subtitle={farm ? `${farm.code} · ${farm.address || "No address"} · ${farm.timezone}` : undefined}
         actions={
           farm ? (
             <>
               <Button as={RouterLink} to={`/farms/${id}/edit`} variant="ghost" colorScheme="gray" size="sm">
-                Edit
+                {t("actions.edit", { ns: "common" })}
               </Button>
               <Button colorScheme="red" size="sm" onClick={() => setConfirm(true)}>
-                Archive
+                {t("farmDetail.archiveFarm")}
               </Button>
             </>
           ) : null
@@ -114,10 +118,10 @@ export default function FarmDetailPage() {
         kpis={
           farm
             ? [
-                <StatCard key="acres" label="Total acres" value={formatAcres(farm.total_acres)} />,
-                <StatCard key="fields" label="Fields" value={fieldsQ.data?.count ?? "—"} />,
-                <StatCard key="sensors" label="Sensors" value={sensorsQ.data?.count ?? "—"} />,
-                <StatCard key="region" label="Region" value={farm.region?.name ?? "Unassigned"} />,
+                <StatCard key="acres" label={t("farmDetail.totalAcres")} value={formatAcres(farm.total_acres)} />,
+                <StatCard key="fields" label={t("farmDetail.fields")} value={fieldsQ.data?.count ?? "—"} />,
+                <StatCard key="sensors" label={t("farmDetail.sensors")} value={sensorsQ.data?.count ?? "—"} />,
+                <StatCard key="region" label={t("farmDetail.region")} value={farm.region?.name ?? "Unassigned"} />,
               ]
             : undefined
         }
@@ -126,7 +130,7 @@ export default function FarmDetailPage() {
             ? [
                 {
                   id: "overview",
-                  label: "Overview",
+                  label: t("farmDetail.tabs.overview"),
                   render: () => (
                     <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
                       <Box
@@ -146,15 +150,15 @@ export default function FarmDetailPage() {
                       <Card variant="surface">
                         <CardBody>
                           <Heading size="sm" mb={2}>
-                            Location
+                            {t("farmDetail.location")}
                           </Heading>
                           <Text>
                             {farm.lat != null && farm.lng != null
                               ? `${farm.lat.toFixed(4)}, ${farm.lng.toFixed(4)}`
-                              : "Drop a pin when you edit this farm."}
+                              : t("farmDetail.dropPin")}
                           </Text>
                           <Text color="fg.muted" mt={2}>
-                            Timezone {farm.timezone}. Use the map to inspect field boundaries.
+                            {t("farmDetail.timezoneHint", { timezone: farm.timezone })}
                           </Text>
                         </CardBody>
                       </Card>
@@ -163,18 +167,18 @@ export default function FarmDetailPage() {
                 },
                 {
                   id: "fields",
-                  label: `Fields${fieldsQ.data?.count ? ` (${fieldsQ.data.count})` : ""}`,
+                  label: `${t("farmDetail.tabs.fields")}${fieldsQ.data?.count ? ` (${fieldsQ.data.count})` : ""}`,
                   render: () => (
                     <RecordGrid
                       rows={fieldsQ.data?.results ?? []}
                       to={(f) => `/fields/${f.id}`}
-                      title="No fields on this farm"
-                      body="Split North 80 or South Bottom into managed fields."
+                      title={t("farmDetail.noFieldsTitle")}
+                      body={t("farmDetail.noFieldsBody")}
                       render={(f) => (
                         <>
                           <Text fontWeight="semibold">{f.name}</Text>
                           <Text color="fg.muted" fontSize="sm">
-                            {formatAcres(f.acres)} · {f.soil_type || "Soil unknown"}
+                            {formatAcres(f.acres)} · {f.soil_type ? labels.soil(f.soil_type) : t("fieldDetail.soilUnknown")}
                           </Text>
                           <Box mt={2}>
                             <StatusBadge status={f.health_status} />
@@ -186,13 +190,13 @@ export default function FarmDetailPage() {
                 },
                 {
                   id: "equipment",
-                  label: "Equipment",
+                  label: t("farmDetail.tabs.equipment"),
                   render: () => (
                     <RecordGrid
                       rows={equipQ.data?.results ?? []}
                       to={(e) => `/equipment/${e.id}`}
-                      title="No equipment assigned"
-                      body="Assign a tractor or planter to this farm to track hours and fuel."
+                      title={t("farmDetail.noEquipmentTitle")}
+                      body={t("farmDetail.noEquipmentBody")}
                       render={(e) => (
                         <>
                           <Text fontWeight="semibold">{e.name}</Text>
@@ -207,13 +211,13 @@ export default function FarmDetailPage() {
                 },
                 {
                   id: "sensors",
-                  label: "Sensors",
+                  label: t("farmDetail.tabs.sensors"),
                   render: () => (
                     <RecordGrid
                       rows={sensorsQ.data?.results ?? []}
                       to={(s) => `/sensors/${s.id}`}
-                      title="No sensors on this farm"
-                      body="Pair a soil probe to start streaming moisture readings."
+                      title={t("farmDetail.noSensorsTitle")}
+                      body={t("farmDetail.noSensorsBody")}
                       render={(s) => (
                         <>
                           <Text fontWeight="semibold">{s.name}</Text>
@@ -228,16 +232,16 @@ export default function FarmDetailPage() {
                 },
                 {
                   id: "seasons",
-                  label: "Seasons",
+                  label: t("farmDetail.tabs.seasons"),
                   render: () => (
                     <TableContainer bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
                       <Table variant="simple" size="sm">
                         <Thead>
                           <Tr>
-                            <Th>Season</Th>
-                            <Th>Start</Th>
-                            <Th>End</Th>
-                            <Th>Status</Th>
+                            <Th>{t("farmDetail.season")}</Th>
+                            <Th>{t("farmDetail.start")}</Th>
+                            <Th>{t("fieldForm.harvestDate")}</Th>
+                            <Th>{t("labels.status", { ns: "common" })}</Th>
                           </Tr>
                         </Thead>
                         <Tbody>
@@ -248,7 +252,7 @@ export default function FarmDetailPage() {
                               <Td>{formatDate(s.end_date)}</Td>
                               <Td>
                                 {s.is_active ? (
-                                  <StatusBadge status="healthy" label="Active" />
+                                  <StatusBadge status="healthy" label={t("farmDetail.active")} />
                                 ) : (
                                   <StatusBadge status="idle" />
                                 )}
@@ -262,16 +266,16 @@ export default function FarmDetailPage() {
                 },
                 {
                   id: "notes",
-                  label: "Notes",
+                  label: t("farmDetail.tabs.notes"),
                   render: () => (
                     <Card variant="surface">
                       <CardBody>
-                        <FormField label="Field note" htmlFor="note">
+                        <FormField label={t("farmDetail.fieldNote")} htmlFor="note">
                           <Textarea
                             id="note"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
-                            placeholder="Tile outlet running clear on South Bottom…"
+                            placeholder={t("farmDetail.notePlaceholder")}
                           />
                         </FormField>
                         <Button
@@ -279,7 +283,7 @@ export default function FarmDetailPage() {
                           isDisabled={!note || addNote.isPending}
                           onClick={() => addNote.mutate()}
                         >
-                          Save note
+                          {t("actions.save", { ns: "common" })}
                         </Button>
                         <Stack spacing={3} mt={4}>
                           {(notesQ.data?.results ?? []).map((n) => (
@@ -297,16 +301,16 @@ export default function FarmDetailPage() {
                 },
                 {
                   id: "access",
-                  label: "Access",
+                  label: t("farmDetail.tabs.access"),
                   render: () => (
                     <TableContainer bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
                       <Table variant="simple" size="sm">
                         <Thead>
                           <Tr>
-                            <Th>Member</Th>
-                            <Th>View</Th>
-                            <Th>Edit</Th>
-                            <Th>Manage</Th>
+                            <Th>{t("farmDetail.member")}</Th>
+                            <Th>{t("farmDetail.view")}</Th>
+                            <Th>{t("farmDetail.edit")}</Th>
+                            <Th>{t("farmDetail.manage")}</Th>
                           </Tr>
                         </Thead>
                         <Tbody>
@@ -321,7 +325,7 @@ export default function FarmDetailPage() {
                         </Tbody>
                       </Table>
                       <Text color="fg.muted" p="14px">
-                        Update the matrix in Settings → Farm access.
+                        {t("farmDetail.accessHint")}
                       </Text>
                     </TableContainer>
                   ),
@@ -332,9 +336,9 @@ export default function FarmDetailPage() {
       />
       <ConfirmDialog
         open={confirm}
-        title="Archive this farm?"
-        body="Fields, sensors, and history stay in the database but the farm leaves the active list."
-        confirmLabel="Archive farm"
+        title={t("farmDetail.archiveTitle")}
+        body={t("farmDetail.archiveBody")}
+        confirmLabel={t("farmDetail.archiveFarm")}
         danger
         onClose={() => setConfirm(false)}
         onConfirm={() => remove.mutate()}

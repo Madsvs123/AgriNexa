@@ -4,8 +4,10 @@ import { getApiError, platformApi } from "@/api/client";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { EmptyState } from "@/components/ui/StatCard";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationsPage() {
+  const { t } = useTranslation("insights");
   const qc = useQueryClient();
   const listQ = useQuery({ queryKey: ["notifications"], queryFn: () => platformApi.notifications() });
   const read = useMutation({
@@ -20,8 +22,8 @@ export default function NotificationsPage() {
   return (
     <Box>
       <PageHeader
-        title="Notifications"
-        subtitle="Sensor, frost, inventory, and task alerts."
+        title={t("notifications.title")}
+        subtitle={t("notifications.subtitle")}
         actions={
           <Button variant="ghost" colorScheme="gray" onClick={() => readAll.mutate()}>
             Mark all read
@@ -31,7 +33,7 @@ export default function NotificationsPage() {
       <ErrorBanner message={listQ.error ? getApiError(listQ.error) : null} />
       {(listQ.data?.results ?? []).length === 0 ? (
         <Box bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl">
-          <EmptyState title="Inbox is quiet" body="When a probe goes critical or MAP hits reorder, it will land here." />
+          <EmptyState title={t("notifications.quietTitle")} body={t("notifications.quietBody")} />
         </Box>
       ) : (
         <Stack spacing={4}>

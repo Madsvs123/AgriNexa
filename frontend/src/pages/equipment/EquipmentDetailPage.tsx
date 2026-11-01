@@ -7,8 +7,10 @@ import { PageHeader, ErrorBanner, SkeletonBlock } from "@/components/ui/FormFiel
 import { StatusBadge, StatCard } from "@/components/ui/StatCard";
 import { DataTable } from "@/components/ui/DataTable";
 import { MapView } from "@/components/ui/MapView";
+import { useTranslation } from "react-i18next";
 
 export default function EquipmentDetailPage() {
+  const { t } = useTranslation("operate");
   const { id = "" } = useParams();
   const eqQ = useQuery({ queryKey: ["equipment", id], queryFn: () => equipmentApi.get(id), enabled: !!id });
   const maintQ = useQuery({ queryKey: ["maintenance", id], queryFn: () => equipmentApi.maintenance({ equipment: id }) });
@@ -48,10 +50,10 @@ export default function EquipmentDetailPage() {
         }
       />
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
-        <StatCard label="Hours" value={formatNumber(e.hours)} />
-        <StatCard label="Fuel" value={e.fuel_level != null ? `${e.fuel_level}%` : "—"} />
-        <StatCard label="Status" value={<StatusBadge status={e.status} />} />
-        <StatCard label="Type" value={e.type} />
+        <StatCard label={t("equipment.hours")} value={formatNumber(e.hours)} />
+        <StatCard label={t("equipment.fuel")} value={e.fuel_level != null ? `${e.fuel_level}%` : "—"} />
+        <StatCard label={t("labels.status", { ns: "common" })} value={<StatusBadge status={e.status} />} />
+        <StatCard label={t("equipment.type")} value={e.type} />
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
         <Box bg="bg.surface" borderWidth="1px" borderColor="border.default" borderRadius="xl" overflow="hidden" minH="220px">
@@ -68,7 +70,7 @@ export default function EquipmentDetailPage() {
                 <Text color="fg.muted">{b.resolved_at ? `Resolved ${formatDate(b.resolved_at)}` : "Open"}</Text>
               </Box>
             ))}
-            {!bdQ.data?.results.length ? <Text color="fg.muted">No open breakdowns.</Text> : null}
+            {!bdQ.data?.results.length ? <Text color="fg.muted">{t("equipment.noBreakdowns")}</Text> : null}
           </CardBody>
         </Card>
       </SimpleGrid>
@@ -80,12 +82,12 @@ export default function EquipmentDetailPage() {
           <DataTable
             rows={maintQ.data?.results ?? []}
             rowKey={(r) => r.id}
-            emptyTitle="No maintenance due"
-            emptyBody="Oil, filters, and greasing intervals will list here."
+            emptyTitle={t("equipment.noMaintenanceTitle")}
+            emptyBody={t("equipment.noMaintenanceBody")}
             columns={[
-              { key: "title", header: "Work" },
-              { key: "due_date", header: "Due", render: (r) => formatDate(r.due_date) },
-              { key: "cost", header: "Cost", render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
+              { key: "title", header: t("equipment.work") },
+              { key: "due_date", header: t("equipment.due"), render: (r) => formatDate(r.due_date) },
+              { key: "cost", header: t("labels.cost", { ns: "common" }), render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
             ]}
           />
         </Box>
@@ -96,12 +98,12 @@ export default function EquipmentDetailPage() {
           <DataTable
             rows={fuelQ.data?.results ?? []}
             rowKey={(r) => r.id}
-            emptyTitle="No fuel logs"
-            emptyBody="Tender fills will appear here."
+            emptyTitle={t("equipment.noFuelTitle")}
+            emptyBody={t("equipment.noFuelBody")}
             columns={[
-              { key: "recorded_at", header: "When", render: (r) => formatDateTime(r.recorded_at) },
-              { key: "gallons", header: "Gallons" },
-              { key: "cost", header: "Cost", render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
+              { key: "recorded_at", header: t("equipment.when"), render: (r) => formatDateTime(r.recorded_at) },
+              { key: "gallons", header: t("equipment.gallons") },
+              { key: "cost", header: t("labels.cost", { ns: "common" }), render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
             ]}
           />
         </Box>
@@ -113,13 +115,13 @@ export default function EquipmentDetailPage() {
         <DataTable
           rows={svcQ.data?.results ?? []}
           rowKey={(r) => r.id}
-          emptyTitle="No dealer tickets"
-          emptyBody="Shop invoices from the John Deere dealer will list here."
+          emptyTitle={t("equipment.noServiceTitle")}
+          emptyBody={t("equipment.noServiceBody")}
           columns={[
-            { key: "performed_at", header: "Date", render: (r) => formatDate(r.performed_at) },
-            { key: "summary", header: "Summary" },
-            { key: "vendor", header: "Vendor" },
-            { key: "cost", header: "Cost", render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
+            { key: "performed_at", header: t("labels.date", { ns: "common" }), render: (r) => formatDate(r.performed_at) },
+            { key: "summary", header: t("equipment.summary") },
+            { key: "vendor", header: t("equipment.vendor") },
+            { key: "cost", header: t("labels.cost", { ns: "common" }), render: (r) => (r.cost != null ? `$${r.cost}` : "—") },
           ]}
         />
       </Box>

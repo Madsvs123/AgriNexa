@@ -1,0 +1,72 @@
+{
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Contracts, soil tests, and insurance PDFs tied to a farm.",
+    "emptyTitle": "No documents",
+    "emptyBody": "Drop a soil test PDF or cash-rent contract to file it against a farm.",
+    "docTitle": "Title",
+    "category": "Category",
+    "uploaded": "Uploaded",
+    "file": "File",
+    "upload": "Upload document",
+    "contract": "Contract",
+    "soilTest": "Soil test",
+    "insurance": "Insurance",
+    "permit": "Permit",
+    "other": "Other",
+    "orgWide": "Organization-wide"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Generate seasonal packets for agronomy and finance.",
+    "reportType": "Report type",
+    "yieldSummary": "Yield summary",
+    "waterUse": "Water use",
+    "inputCosts": "Input costs",
+    "fieldHealth": "Field health",
+    "scoutingPacket": "Scouting packet",
+    "allFarms": "All farms",
+    "start": "Start",
+    "end": "End",
+    "emptyTitle": "No generated reports",
+    "emptyBody": "Run a yield summary to populate this list.",
+    "type": "Type",
+    "created": "Created",
+    "file": "File"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Yield, water, cost, and field health trends.",
+    "yieldTrend": "Yield trend",
+    "waterTrend": "Water trend",
+    "costTrend": "Cost trend",
+    "fieldHealthMix": "Field health mix",
+    "yieldByCrop": "Yield by crop",
+    "waterByFarm": "Water by farm",
+    "costsByCategory": "Costs by category"
+  },
+  "search": {
+    "title": "Search",
+    "subtitle": "Farms, fields, equipment, inventory, and tasks.",
+    "placeholder": "Search by name, code, or SKU…",
+    "startTyping": "Start typing",
+    "startBody": "Search by farm code, field nickname, SKU, or machine name.",
+    "noResultsBody": "Try a shorter token or a farm code."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Sensor, frost, inventory, and task alerts.",
+    "quietTitle": "Inbox is quiet",
+    "quietBody": "When a probe goes critical or stock hits reorder, it will land here."
+  },
+  "notFound": {
+    "title": "Field not on the map",
+    "subtitle": "That route is fallow — nothing is planted here.",
+    "body": "The page you requested is not part of AgriNexa operations."
+  },
+  "invite": {
+    "title": "Join the crew",
+    "subtitle": "Accept this invitation to access farms, fields, and the operations map.",
+    "passwordHint": "Required when creating a new account."
+  }
+}

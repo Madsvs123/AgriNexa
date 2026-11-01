@@ -16,8 +16,10 @@ import { analyticsApi, getApiError } from "@/api/client";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { ChartCard } from "@/components/ui/StatCard";
 import { ChartFrame } from "@/components/ui/ChartFrame";
+import { useTranslation } from "react-i18next";
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation("insights");
   const overviewQ = useQuery({ queryKey: ["analytics-overview"], queryFn: () => analyticsApi.overview() });
   const yieldsQ = useQuery({ queryKey: ["analytics-yields"], queryFn: () => analyticsApi.yields() });
   const waterQ = useQuery({ queryKey: ["analytics-water"], queryFn: () => analyticsApi.water() });
@@ -26,10 +28,10 @@ export default function AnalyticsPage() {
 
   return (
     <Box>
-      <PageHeader title="Analytics" subtitle="Yield, water, cost, and field health trends." />
+      <PageHeader title={t("analytics.title")} subtitle={t("analytics.subtitle")} />
       <ErrorBanner message={overviewQ.error ? getApiError(overviewQ.error) : null} />
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-        <ChartCard title="Yield trend">
+        <ChartCard title={t("analytics.yieldTrend")}>
           <ChartFrame height="220px">
             <AreaChart data={o?.water_trend ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -40,7 +42,7 @@ export default function AnalyticsPage() {
             </AreaChart>
             </ChartFrame>
         </ChartCard>
-        <ChartCard title="Water trend">
+        <ChartCard title={t("analytics.waterTrend")}>
           <ChartFrame height="220px">
             <LineChart data={o?.yield_trend ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -53,7 +55,7 @@ export default function AnalyticsPage() {
         </ChartCard>
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-        <ChartCard title="Cost trend">
+        <ChartCard title={t("analytics.costTrend")}>
           <ChartFrame height="220px">
             <BarChart data={o?.cost_trend ?? []}>
               <XAxis dataKey="date" hide />
@@ -62,7 +64,7 @@ export default function AnalyticsPage() {
             </BarChart>
             </ChartFrame>
         </ChartCard>
-        <ChartCard title="Field health mix">
+        <ChartCard title={t("analytics.fieldHealthMix")}>
           <ChartFrame height="220px">
             <AreaChart data={o?.health_trend ?? []}>
               <XAxis dataKey="date" hide />
@@ -75,7 +77,7 @@ export default function AnalyticsPage() {
         </ChartCard>
       </SimpleGrid>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-        <ChartCard title="Yield by crop">
+        <ChartCard title={t("analytics.yieldByCrop")}>
           <ChartFrame height="200px">
             <BarChart data={yieldsQ.data?.by_crop ?? []}>
               <XAxis dataKey="crop_name" />
@@ -85,7 +87,7 @@ export default function AnalyticsPage() {
             </BarChart>
             </ChartFrame>
         </ChartCard>
-        <ChartCard title="Water by farm">
+        <ChartCard title={t("analytics.waterByFarm")}>
           <ChartFrame height="200px">
             <BarChart data={waterQ.data?.by_farm ?? []}>
               <XAxis dataKey="farm_name" hide />
@@ -94,7 +96,7 @@ export default function AnalyticsPage() {
             </BarChart>
             </ChartFrame>
         </ChartCard>
-        <ChartCard title="Costs by category">
+        <ChartCard title={t("analytics.costsByCategory")}>
           <ChartFrame height="200px">
             <BarChart data={costsQ.data?.by_category ?? []}>
               <XAxis dataKey="category" hide />

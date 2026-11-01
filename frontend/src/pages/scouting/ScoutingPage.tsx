@@ -6,15 +6,17 @@ import { formatDateTime } from "@/lib/utils";
 import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
 import { DataTable } from "@/components/ui/DataTable";
 import { SeverityMeter } from "@/components/ui/SensorSparkline";
+import { useTranslation } from "react-i18next";
 
 export default function ScoutingPage() {
+  const { t } = useTranslation("operate");
   const navigate = useNavigate();
   const reportsQ = useQuery({ queryKey: ["scout-reports"], queryFn: () => scoutingApi.reports() });
   return (
     <Box>
       <PageHeader
-        title="Scouting"
-        subtitle="Walk notes, pests, and follow-up treatments."
+        title={t("scouting.title")}
+        subtitle={t("scouting.subtitle")}
         actions={
           <>
             <Button as={RouterLink} to="/scouting/treatments" variant="ghost" colorScheme="gray">
@@ -31,23 +33,23 @@ export default function ScoutingPage() {
         rows={reportsQ.data?.results ?? []}
         rowKey={(r) => r.id}
         onRowClick={(r) => navigate(`/scouting/${r.id}`)}
-        emptyTitle="No scout reports"
-        emptyBody="Log a walk on South Bottom after the next rain."
+        emptyTitle={t("scouting.emptyTitle")}
+        emptyBody={t("scouting.emptyBody")}
         columns={[
-          { key: "field_name", header: "Field", render: (r) => r.field_name ?? "—" },
-          { key: "observed_at", header: "Observed", render: (r) => formatDateTime(r.observed_at) },
-          { key: "health_score", header: "Health", render: (r) => r.health_score },
+          { key: "field_name", header: t("labels.field", { ns: "common" }), render: (r) => r.field_name ?? "—" },
+          { key: "observed_at", header: t("scouting.observed"), render: (r) => formatDateTime(r.observed_at) },
+          { key: "health_score", header: t("labels.status", { ns: "common" }), render: (r) => r.health_score },
           {
             key: "severity",
-            header: "Severity",
+            header: t("scouting.severity"),
             render: (r) => (
               <Box w="80px">
                 <SeverityMeter value={r.severity} />
               </Box>
             ),
           },
-          { key: "status", header: "Pests", render: (r) => r.pests?.length ?? 0 },
-          { key: "notes", header: "Notes", render: (r) => r.notes?.slice(0, 48) || "—" },
+          { key: "status", header: t("scouting.pests"), render: (r) => r.pests?.length ?? 0 },
+          { key: "notes", header: t("labels.notes", { ns: "common" }), render: (r) => r.notes?.slice(0, 48) || "—" },
         ]}
       />
     </Box>

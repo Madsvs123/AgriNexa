@@ -7,8 +7,10 @@ import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { DataTable } from "@/components/ui/DataTable";
 import { FileDrop } from "@/components/ui/FileDrop";
 import { Drawer } from "@/components/ui/Modal";
+import { useTranslation } from "react-i18next";
 
 export default function DocumentsPage() {
+  const { t } = useTranslation("insights");
   const qc = useQueryClient();
   const docsQ = useQuery({ queryKey: ["documents"], queryFn: () => platformApi.documents() });
   const farmsQ = useQuery({ queryKey: ["farms"], queryFn: () => farmsApi.list() });
@@ -37,8 +39,8 @@ export default function DocumentsPage() {
   return (
     <Box>
       <PageHeader
-        title="Documents"
-        subtitle="Contracts, soil tests, and insurance PDFs tied to a farm."
+        title={t("documents.title")}
+        subtitle={t("documents.subtitle")}
         actions={
           <Button colorScheme="brand" onClick={() => setOpen(true)}>
             Upload
@@ -49,16 +51,16 @@ export default function DocumentsPage() {
       <DataTable
         rows={docsQ.data?.results ?? []}
         rowKey={(d) => d.id}
-        emptyTitle="No documents"
-        emptyBody="Drop a soil test PDF or cash-rent contract to file it against North Ridge."
+        emptyTitle={t("documents.emptyTitle")}
+        emptyBody={t("documents.emptyBody")}
         columns={[
-          { key: "title", header: "Title" },
-          { key: "category", header: "Category" },
-          { key: "farm_name", header: "Farm", render: (d) => d.farm_name ?? "—" },
-          { key: "uploaded_at", header: "Uploaded", render: (d) => formatDateTime(d.uploaded_at) },
+          { key: "title", header: t("documents.docTitle") },
+          { key: "category", header: t("documents.category") },
+          { key: "farm_name", header: t("labels.farm", { ns: "common" }), render: (d) => d.farm_name ?? "—" },
+          { key: "uploaded_at", header: t("documents.uploaded"), render: (d) => formatDateTime(d.uploaded_at) },
           {
             key: "file",
-            header: "File",
+            header: t("documents.file"),
             render: (d) =>
               d.file ? (
                 <Link href={d.file} target="_blank" rel="noreferrer" color="brand.500">
@@ -70,22 +72,22 @@ export default function DocumentsPage() {
           },
         ]}
       />
-      <Drawer open={open} title="Upload document" onClose={() => setOpen(false)}>
-        <FormField label="Title" htmlFor="dtitle">
+      <Drawer open={open} title={t("documents.upload")} onClose={() => setOpen(false)}>
+        <FormField label={t("documents.docTitle")} htmlFor="dtitle">
           <Input id="dtitle" value={title} onChange={(e) => setTitle(e.target.value)} />
         </FormField>
-        <FormField label="Category" htmlFor="dcat">
+        <FormField label={t("documents.category")} htmlFor="dcat">
           <Select id="dcat" value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="contract">Contract</option>
-            <option value="soil_test">Soil test</option>
-            <option value="insurance">Insurance</option>
-            <option value="permit">Permit</option>
-            <option value="other">Other</option>
+            <option value="contract">{t("documents.contract")}</option>
+            <option value="soil_test">{t("documents.soilTest")}</option>
+            <option value="insurance">{t("documents.insurance")}</option>
+            <option value="permit">{t("documents.permit")}</option>
+            <option value="other">{t("documents.other")}</option>
           </Select>
         </FormField>
-        <FormField label="Farm" htmlFor="dfarm">
+        <FormField label={t("labels.farm", { ns: "common" })} htmlFor="dfarm">
           <Select id="dfarm" value={farm} onChange={(e) => setFarm(e.target.value)}>
-            <option value="">Organization-wide</option>
+            <option value="">{t("documents.orgWide")}</option>
             {(farmsQ.data?.results ?? []).map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}

@@ -13,8 +13,10 @@ import {
 import { farmsApi, irrigationApi, sensorsApi } from "@/api/client";
 import { formatDate } from "@/lib/utils";
 import { EmptyState, StatusBadge } from "@/components/ui/StatCard";
+import { useTranslation } from "react-i18next";
 
 export function AgronomyTab({ fieldId }: { fieldId: string }) {
+  const { t } = useTranslation("land");
   const historyQ = useQuery({
     queryKey: ["field-history", fieldId],
     queryFn: () => farmsApi.fieldHistory(fieldId),
@@ -37,10 +39,10 @@ export function AgronomyTab({ fieldId }: { fieldId: string }) {
       <Card variant="surface" as="section">
         <CardBody>
           <Heading size="sm" mb={3}>
-            Crop history
+            {t("agronomyTab.cropHistory")}
           </Heading>
           {history.length === 0 ? (
-            <EmptyState title="No history yet" body="Prior seasons (corn, soy, wheat) will timeline here." />
+            <EmptyState title={t("agronomyTab.noHistoryTitle")} body={t("agronomyTab.noHistoryBody")} />
           ) : (
             <OrderedList ps="18px">
               {history.map((h) => (
@@ -62,10 +64,10 @@ export function AgronomyTab({ fieldId }: { fieldId: string }) {
       <Card variant="surface" as="section">
         <CardBody>
           <Heading size="sm" mb={3}>
-            Irrigation zones
+            {t("agronomyTab.irrigationZones")}
           </Heading>
           {zones.length === 0 ? (
-            <Text color="fg.muted">No zones on this field.</Text>
+            <Text color="fg.muted">{t("agronomyTab.noZones")}</Text>
           ) : (
             zones.map((z) => (
               <Link
@@ -78,16 +80,16 @@ export function AgronomyTab({ fieldId }: { fieldId: string }) {
                 mb={2}
               >
                 <StatusBadge status={z.status} />
-                {z.name} · threshold {z.threshold}%
+                {z.name} · {t("agronomyTab.threshold", { value: z.threshold })}
               </Link>
             ))
           )}
 
           <Heading size="sm" mt={5} mb={3}>
-            Sensors
+            {t("agronomyTab.sensors")}
           </Heading>
           {sensors.length === 0 ? (
-            <Text color="fg.muted">No probes installed on this field.</Text>
+            <Text color="fg.muted">{t("agronomyTab.noSensors")}</Text>
           ) : (
             sensors.map((s) => (
               <Link

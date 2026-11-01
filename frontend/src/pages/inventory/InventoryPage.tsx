@@ -9,6 +9,7 @@ import { FilterBar } from "@/components/ui/FilterBar";
 import { ListPage } from "@/components/templates/ListPage";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useDebounced } from "@/hooks/useDebounced";
+import { useTranslation } from "react-i18next";
 
 const CATS: Array<{ key: string; label: string }> = [
   { key: "", label: "All" },
@@ -23,6 +24,7 @@ const CATS: Array<{ key: string; label: string }> = [
 const DEFAULTS = { q: "", category: "" };
 
 export default function InventoryPage() {
+  const { t } = useTranslation("operate");
   const navigate = useNavigate();
   const { values, setValue, reset, activeCount, apiParams } = useUrlFilters(DEFAULTS);
   const debouncedQ = useDebounced(values.q, 250);
@@ -45,8 +47,8 @@ export default function InventoryPage() {
 
   return (
     <ListPage
-      title="Inventory"
-      subtitle="Seed, nutrients, chem, diesel, and harvested grain."
+      title={t("inventory.title")}
+      subtitle={t("inventory.subtitle")}
       error={listQ.error ? getApiError(listQ.error) : null}
       loading={listQ.isLoading}
       filters={
@@ -68,8 +70,8 @@ export default function InventoryPage() {
           <FilterBar
             search={values.q}
             onSearchChange={(v) => setValue("q", v)}
-            searchPlaceholder="Search MAP 11-52-0, SKU, lot…"
-            searchLabel="Search inventory"
+            searchPlaceholder={t("inventory.searchPlaceholder")}
+            searchLabel={t("inventory.searchLabel")}
             activeCount={activeCount}
             onReset={reset}
           />
@@ -79,8 +81,10 @@ export default function InventoryPage() {
         (alertsQ.data ?? []).length ? (
           <Alert status="warning" borderRadius="md">
             <AlertIcon />
-            {(alertsQ.data ?? []).length} reorder alert(s) — {alertsQ.data?.[0]?.item_name} is below the
-            reorder point.
+            {t("inventory.reorderAlert", {
+              count: (alertsQ.data ?? []).length,
+              item: alertsQ.data?.[0]?.item_name ?? "",
+            })}
           </Alert>
         ) : null
       }
@@ -89,26 +93,26 @@ export default function InventoryPage() {
         rows={listQ.data?.results ?? []}
         rowKey={(r) => r.id}
         onRowClick={(r) => navigate(`/inventory/${r.id}`)}
-        emptyTitle="No stock in this category"
-        emptyBody="Add MAP 11-52-0, P1197 seed, or diesel to the shed."
+        emptyTitle={t("inventory.emptyTitle")}
+        emptyBody={t("inventory.emptyBody")}
         columns={[
-          { key: "name", header: "Item" },
-          { key: "sku", header: "SKU" },
-          { key: "category", header: "Category" },
+          { key: "name", header: t("inventory.item") },
+          { key: "sku", header: t("inventory.sku") },
+          { key: "category", header: t("labels.category", { ns: "common" }) },
           {
             key: "quantity",
-            header: "On hand",
+            header: t("inventory.onHand"),
             render: (r) => `${formatNumber(r.quantity, 1)} ${r.unit}`,
           },
-          { key: "reorder_level", header: "Reorder" },
-          { key: "location", header: "Location" },
+          { key: "reorder_level", header: t("inventory.reorder") },
+          { key: "location", header: t("inventory.location") },
           {
             key: "stock",
-            header: "Status",
+            header: t("labels.status", { ns: "common" }),
             render: (r) => (
               <StatusBadge
                 status={r.quantity <= r.reorder_level ? "warning" : "healthy"}
-                label={r.quantity <= r.reorder_level ? "Reorder" : "OK"}
+                label={r.quantity <= r.reorder_level ? t("inventory.reorderBadge") : t("inventory.okBadge")}
               />
             ),
           },

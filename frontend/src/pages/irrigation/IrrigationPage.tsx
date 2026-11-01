@@ -22,8 +22,10 @@ import { PageHeader, ErrorBanner, FormField } from "@/components/ui/FormField";
 import { StatusBadge, ChartCard, EmptyState } from "@/components/ui/StatCard";
 import { Modal } from "@/components/ui/Modal";
 import { ChartFrame } from "@/components/ui/ChartFrame";
+import { useTranslation } from "react-i18next";
 
 export default function IrrigationPage() {
+  const { t } = useTranslation("operate");
   const qc = useQueryClient();
   const zonesQ = useQuery({ queryKey: ["irrigation-zones"], queryFn: () => irrigationApi.zones() });
   const schedQ = useQuery({ queryKey: ["irrigation-schedules"], queryFn: () => irrigationApi.schedules() });
@@ -43,7 +45,7 @@ export default function IrrigationPage() {
 
   return (
     <Box>
-      <PageHeader title="Irrigation" subtitle="Zones, schedules, recommendations, and water efficiency." />
+      <PageHeader title={t("irrigation.title")} subtitle={t("irrigation.subtitle")} />
       <ErrorBanner message={zonesQ.error ? getApiError(zonesQ.error) : null} />
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
         {(zonesQ.data?.results ?? []).map((z) => (
@@ -78,7 +80,7 @@ export default function IrrigationPage() {
       </SimpleGrid>
       {!zonesQ.data?.results.length ? (
         <Card variant="outline" borderColor="border.default" bg="bg.surface">
-          <EmptyState title="No irrigation zones" body="Create a pivot or drip zone on South Bottom to schedule sets." />
+          <EmptyState title={t("irrigation.noZonesTitle")} body={t("irrigation.noZonesBody")} />
         </Card>
       ) : null}
 
@@ -99,7 +101,7 @@ export default function IrrigationPage() {
                 <StatusBadge status={s.is_active ? "healthy" : "idle"} label={s.is_active ? "On" : "Off"} />
               </Flex>
             ))}
-            {!schedQ.data?.results.length ? <Text color="fg.muted">No repeating sets. Add a 5 a.m. corn pivot program.</Text> : null}
+            {!schedQ.data?.results.length ? <Text color="fg.muted">{t("irrigation.noSchedules")}</Text> : null}
           </CardBody>
         </Card>
         <Card as="section" variant="outline" borderColor="border.default" bg="bg.surface">
@@ -127,13 +129,13 @@ export default function IrrigationPage() {
                 </Flex>
               </Box>
             ))}
-            {!recQ.data?.length ? <Text color="fg.muted">No moisture-driven recommendations right now.</Text> : null}
+            {!recQ.data?.length ? <Text color="fg.muted">{t("irrigation.noRecommendations")}</Text> : null}
           </CardBody>
         </Card>
       </SimpleGrid>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-        <ChartCard title="Water by day">
+        <ChartCard title={t("irrigation.waterByDay")}>
           <ChartFrame height="220px">
             <LineChart data={analyticsQ.data?.daily ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
@@ -144,7 +146,7 @@ export default function IrrigationPage() {
             </LineChart>
             </ChartFrame>
         </ChartCard>
-        <ChartCard title="Efficiency by zone">
+        <ChartCard title={t("irrigation.efficiencyByZone")}>
           <Text color="fg.muted">
             {formatNumber(analyticsQ.data?.efficiency_pct)}% efficiency · {formatNumber(analyticsQ.data?.gallons_this_week)} gal this week
           </Text>
@@ -160,7 +162,7 @@ export default function IrrigationPage() {
 
       <Modal
         open={!!overrideId}
-        title="Manual irrigation override"
+        title={t("irrigation.overrideTitle")}
         onClose={() => setOverrideId(null)}
         footer={
           <>
@@ -173,10 +175,10 @@ export default function IrrigationPage() {
           </>
         }
       >
-        <FormField label="Duration (minutes)" htmlFor="dur">
+        <FormField label={t("irrigation.durationMinutes")} htmlFor="dur">
           <Input id="dur" type="number" value={minutes} onChange={(e) => setMinutes(e.target.value)} />
         </FormField>
-        <FormField label="Reason" htmlFor="reason">
+        <FormField label={t("irrigation.reason")} htmlFor="reason">
           <Input id="reason" value={reason} onChange={(e) => setReason(e.target.value)} />
         </FormField>
       </Modal>
