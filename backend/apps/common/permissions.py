@@ -36,7 +36,7 @@ def _resolve_farm(obj):
         return None
     if obj.__class__.__name__ == "Farm":
         return obj
-    for attr in ("farm", "field", "sensor", "zone", "equipment", "item", "station", "report"):
+    for attr in ("farm", "field", "sensor", "zone", "equipment", "item", "station", "report", "strategy", "rotation"):
         if hasattr(obj, attr):
             related = getattr(obj, attr)
             if related is None:

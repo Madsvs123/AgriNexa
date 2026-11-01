@@ -105,7 +105,8 @@ check(new Set(ROUTES.map((r) => r.path)).size === ROUTES.length, "route paths ar
 // Drift guard: every manifest route needs a page component, and vice versa.
 const appSource = readFileSync(appPath, "utf8");
 const pagesBlock = appSource.slice(appSource.indexOf("const PAGES"), appSource.indexOf("const ORDERED_ROUTES"));
-const mapped = new Set([...pagesBlock.matchAll(/^\s*"?([a-zA-Z-]+)"?:\s*lazy\(/gm)].map((m) => m[1]));
+// Accept lazy() page imports and inline redirect components alike.
+const mapped = new Set([...pagesBlock.matchAll(/^\s*"?([a-zA-Z-]+)"?:\s*(?:lazy\(|\(\)\s*=>)/gm)].map((m) => m[1]));
 
 for (const route of ROUTES) {
   check(mapped.has(route.id), `route "${route.id}" has no component in App.tsx PAGES`);

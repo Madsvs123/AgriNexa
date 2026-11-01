@@ -7,16 +7,22 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.accounts.models import FarmerProfile, User
+from apps.crops import services as crop_services
 from apps.crops.models import (
     Crop,
     CropPlan,
     CropVariety,
+    FarmingStrategy,
     FertilizerPlan,
     GrowingSeason,
     PesticideApplication,
     PlantingSchedule,
+    PlantingWindow,
+    ResourceConstraint,
     RotationPlan,
+    RotationStep,
     SeasonalBudget,
+    StrategyAllocation,
 )
 from apps.equipment.models import Breakdown, Equipment, FuelLog, MaintenanceSchedule, ServiceHistory
 from apps.farms.models import CropHistory, Farm, Field, FieldNote, Plot, Region
@@ -111,6 +117,7 @@ class Command(BaseCommand):
         fields = self._fields(north, cedar)
         crops, varieties, season = self._crops(org, north)
         plans = self._crop_plans(fields, crops, varieties, season, north)
+        self._planning(org, north, fields, crops, varieties, season, owner)
         zones = self._irrigation(fields, operator)
         sensors = self._sensors(org, fields, zones)
         self._weather(north, cedar, sensors)
@@ -234,15 +241,27 @@ class Command(BaseCommand):
         return fields
 
     def _crops(self, org, farm):
+        # name, category, scientific, days, water, color, family, n_fix, root,
+        # water_in, labor_h, n_lb, yield/ac, unit, price/unit, seed $/ac, inputs $/ac
         crop_specs = [
-            ("Corn", "grain", "Zea mays", 120, "high", "#E6B800"),
-            ("Soybean", "oilseed", "Glycine max", 110, "medium", "#5C8A3C"),
-            ("Wheat", "grain", "Triticum aestivum", 100, "medium", "#C4A35A"),
-            ("Alfalfa", "forage", "Medicago sativa", 60, "medium", "#3D8B5B"),
-            ("Tomato", "vegetable", "Solanum lycopersicum", 85, "high", "#C0392B"),
+            ("Corn", "grain", "Zea mays", 120, "high", "#E6B800", "Poaceae", False, "deep",
+             24, 2.8, 180, 200, "bu", 4.60, 115, 310),
+            ("Soybean", "legume", "Glycine max", 110, "medium", "#5C8A3C", "Fabaceae", True, "medium",
+             18, 2.1, 0, 60, "bu", 11.20, 62, 150),
+            ("Wheat", "grain", "Triticum aestivum", 100, "medium", "#C4A35A", "Poaceae", False, "medium",
+             16, 1.9, 90, 72, "bu", 6.10, 38, 165),
+            ("Alfalfa", "forage", "Medicago sativa", 60, "medium", "#3D8B5B", "Fabaceae", True, "deep",
+             26, 4.5, 0, 5, "ton", 210.00, 55, 120),
+            ("Tomato", "vegetable", "Solanum lycopersicum", 85, "high", "#C0392B", "Solanaceae", False, "medium",
+             28, 42.0, 150, 28, "ton", 95.00, 650, 2400),
+            ("Cereal Rye", "cover", "Secale cereale", 200, "low", "#8C7B5A", "Poaceae", False, "deep",
+             4, 0.6, 0, 0, "ton", 0, 28, 10),
+            ("Field Pea", "legume", "Pisum sativum", 95, "low", "#7FB069", "Fabaceae", True, "shallow",
+             12, 1.8, 0, 38, "bu", 9.50, 48, 95),
         ]
         crops = {}
-        for name, category, sci, days, water, color in crop_specs:
+        for (name, category, sci, days, water, color, family, n_fix, root,
+             water_in, labor_h, n_lb, yld, unit, price, seed_cost, input_cost) in crop_specs:
             crop, _ = Crop.objects.update_or_create(
                 organization=org,
                 name=name,
@@ -252,18 +271,48 @@ class Command(BaseCommand):
                     "typical_days": days,
                     "water_need": water,
                     "color_hex": color,
+                    "family": family,
+                    "nitrogen_fixing": n_fix,
+                    "root_depth": root,
+                    "water_acre_inches": Decimal(str(water_in)),
+                    "labor_hours_per_acre": Decimal(str(labor_h)),
+                    "nitrogen_lb_per_acre": Decimal(str(n_lb)),
+                    "expected_yield_per_acre": Decimal(str(yld)),
+                    "yield_unit": unit,
+                    "expected_price_per_unit": Decimal(str(price)),
+                    "seed_cost_per_acre": Decimal(str(seed_cost)),
+                    "input_cost_per_acre": Decimal(str(input_cost)),
                 },
             )
             crops[name] = crop
+        crops["Corn"].compatible_intercrops.set([crops["Soybean"], crops["Field Pea"]])
+        crops["Wheat"].compatible_intercrops.set([crops["Field Pea"]])
         varieties = {}
+        # crop, name, dtm, seed rate, yield, unit, traits, maturity grp, drought 1-5,
+        # disease resistance, suitable soils, seed $/ac override
         variety_specs = [
-            ("Corn", "DKC 62-08", 118, 32000, 210, "bu", ["drought-tolerant"]),
-            ("Soybean", "AG36X6", 108, 140000, 62, "bu", ["RR2X"]),
-            ("Wheat", "SY Wolf", 98, 120, 72, "bu", ["fusarium-resistant"]),
-            ("Alfalfa", "WL 358LH", 55, 18, 5, "ton", ["high-lignin"]),
-            ("Tomato", "Mountain Merit", 80, 8000, 28, "ton", ["late-blight-resistant"]),
+            ("Corn", "DKC 62-08", 118, 32000, 210, "bu", ["drought-tolerant"], "RM 112", 4,
+             ["gray leaf spot"], ["silty clay loam", "silt loam", "clay loam"], None),
+            ("Corn", "P0953AM", 109, 34000, 198, "bu", ["early"], "RM 109", 3,
+             ["northern leaf blight"], ["silt loam", "loam", "sandy loam"], 108),
+            ("Corn", "DKC 70-27", 125, 32000, 222, "bu", ["full-season"], "RM 120", 2,
+             [], ["silty clay loam", "clay loam"], 124),
+            ("Soybean", "AG36X6", 108, 140000, 62, "bu", ["RR2X"], "MG 3.6", 3,
+             ["SCN", "phytophthora"], ["silty clay loam", "clay loam", "silt loam", "loam"], None),
+            ("Soybean", "P28A42X", 102, 140000, 58, "bu", ["early"], "MG 2.8", 4,
+             ["SCN"], ["loam", "sandy loam", "silt loam"], 60),
+            ("Wheat", "SY Wolf", 98, 120, 72, "bu", ["fusarium-resistant"], "", 3,
+             ["fusarium head blight"], ["silt loam", "loam", "clay loam"], None),
+            ("Alfalfa", "WL 358LH", 55, 18, 5, "ton", ["high-lignin"], "FD 4", 4,
+             ["anthracnose"], ["loam", "silt loam", "silty clay loam"], None),
+            ("Tomato", "Mountain Merit", 80, 8000, 28, "ton", ["late-blight-resistant"], "", 2,
+             ["late blight", "TSWV"], ["sandy loam", "loam"], None),
+            ("Cereal Rye", "Elbon", 200, 90, 0, "ton", ["cover"], "", 5, [], [], None),
+            ("Field Pea", "Hampton", 92, 180, 38, "bu", ["semi-leafless"], "", 4,
+             ["powdery mildew"], ["loam", "sandy loam", "silt loam"], None),
         ]
-        for crop_name, vname, days, seed, yld, unit, traits in variety_specs:
+        for (crop_name, vname, days, seed, yld, unit, traits, mg, drought,
+             diseases, soils, seed_cost) in variety_specs:
             variety, _ = CropVariety.objects.update_or_create(
                 crop=crops[crop_name],
                 name=vname,
@@ -273,9 +322,15 @@ class Command(BaseCommand):
                     "expected_yield_per_acre": Decimal(yld),
                     "yield_unit": unit,
                     "traits": traits,
+                    "maturity_group": mg,
+                    "drought_tolerance": drought,
+                    "disease_resistance": diseases,
+                    "suitable_soils": soils,
+                    "seed_cost_per_acre": Decimal(str(seed_cost)) if seed_cost else None,
+                    "is_active": True,
                 },
             )
-            varieties[crop_name] = variety
+            varieties.setdefault(crop_name, variety)
         season, _ = GrowingSeason.objects.update_or_create(
             organization=org,
             name="2026 Season",
@@ -382,6 +437,138 @@ class Command(BaseCommand):
                 },
             )
         return plans
+
+    def _planning(self, org, farm, fields, crops, varieties, season, owner):
+        """Planting windows, a structured rotation, constraints, and two
+        strategies so the Grow workbench has something to compare."""
+        # Planting windows (Iowa-ish). crop, start, end, late_end, harvest_by
+        for crop_name, start, end, late, harvest_by, soil_c in [
+            ("Corn", (4, 20), (5, 15), (6, 5), (10, 25), 10.0),
+            ("Soybean", (5, 1), (5, 30), (6, 25), (10, 20), 12.0),
+            ("Wheat", (9, 20), (10, 20), (11, 5), (7, 20), 4.0),
+            ("Alfalfa", (4, 1), (5, 10), (8, 25), (11, 1), 7.0),
+            ("Tomato", (5, 15), (6, 10), (6, 25), (9, 30), 15.0),
+            ("Cereal Rye", (9, 1), (10, 15), (11, 1), None, 1.0),
+            ("Field Pea", (4, 1), (5, 1), (5, 20), (8, 15), 4.0),
+        ]:
+            PlantingWindow.objects.update_or_create(
+                organization=org,
+                crop=crops[crop_name],
+                variety=None,
+                farm=None,
+                defaults={
+                    "start_month": start[0],
+                    "start_day": start[1],
+                    "end_month": end[0],
+                    "end_day": end[1],
+                    "late_end_month": late[0],
+                    "late_end_day": late[1],
+                    "harvest_by_month": harvest_by[0] if harvest_by else None,
+                    "harvest_by_day": harvest_by[1] if harvest_by else None,
+                    "min_soil_temp_c": Decimal(str(soil_c)),
+                    "source": "ISU Extension (demo)",
+                },
+            )
+
+        # Structured 3-year rotation with a rye cover after corn.
+        rotation = RotationPlan.objects.get(farm=farm, name="Corn-Soy-Wheat")
+        rotation.start_year = 2025
+        rotation.notes = "Classic Corn Belt rotation; rye cover after corn protects soil over winter."
+        rotation.save(update_fields=["start_year", "notes", "updated_at"])
+        north_fields = [f for f in fields if f.farm_id == farm.id]
+        rotation.fields.set(north_fields)
+        rotation.steps.all().delete()
+        step_specs = [
+            (0, 0, "Soybean", "main", [], "Year 1"),
+            (1, 0, "Corn", "main", [], "Year 2"),
+            (1, 1, "Cereal Rye", "cover", [], "Winter"),
+            (2, 0, "Wheat", "main", ["Field Pea"], "Year 3"),
+        ]
+        for year_offset, order, crop_name, role, companions, label in step_specs:
+            step = RotationStep.objects.create(
+                rotation=rotation,
+                year_offset=year_offset,
+                order=order,
+                crop=crops[crop_name],
+                variety=varieties.get(crop_name),
+                role=role,
+                season_label=label,
+            )
+            if companions:
+                step.companion_crops.set([crops[c] for c in companions])
+
+        # Resource constraints for the farm-season.
+        for resource, limit, unit, hard in [
+            ("water_acre_inches", 4200, "ac-in", True),
+            ("labor_hours", 900, "h", False),
+            ("nitrogen_lb", 30000, "lb", False),
+            ("total_budget", 120000, "USD", True),
+            ("acres", 230, "ac", True),
+        ]:
+            ResourceConstraint.objects.update_or_create(
+                organization=org,
+                farm=farm,
+                season=season,
+                resource=resource,
+                defaults={"limit_value": Decimal(limit), "unit": unit, "is_hard": hard},
+            )
+
+        # Baseline strategy mirrors what is actually planted.
+        baseline, _ = FarmingStrategy.objects.update_or_create(
+            organization=org,
+            farm=farm,
+            season=season,
+            name="Current plan",
+            defaults={
+                "description": "What is in the ground this season.",
+                "status": "adopted",
+                "is_baseline": True,
+                "created_by": owner,
+            },
+        )
+        baseline.allocations.all().delete()
+        for plan in CropPlan.objects.filter(season=season, field__farm=farm).select_related("field", "crop", "variety"):
+            StrategyAllocation.objects.create(
+                strategy=baseline,
+                field=plan.field,
+                crop=plan.crop,
+                variety=plan.variety,
+                planting_date=plan.planting_date,
+                planting_system="monoculture",
+            )
+
+        # Alternative: more soy + a corn/pea intercrop on the ridge, drier year.
+        alt, _ = FarmingStrategy.objects.update_or_create(
+            organization=org,
+            farm=farm,
+            season=season,
+            name="Diversify + intercrop",
+            defaults={
+                "description": "Swap one corn field to soy, intercrop corn with field pea on East Ridge, assume a dry year.",
+                "status": "candidate",
+                "is_baseline": False,
+                "rotation": rotation,
+                "rainfall_scenario": "dry",
+                "created_by": owner,
+            },
+        )
+        alt.allocations.all().delete()
+        by_name = {f.name: f for f in north_fields}
+        StrategyAllocation.objects.create(
+            strategy=alt, field=by_name["North 80"], crop=crops["Soybean"], variety=varieties["Soybean"],
+            planting_date=date(2026, 5, 8), planting_system="monoculture",
+        )
+        StrategyAllocation.objects.create(
+            strategy=alt, field=by_name["West Bottom"], crop=crops["Soybean"], variety=varieties["Soybean"],
+            planting_date=date(2026, 5, 6), planting_system="monoculture",
+        )
+        StrategyAllocation.objects.create(
+            strategy=alt, field=by_name["East Ridge"], crop=crops["Corn"], variety=varieties["Corn"],
+            planting_date=date(2026, 4, 28), planting_system="intercrop",
+            components=[{"crop": str(crops["Field Pea"].id), "variety": None, "share_pct": 30, "role": "intercrop"}],
+        )
+        for s in (baseline, alt):
+            crop_services.evaluate_strategy(s)
 
     def _irrigation(self, fields, operator):
         zones = []

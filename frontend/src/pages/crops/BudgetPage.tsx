@@ -1,64 +1,77 @@
-import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Box, Link, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { cropsApi, getApiError } from "@/api/client";
-import { formatNumber } from "@/lib/utils";
-import { PageHeader, ErrorBanner } from "@/components/ui/FormField";
+import { ListPage } from "@/components/templates/ListPage";
 import { ChartCard } from "@/components/ui/StatCard";
 import { DataTable } from "@/components/ui/DataTable";
+import { useScope } from "@/hooks/useScope";
+import { fmtMoney } from "@/lib/planning";
 
 export default function BudgetPage() {
-  const budgetQ = useQuery({ queryKey: ["budgets"], queryFn: () => cropsApi.budgets() });
+  const { params } = useScope();
+  const budgetQ = useQuery({
+    queryKey: ["budgets", params],
+    queryFn: () =>
+      cropsApi.budgets({
+        ...(params.farm ? { farm: params.farm } : {}),
+        ...(params.season_id ? { season: params.season_id } : {}),
+      }),
+  });
   const rows = budgetQ.data?.results ?? [];
-  const chart = rows.map((r) => ({ category: r.category, planned: r.planned, actual: r.actual }));
+  const byCategory = new Map<string, { category: string; planned: number; actual: number }>();
+  for (const r of rows) {
+    const cur = byCategory.get(r.category) ?? { category: r.category, planned: 0, actual: 0 };
+    cur.planned += Number(r.planned_amount);
+    cur.actual += Number(r.actual_amount);
+    byCategory.set(r.category, cur);
+  }
+  const chart = [...byCategory.values()];
+
   return (
-    <Box>
-      <PageHeader
-        title="Seasonal budget"
-        subtitle="Planned versus actual spend by input category."
-        crumbs={
-          <>
-            <Link as={RouterLink} to="/crops">
-              Crops
-            </Link>
-            <Text as="span" mx={1}>
-              /
-            </Text>
-            <Text as="span">Budget</Text>
-          </>
-        }
+    <ListPage
+      title="Seasonal budget"
+      subtitle="Planned versus actual spend by input category."
+      error={budgetQ.error ? getApiError(budgetQ.error) : null}
+      loading={budgetQ.isLoading}
+      stats={
+        <ChartCard title="Planned vs actual">
+          <Box h="260px">
+            <ResponsiveContainer>
+              <BarChart data={chart}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
+                <XAxis dataKey="category" />
+                <YAxis />
+                <Tooltip formatter={(v: number) => fmtMoney(v)} />
+                <Bar dataKey="actual" fill="#2F6F4E" name="Actual" />
+                <Bar dataKey="planned" fill="#D4A017" name="Planned" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+        </ChartCard>
+      }
+    >
+      <DataTable
+        rows={rows}
+        rowKey={(r) => r.id}
+        emptyTitle="No budget lines"
+        emptyBody="Add seed, fertilizer, chemical, and custom hire lines for this season."
+        columns={[
+          { key: "category", header: "Category", render: (r) => r.category[0].toUpperCase() + r.category.slice(1) },
+          { key: "farm_name", header: "Farm", render: (r) => r.farm_name ?? "—" },
+          { key: "season_name", header: "Season", render: (r) => r.season_name ?? "—" },
+          { key: "planned", header: "Planned", render: (r) => fmtMoney(r.planned_amount) },
+          { key: "actual", header: "Actual", render: (r) => fmtMoney(r.actual_amount) },
+          {
+            key: "variance",
+            header: "Variance",
+            render: (r) => {
+              const v = Number(r.actual_amount) - Number(r.planned_amount);
+              return <Box as="span" color={v > 0 ? "red.500" : "green.600"}>{v > 0 ? "+" : ""}{fmtMoney(v)}</Box>;
+            },
+          },
+        ]}
       />
-      <ErrorBanner message={budgetQ.error ? getApiError(budgetQ.error) : null} />
-      <ChartCard title="Planned vs actual">
-        <Box h="260px">
-          <ResponsiveContainer>
-            <BarChart data={chart}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d7" />
-              <XAxis dataKey="category" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="actual" fill="#2F6F4E" />
-              <Bar dataKey="planned" fill="#D4A017" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Box>
-      </ChartCard>
-      <Box mt={4}>
-        <DataTable
-          rows={rows}
-          rowKey={(r) => r.id}
-          emptyTitle="No budget lines"
-          emptyBody="Add seed, fertilizer, chemical, and custom hire lines for this season."
-          columns={[
-            { key: "category", header: "Category" },
-            { key: "season_name", header: "Season", render: (r) => r.season_name ?? "—" },
-            { key: "planned", header: "Planned", render: (r) => `$${formatNumber(r.planned, 0)}` },
-            { key: "actual", header: "Actual", render: (r) => `$${formatNumber(r.actual, 0)}` },
-            { key: "notes", header: "Notes" },
-          ]}
-        />
-      </Box>
-    </Box>
+    </ListPage>
   );
 }

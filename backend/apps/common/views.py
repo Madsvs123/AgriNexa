@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from apps.common.mixins import OrganizationQuerySetMixin
 from apps.common.permissions import FarmAccessPermission, HasOrganization
 
-_ORG_HOP_ATTRS = ("farm", "field", "sensor", "zone", "equipment", "item", "station", "crop", "crop_plan", "report", "season", "role", "team")
+_ORG_HOP_ATTRS = ("farm", "field", "sensor", "zone", "equipment", "item", "station", "crop", "crop_plan", "report", "season", "role", "team", "strategy", "rotation")
 
 
 def _instance_organization_id(obj, depth=0):

@@ -63,3 +63,46 @@ class PesticideApplicationAdmin(admin.ModelAdmin):
 class SeasonalBudgetAdmin(admin.ModelAdmin):
     list_display = ("farm", "season", "category", "planned_amount", "actual_amount", "currency")
     list_filter = ("category",)
+
+
+from .models import (  # noqa: E402
+    CropPlanComponent,
+    FarmingStrategy,
+    PlantingWindow,
+    ResourceConstraint,
+    RotationStep,
+    StrategyAllocation,
+)
+
+
+@admin.register(PlantingWindow)
+class PlantingWindowAdmin(admin.ModelAdmin):
+    list_display = ("crop", "variety", "farm", "start_month", "start_day", "end_month", "end_day")
+    list_filter = ("crop",)
+
+
+@admin.register(RotationStep)
+class RotationStepAdmin(admin.ModelAdmin):
+    list_display = ("rotation", "year_offset", "order", "crop", "role")
+
+
+@admin.register(CropPlanComponent)
+class CropPlanComponentAdmin(admin.ModelAdmin):
+    list_display = ("crop_plan", "crop", "role", "share_pct")
+
+
+@admin.register(ResourceConstraint)
+class ResourceConstraintAdmin(admin.ModelAdmin):
+    list_display = ("resource", "organization", "farm", "season", "limit_value", "is_hard")
+    list_filter = ("resource", "is_hard")
+
+
+@admin.register(FarmingStrategy)
+class FarmingStrategyAdmin(admin.ModelAdmin):
+    list_display = ("name", "farm", "season", "status", "is_baseline", "evaluated_at")
+    list_filter = ("status", "is_baseline")
+
+
+@admin.register(StrategyAllocation)
+class StrategyAllocationAdmin(admin.ModelAdmin):
+    list_display = ("strategy", "field", "crop", "planting_system", "acres")

@@ -12,6 +12,7 @@ import type {
   BudgetLine,
   Crop,
   CropPlan,
+  CropPlanComponent,
   CropProgress,
   DashboardIrrigation,
   DashboardKPIs,
@@ -42,27 +43,41 @@ import type {
   Organization,
   OrganizationSettings,
   Paginated,
+  PlantingAssessment,
+  PlantingWindow,
   PesticideApplication,
   PlantingSchedule,
   Plot,
   Region,
+  ResolvedWindow,
+  ResourceConstraint,
   ReportItem,
   Role,
   Rotation,
+  RotationPreviewRow,
+  RotationStep,
+  RotationValidation,
+  RotationFieldPhase,
   ScoutReport,
   SearchResults,
   Season,
+  SeasonUsage,
   Sensor,
   SensorHealth,
   SoilLayer,
   SensorReading,
   SensorType,
+  Strategy,
+  StrategyAllocation,
+  StrategyComparison,
+  StrategyEvaluation,
   ServiceHistory,
   TaskItem,
   Team,
   Treatment,
   User,
   Variety,
+  VarietyRecommendation,
   WaterUsage,
   WeatherAlert,
   WeatherCurrent,
@@ -276,7 +291,9 @@ export const farmsApi = {
 };
 
 export const cropsApi = {
+  // ── Catalog ───────────────────────────────────────────────────────────
   crops: (params?: Record<string, unknown>) => getPage<Crop>("/api/crops/", params),
+  getCrop: (id: string) => api.get<Crop>(`/api/crops/${id}/`).then((r) => r.data),
   createCrop: (body: Partial<Crop>) => api.post<Crop>("/api/crops/", body).then((r) => r.data),
   patchCrop: (id: string, body: Partial<Crop>) => api.patch<Crop>(`/api/crops/${id}/`, body).then((r) => r.data),
   deleteCrop: (id: string) => api.delete(`/api/crops/${id}/`),
@@ -285,22 +302,112 @@ export const cropsApi = {
   patchVariety: (id: string, body: Partial<Variety>) =>
     api.patch<Variety>(`/api/varieties/${id}/`, body).then((r) => r.data),
   deleteVariety: (id: string) => api.delete(`/api/varieties/${id}/`),
+  recommendVarieties: (params: { field: string; crop: string; season: string; planting_date?: string }) =>
+    api
+      .get<{ field: string; crop: string; results: VarietyRecommendation[] }>("/api/varieties/recommend/", { params })
+      .then((r) => r.data),
+
+  // ── Seasons & windows ─────────────────────────────────────────────────
   seasons: (params?: Record<string, unknown>) => getPage<Season>("/api/seasons/", params),
   createSeason: (body: Partial<Season>) => api.post<Season>("/api/seasons/", body).then((r) => r.data),
   patchSeason: (id: string, body: Partial<Season>) =>
     api.patch<Season>(`/api/seasons/${id}/`, body).then((r) => r.data),
   deleteSeason: (id: string) => api.delete(`/api/seasons/${id}/`),
+  plantingWindows: (params?: Record<string, unknown>) => getPage<PlantingWindow>("/api/planting-windows/", params),
+  createPlantingWindow: (body: Partial<PlantingWindow>) =>
+    api.post<PlantingWindow>("/api/planting-windows/", body).then((r) => r.data),
+  patchPlantingWindow: (id: string, body: Partial<PlantingWindow>) =>
+    api.patch<PlantingWindow>(`/api/planting-windows/${id}/`, body).then((r) => r.data),
+  deletePlantingWindow: (id: string) => api.delete(`/api/planting-windows/${id}/`),
+  resolveWindow: (params: { crop: string; variety?: string; farm?: string; year?: number }) =>
+    api.get<ResolvedWindow>("/api/planning/window/", { params }).then((r) => r.data),
+  assess: (params: { field: string; crop: string; season: string; variety?: string; planting_date?: string }) =>
+    api.get<PlantingAssessment>("/api/planning/assess/", { params }).then((r) => r.data),
+
+  // ── Crop plans ────────────────────────────────────────────────────────
   plans: (params?: Record<string, unknown>) => getPage<CropPlan>("/api/crop-plans/", params),
   getPlan: (id: string) => api.get<CropPlan>(`/api/crop-plans/${id}/`).then((r) => r.data),
   createPlan: (body: Partial<CropPlan>) => api.post<CropPlan>("/api/crop-plans/", body).then((r) => r.data),
   patchPlan: (id: string, body: Partial<CropPlan>) =>
     api.patch<CropPlan>(`/api/crop-plans/${id}/`, body).then((r) => r.data),
   deletePlan: (id: string) => api.delete(`/api/crop-plans/${id}/`),
+  planAssessment: (id: string) =>
+    api.get<PlantingAssessment>(`/api/crop-plans/${id}/assessment/`).then((r) => r.data),
+  planComponents: (params?: Record<string, unknown>) =>
+    getPage<CropPlanComponent>("/api/crop-plan-components/", params),
+  createPlanComponent: (body: Partial<CropPlanComponent>) =>
+    api.post<CropPlanComponent>("/api/crop-plan-components/", body).then((r) => r.data),
+  deletePlanComponent: (id: string) => api.delete(`/api/crop-plan-components/${id}/`),
+
+  // ── Rotations ─────────────────────────────────────────────────────────
   rotations: (params?: Record<string, unknown>) => getPage<Rotation>("/api/rotations/", params),
+  getRotation: (id: string) => api.get<Rotation>(`/api/rotations/${id}/`).then((r) => r.data),
   createRotation: (body: Partial<Rotation>) => api.post<Rotation>("/api/rotations/", body).then((r) => r.data),
   patchRotation: (id: string, body: Partial<Rotation>) =>
     api.patch<Rotation>(`/api/rotations/${id}/`, body).then((r) => r.data),
   deleteRotation: (id: string) => api.delete(`/api/rotations/${id}/`),
+  validateRotation: (id: string) => api.get<RotationValidation>(`/api/rotations/${id}/validate/`).then((r) => r.data),
+  previewRotation: (id: string, season: string) =>
+    api
+      .get<{ season: string; year: number; fields: RotationPreviewRow[] }>(`/api/rotations/${id}/preview/`, {
+        params: { season },
+      })
+      .then((r) => r.data),
+  rotationToStrategy: (id: string, body: { season: string; name?: string }) =>
+    api.post<Strategy>(`/api/rotations/${id}/create-strategy/`, body).then((r) => r.data),
+  setRotationPhases: (id: string, phases: { field: string; phase_offset: number }[]) =>
+    api.put<RotationFieldPhase[]>(`/api/rotations/${id}/phases/`, phases).then((r) => r.data),
+  rotationSteps: (params?: Record<string, unknown>) => getPage<RotationStep>("/api/rotation-steps/", params),
+  createRotationStep: (body: Partial<RotationStep>) =>
+    api.post<RotationStep>("/api/rotation-steps/", body).then((r) => r.data),
+  patchRotationStep: (id: string, body: Partial<RotationStep>) =>
+    api.patch<RotationStep>(`/api/rotation-steps/${id}/`, body).then((r) => r.data),
+  deleteRotationStep: (id: string) => api.delete(`/api/rotation-steps/${id}/`),
+
+  // ── Constraints ───────────────────────────────────────────────────────
+  constraints: (params?: Record<string, unknown>) =>
+    getPage<ResourceConstraint>("/api/resource-constraints/", params),
+  createConstraint: (body: Partial<ResourceConstraint>) =>
+    api.post<ResourceConstraint>("/api/resource-constraints/", body).then((r) => r.data),
+  patchConstraint: (id: string, body: Partial<ResourceConstraint>) =>
+    api.patch<ResourceConstraint>(`/api/resource-constraints/${id}/`, body).then((r) => r.data),
+  deleteConstraint: (id: string) => api.delete(`/api/resource-constraints/${id}/`),
+  seasonUsage: (params: { season: string; farm?: string }) =>
+    api.get<SeasonUsage>("/api/planning/constraints/", { params }).then((r) => r.data),
+
+  // ── Strategies ────────────────────────────────────────────────────────
+  strategies: (params?: Record<string, unknown>) => getPage<Strategy>("/api/strategies/", params),
+  getStrategy: (id: string) => api.get<Strategy>(`/api/strategies/${id}/`).then((r) => r.data),
+  createStrategy: (body: Partial<Strategy>) => api.post<Strategy>("/api/strategies/", body).then((r) => r.data),
+  patchStrategy: (id: string, body: Partial<Strategy>) =>
+    api.patch<Strategy>(`/api/strategies/${id}/`, body).then((r) => r.data),
+  deleteStrategy: (id: string) => api.delete(`/api/strategies/${id}/`),
+  evaluateStrategy: (id: string) =>
+    api.post<StrategyEvaluation>(`/api/strategies/${id}/evaluate/`).then((r) => r.data),
+  compareStrategies: (ids: string[], refresh = true) =>
+    api
+      .get<StrategyComparison>("/api/strategies/compare/", { params: { ids: ids.join(","), refresh: refresh ? 1 : 0 } })
+      .then((r) => r.data),
+  adoptStrategy: (id: string, force = false) =>
+    api
+      .post<{ strategy: Strategy; created: string[]; updated: string[]; skipped: { field: string; reason: string }[] }>(
+        `/api/strategies/${id}/adopt/`,
+        { force },
+      )
+      .then((r) => r.data),
+  cloneStrategy: (id: string, name?: string) =>
+    api.post<Strategy>(`/api/strategies/${id}/clone/`, { name }).then((r) => r.data),
+  setAllocations: (id: string, allocations: Partial<StrategyAllocation>[]) =>
+    api.put<Strategy>(`/api/strategies/${id}/allocations/`, allocations).then((r) => r.data),
+  allocations: (params?: Record<string, unknown>) =>
+    getPage<StrategyAllocation>("/api/strategy-allocations/", params),
+  createAllocation: (body: Partial<StrategyAllocation>) =>
+    api.post<StrategyAllocation>("/api/strategy-allocations/", body).then((r) => r.data),
+  patchAllocation: (id: string, body: Partial<StrategyAllocation>) =>
+    api.patch<StrategyAllocation>(`/api/strategy-allocations/${id}/`, body).then((r) => r.data),
+  deleteAllocation: (id: string) => api.delete(`/api/strategy-allocations/${id}/`),
+
+  // ── Schedules, inputs, budget ─────────────────────────────────────────
   plantingSchedules: (params?: Record<string, unknown>) =>
     getPage<PlantingSchedule>("/api/planting-schedules/", params),
   createPlanting: (body: Partial<PlantingSchedule>) =>

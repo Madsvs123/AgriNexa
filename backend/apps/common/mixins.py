@@ -21,6 +21,8 @@ class OrganizationQuerySetMixin:
         ("station", "station__farm__organization"),
         ("season", "season__organization"),
         ("role", "role__organization"),
+        ("strategy", "strategy__farm__organization"),
+        ("rotation", "rotation__farm__organization"),
     )
 
     def get_queryset(self):
@@ -69,6 +71,10 @@ class OrganizationQuerySetMixin:
             return qs.filter(crop_plan__field__farm_id__in=farm_ids)
         if "report" in field_names:
             return qs.filter(report__field__farm_id__in=farm_ids)
+        if "strategy" in field_names:
+            return qs.filter(strategy__farm_id__in=farm_ids)
+        if "rotation" in field_names:
+            return qs.filter(rotation__farm_id__in=farm_ids)
         if "station" in field_names:
             return qs.filter(station__farm_id__in=farm_ids)
         if "item" in field_names:

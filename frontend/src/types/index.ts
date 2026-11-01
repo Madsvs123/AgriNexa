@@ -207,99 +207,433 @@ export interface FieldHistory {
   harvested_at: string | null;
 }
 
+export type CropCategory =
+  | "grain" | "oilseed" | "legume" | "vegetable" | "fruit" | "forage" | "fiber" | "cover" | "other";
+export type WaterNeed = "low" | "medium" | "high";
+export type PlantingSystem = "monoculture" | "intercrop" | "relay" | "strip" | "cover";
+
 export interface Crop {
   id: UUID;
   name: string;
-  category: string;
-  typical_days_to_harvest: number;
-  water_needs: string;
-  description?: string;
+  category: CropCategory;
+  scientific_name: string;
+  family: string;
+  typical_days: number;
+  water_need: WaterNeed;
+  color_hex: string;
+  nitrogen_fixing: boolean;
+  root_depth: "shallow" | "medium" | "deep";
+  water_acre_inches: number | null;
+  effective_water_inches: number;
+  labor_hours_per_acre: number;
+  nitrogen_lb_per_acre: number;
+  expected_yield_per_acre: number;
+  yield_unit: string;
+  expected_price_per_unit: number;
+  seed_cost_per_acre: number;
+  input_cost_per_acre: number;
+  compatible_intercrops: UUID[];
+  variety_count?: number;
 }
-
 export interface Variety {
   id: UUID;
-  name: string;
   crop: UUID;
   crop_name?: string;
-  maturity_days: number;
-  traits: string;
+  name: string;
+  days_to_maturity: number;
+  maturity_group: string;
+  seed_rate_per_acre: number;
+  expected_yield_per_acre: number;
+  yield_unit: string;
+  traits: string[];
+  drought_tolerance: number;
+  disease_resistance: string[];
+  suitable_soils: string[];
+  min_soil_temp_c: number | null;
+  gdd_to_maturity: number | null;
+  seed_cost_per_acre: number | null;
+  effective_seed_cost: number;
+  is_active: boolean;
 }
-
 export interface Season {
   id: UUID;
+  farm: UUID | null;
+  farm_name?: string | null;
   name: string;
   start_date: string;
   end_date: string;
+  year?: number;
   is_active: boolean;
 }
-
-export interface CropPlan {
+export interface PlantingWindow {
   id: UUID;
-  name: string;
   crop: UUID;
   crop_name?: string;
   variety: UUID | null;
-  variety_name?: string;
+  variety_name?: string | null;
+  farm: UUID | null;
+  farm_name?: string | null;
+  start_month: number;
+  start_day: number;
+  end_month: number;
+  end_day: number;
+  late_end_month: number | null;
+  late_end_day: number | null;
+  harvest_by_month: number | null;
+  harvest_by_day: number | null;
+  min_soil_temp_c: number | null;
+  source: string;
+  notes: string;
+  resolved?: ResolvedWindow;
+}
+export interface ResolvedWindow {
+  start: string | null;
+  end: string | null;
+  late_end: string | null;
+  harvest_by: string | null;
+  min_soil_temp_c: number | null;
+  source: string;
+  window_id: string | null;
+  defined?: boolean;
+}
+export type PlantingFit = "optimal" | "late" | "early" | "outside" | "unknown";
+export interface RotationCheck {
+  score: number;
+  lineage: { name: string; year: number | null; source: string }[];
+  warnings: string[];
+  notes: string[];
+}
+export interface PlantingAssessment {
+  fit: PlantingFit;
+  window: ResolvedWindow;
+  days_to_maturity: number;
+  projected_harvest: string | null;
+  harvest_ok: boolean | null;
+  soil_match: boolean | null;
+  previous_crop: string | null;
+  conflicts: { plan_id: UUID; crop_name: string; harvest_date: string; message: string }[];
+  rotation: RotationCheck;
+  warnings: string[];
+}
+export interface VarietyRecommendation {
+  variety_id: UUID;
+  name: string;
+  maturity_group: string;
+  days_to_maturity: number;
+  drought_tolerance: number;
+  expected_yield_per_acre: number;
+  yield_unit: string;
+  seed_cost_per_acre: number;
+  projected_margin_per_acre: number;
+  projected_harvest: string | null;
+  score: number;
+  reasons: string[];
+}
+export interface CropPlanComponent {
+  id: UUID;
+  crop_plan: UUID;
+  crop: UUID;
+  crop_name?: string;
+  color_hex?: string;
+  variety: UUID | null;
+  variety_name?: string | null;
+  role: "primary" | "intercrop" | "relay" | "cover";
+  share_pct: number;
+  row_arrangement: string;
+  planting_date: string | null;
+  order: number;
+}
+export interface CropPlan {
+  id: UUID;
   field: UUID;
   field_name?: string;
+  field_acres?: number;
+  farm?: UUID;
   farm_name?: string;
   season: UUID;
   season_name?: string;
-  planted_acres: number;
-  target_yield: number | null;
-  status: string;
+  crop: UUID;
+  crop_name?: string;
+  crop_color?: string;
+  variety: UUID | null;
+  variety_name?: string | null;
+  planting_system: PlantingSystem;
+  acres: number | null;
+  effective_acres: number;
   planting_date: string | null;
-  expected_harvest: string | null;
+  expected_harvest_date: string | null;
+  target_yield: number | null;
+  yield_unit: string;
+  seed_required: number | null;
+  status: string;
+  notes: string;
+  strategy: UUID | null;
+  strategy_name?: string | null;
+  rotation: UUID | null;
+  typical_days?: number;
+  components: CropPlanComponent[];
 }
-
-export interface Rotation {
+export interface RotationStep {
   id: UUID;
-  name: string;
-  field: UUID;
-  field_name?: string;
-  sequence: { crop_name: string; year: number; season: string }[];
+  rotation: UUID;
+  year_offset: number;
+  order: number;
+  crop: UUID | null;
+  crop_name?: string | null;
+  crop_color?: string | null;
+  variety: UUID | null;
+  variety_name?: string | null;
+  role: "main" | "cover" | "intercrop" | "fallow";
+  companion_crops: UUID[];
+  companion_names?: string[];
+  season_label: string;
   notes: string;
 }
-
-export interface PlantingSchedule {
+export interface RotationFieldPhase {
   id: UUID;
-  crop_plan: UUID;
+  rotation: UUID;
+  field: UUID;
   field_name?: string;
-  crop_name?: string;
-  start_date: string;
-  end_date: string;
-  activity: string;
-  status: string;
+  phase_offset: number;
 }
-
+export interface Rotation {
+  id: UUID;
+  farm: UUID;
+  farm_name?: string;
+  name: string;
+  sequence: unknown[];
+  fields: UUID[];
+  field_names?: string[];
+  phases?: RotationFieldPhase[];
+  start_year: number | null;
+  cycle_years: number;
+  is_active: boolean;
+  notes: string;
+  steps: RotationStep[];
+}
+export interface RotationValidation {
+  ok: boolean;
+  cycle_years?: number;
+  diversity?: number;
+  issues: { level: "error" | "warning" | "info"; year_offset?: number; message: string }[];
+}
+export interface RotationPreviewRow {
+  field_id: UUID;
+  field_name: string;
+  acres: number;
+  step_id: UUID | null;
+  year_offset: number | null;
+  role: string | null;
+  crop_id: UUID | null;
+  crop_name: string | null;
+  variety_id: UUID | null;
+  variety_name: string | null;
+  companions: { id: UUID; name: string }[];
+  suggested_planting: string | null;
+}
+export type ResourceKey =
+  | "water_acre_inches" | "labor_hours" | "nitrogen_lb" | "seed_budget"
+  | "input_budget" | "total_budget" | "acres" | "equipment_hours";
+export interface ResourceConstraint {
+  id: UUID;
+  farm: UUID | null;
+  farm_name?: string | null;
+  season: UUID | null;
+  season_name?: string | null;
+  resource: ResourceKey;
+  label?: string;
+  limit_value: number;
+  unit: string;
+  is_hard: boolean;
+  notes: string;
+}
+export interface ConstraintResult {
+  constraint_id: UUID;
+  resource: ResourceKey;
+  label: string;
+  unit: string;
+  limit: number;
+  used: number;
+  remaining: number;
+  utilization_pct: number;
+  is_hard: boolean;
+  status: "ok" | "tight" | "exceeded" | "violated";
+  scope: string;
+}
+export interface StrategyTotals {
+  acres: number;
+  production: number;
+  revenue: number;
+  seed_cost: number;
+  input_cost: number;
+  total_cost: number;
+  margin: number;
+  margin_per_acre: number;
+  labor_hours: number;
+  water_acre_inches: number;
+  nitrogen_demand_lb: number;
+  nitrogen_fixed_lb: number;
+  nitrogen_balance_lb: number;
+  crop_acres: Record<string, number>;
+}
+export interface StrategyFieldResult extends StrategyTotals {
+  allocation_id: UUID;
+  field_id: UUID;
+  field_name: string;
+  crop_name: string;
+  variety_name: string | null;
+  planting_system: PlantingSystem;
+  components: { crop_name: string; share_pct: number; role: string }[];
+  fit?: PlantingFit;
+  rotation_score?: number;
+  warnings?: string[];
+}
+export interface StrategyEvaluation {
+  strategy_id: UUID;
+  name: string;
+  status: string;
+  is_baseline: boolean;
+  assumptions: { price_multiplier: number; yield_multiplier: number; cost_multiplier: number; rainfall_scenario: string };
+  totals: StrategyTotals;
+  crop_count: number;
+  diversity_index: number;
+  rotation_score: number | null;
+  risk_score: number;
+  planting_fit: { optimal: number; late: number; early: number; outside: number };
+  constraints: ConstraintResult[];
+  hard_violations: number;
+  soft_exceeded: number;
+  feasible: boolean;
+  unplanted_fields: { id: UUID; name: string; acres: number }[];
+  unplanted_acres: number;
+  fields: StrategyFieldResult[];
+  warnings: string[];
+}
+export interface StrategyComponent {
+  crop: UUID;
+  variety?: UUID | null;
+  share_pct: number;
+  role?: string;
+  row_arrangement?: string;
+}
+export interface StrategyAllocation {
+  id: UUID;
+  strategy: UUID;
+  field: UUID;
+  field_name?: string;
+  field_acres?: number;
+  field_soil?: string;
+  crop: UUID | null;
+  crop_name?: string | null;
+  crop_color?: string | null;
+  variety: UUID | null;
+  variety_name?: string | null;
+  planting_system: PlantingSystem;
+  acres: number | null;
+  effective_acres: number;
+  planting_date: string | null;
+  components: StrategyComponent[];
+  notes: string;
+}
+export type StrategyStatus = "draft" | "candidate" | "adopted" | "archived";
+export interface StrategySummary {
+  acres?: number;
+  revenue?: number;
+  total_cost?: number;
+  margin?: number;
+  margin_per_acre?: number;
+  risk_score?: number;
+  diversity_index?: number;
+  rotation_score?: number | null;
+  feasible?: boolean;
+  hard_violations?: number;
+  crop_acres?: Record<string, number>;
+}
+export interface Strategy {
+  id: UUID;
+  farm: UUID;
+  farm_name?: string;
+  season: UUID;
+  season_name?: string;
+  name: string;
+  description: string;
+  status: StrategyStatus;
+  is_baseline: boolean;
+  rotation: UUID | null;
+  rotation_name?: string | null;
+  price_multiplier: number;
+  yield_multiplier: number;
+  cost_multiplier: number;
+  rainfall_scenario: "dry" | "normal" | "wet";
+  allocation_count?: number;
+  summary?: StrategySummary;
+  evaluated_at: string | null;
+  adopted_at: string | null;
+  allocations?: StrategyAllocation[];
+  evaluation?: StrategyEvaluation;
+}
+export interface StrategyComparison {
+  strategies: StrategyEvaluation[];
+  baseline_id: UUID | null;
+  metrics: {
+    key: string;
+    label: string;
+    higher_is_better: boolean;
+    values: (number | null)[];
+    deltas: (number | null)[];
+    best_index: number | null;
+  }[];
+  ranking: { index: number; strategy_id: UUID; name: string; score: number }[];
+  crop_mix: { name: string; crop_acres: Record<string, number> }[];
+}
+export interface SeasonUsage {
+  season: string;
+  farm: string | null;
+  metrics: StrategyTotals;
+  constraints: ConstraintResult[];
+  plan_count: number;
+}
 export interface FertilizerPlan {
   id: UUID;
   crop_plan: UUID;
-  product: string;
-  rate: string;
-  scheduled_date: string;
-  status: string;
-  cost: number | null;
+  product_name: string;
+  nutrient_analysis: string;
+  rate_per_acre: number;
+  unit: string;
+  application_date: string | null;
+  method: string;
+  cost: number;
 }
-
 export interface PesticideApplication {
   id: UUID;
   crop_plan: UUID;
-  product: string;
-  target: string;
-  rate: string;
-  applied_at: string | null;
-  status: string;
+  product_name: string;
+  target_pest: string;
+  rate_per_acre: number;
+  unit: string;
+  application_date: string | null;
+  reentry_hours: number;
+  phi_days: number;
+  applicator: string;
 }
-
+export interface PlantingSchedule {
+  id: UUID;
+  crop_plan: UUID;
+  stage: string;
+  scheduled_date: string;
+  completed_date: string | null;
+  notes: string;
+}
 export interface BudgetLine {
   id: UUID;
   season: UUID;
   season_name?: string;
+  farm: UUID;
+  farm_name?: string;
   category: string;
-  planned: number;
-  actual: number;
-  notes: string;
+  planned_amount: number;
+  actual_amount: number;
+  currency: string;
 }
 
 export interface SensorType {
